@@ -15,14 +15,14 @@ export async function GET(request) {
       );
     }
 
-    // Retrieve links for the user ordered by position
-    const { data: links, error } = await supabaseClient
-      .from("links")
+    // Query profiles table for matching user_id
+    const { data: profile, error } = await supabaseClient
+      .from("profiles")
       .select("*")
       .eq("user_id", user.id)
-      .order("position", { ascending: true });
+      .single();
 
-    if (error) {
+    if (error && error.code !== "PGRST116") { // PGRST116 means no rows found
       return NextResponse.json(
         { success: false, message: error.message },
         { status: 400 }
@@ -31,7 +31,7 @@ export async function GET(request) {
 
     return NextResponse.json({
       success: true,
-      data: links || [],
+      data: profile || null,
     });
   } catch (err) {
     return NextResponse.json(

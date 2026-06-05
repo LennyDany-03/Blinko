@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { getSupabaseUserClient } from "../../../lib/supabase";
+import { getSupabaseUserClient } from "../../../../lib/supabase";
 
-export async function GET(request) {
+export async function POST(request) {
   try {
     const supabaseClient = getSupabaseUserClient(request);
     
@@ -15,12 +15,22 @@ export async function GET(request) {
       );
     }
 
-    // Retrieve links for the user ordered by position
-    const { data: links, error } = await supabaseClient
+    const body = await request.json();
+    const { id } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: "Missing required parameter: id." },
+        { status: 400 }
+      );
+    }
+
+    // Execute deletion mapping
+    const { error } = await supabaseClient
       .from("links")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("position", { ascending: true });
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) {
       return NextResponse.json(
@@ -31,7 +41,7 @@ export async function GET(request) {
 
     return NextResponse.json({
       success: true,
-      data: links || [],
+      data: { id },
     });
   } catch (err) {
     return NextResponse.json(
