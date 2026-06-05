@@ -35,81 +35,28 @@ export function AuthProvider({ children }) {
 
     try {
       // 1. Query profiles table
-      const { data: existingProfile, error } = await supabase
+      const { data: existingProfiles, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("user_id", authUser.id)
-        .maybeSingle();
+        .order("created_at", { ascending: true })
+        .limit(1);
 
       if (error) {
         console.error("Error reading profile details in AuthContext:", error.message);
         return null;
       }
 
-      if (existingProfile) {
-        setProfile(existingProfile);
-        return existingProfile;
+      if (existingProfiles && existingProfiles.length > 0) {
+        const firstProfile = existingProfiles[0];
+        setProfile(firstProfile);
+        return firstProfile;
       }
 
-      // 2. If profile is missing, initiate auto-creation
-      const displayName = authUser.user_metadata?.full_name || authUser.user_metadata?.name || "Blinko Creator";
-      const avatarUrl = authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || null;
-      const email = authUser.email || "";
-
-      // Formulate default username prefix from email handle
-      let baseUsername = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "");
-      if (baseUsername.length < 3) baseUsername = "creator";
-      if (baseUsername.length > 12) baseUsername = baseUsername.slice(0, 12);
-
-      let finalUsername = baseUsername;
-      let isUnique = false;
-      let attempts = 0;
-
-      // Loop checks username uniqueness up to 5 times
-      while (!isUnique && attempts < 5) {
-        const { count, error: countError } = await supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("username", finalUsername);
-
-        if (countError) {
-          console.error("Error checking username uniqueness:", countError.message);
-          break;
-        }
-
-        if (count === 0) {
-          isUnique = true;
-        } else {
-          // Append random 2-digit number
-          const randomSuffix = Math.floor(Math.random() * 90) + 10;
-          finalUsername = `${baseUsername}${randomSuffix}`;
-          attempts++;
-        }
-      }
-
-      // 3. Write profile record
-      const newProfile = {
-        user_id: authUser.id,
-        username: finalUsername,
-        display_name: displayName,
-        avatar_url: avatarUrl,
-        is_verified: false,
-      };
-
-      const { data: insertedProfile, error: insertError } = await supabase
-        .from("profiles")
-        .insert(newProfile)
-        .select()
-        .single();
-
-      if (insertError) {
-        console.error("Error writing auto-created profile details:", insertError.message);
-        return null;
-      } else {
-        console.log(`Auto-created profile successfully for username: @${finalUsername}`);
-        setProfile(insertedProfile);
-        return insertedProfile;
-      }
+      // 2. If no profile exists, we do not auto-create one here anymore.
+      // In V2, profiles require a tree_id and are created during onboarding setup wizard.
+      setProfile(null);
+      return null;
     } catch (err) {
       console.error("Failed to run profile existence check:", err);
       return null;

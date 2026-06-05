@@ -9,9 +9,7 @@ import { useAuth } from "../../../context/AuthContext";
 const routeTitles = {
   "/dashboard": "Dashboard Overview",
   "/dashboard/profile": "Profile Settings",
-  "/dashboard/links": "Manage Links",
-  "/dashboard/ai-builder": "AI Page Builder",
-  "/dashboard/appearance": "Design & Themes",
+  "/dashboard/tree": "Blinko Tree Builder",
   "/dashboard/billing": "Billing & Subscription",
 };
 

@@ -8,7 +8,7 @@ import {
   Share2, Copy, CheckCircle2, Loader2, MessageSquare, DollarSign,
   TrendingUp, AlertCircle
 } from "lucide-react";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 
 // Brand icon SVGs defined locally
 const GithubIcon = ({ className = "h-4 w-4" }) => (
@@ -55,10 +55,12 @@ const socialIconMap = {
   twitter: TwitterIcon
 };
 
-export default function PublicProfilePage({ params }) {
+export default function PublicNestedProfilePage({ params }) {
   const resolvedParams = use(params);
   const rawUsername = resolvedParams?.username || "";
   const username = rawUsername.toLowerCase();
+  const rawSlug = resolvedParams?.slug || "";
+  const slug = rawSlug.toLowerCase();
 
   // Loading and error states
   const [loading, setLoading] = useState(true);
@@ -86,17 +88,32 @@ export default function PublicProfilePage({ params }) {
   const [formStatus, setFormStatus] = useState("idle"); // idle, sending, success
 
   useEffect(() => {
-    if (!username) return;
+    if (!username || !slug) return;
 
     const loadCreatorData = async () => {
       try {
         setLoading(true);
 
-        // 1. Fetch tree matching username as slug
+        // 1. Fetch profile matching username to get user_id
+        const { data: userProfile, error: userProfileError } = await supabase
+          .from("profiles")
+          .select("user_id, username")
+          .eq("username", username)
+          .limit(1)
+          .maybeSingle();
+
+        if (userProfileError || !userProfile) {
+          setProfileExists(false);
+          setLoading(false);
+          return;
+        }
+
+        // 2. Fetch tree matching user_id and slug
         const { data: treeRow, error: treeError } = await supabase
           .from("trees")
           .select("*")
-          .eq("slug", username)
+          .eq("user_id", userProfile.user_id)
+          .eq("slug", slug)
           .maybeSingle();
 
         if (treeError || !treeRow) {
@@ -106,7 +123,7 @@ export default function PublicProfilePage({ params }) {
         }
         setActiveTree(treeRow);
 
-        // 2. Fetch profile matching tree_id
+        // 3. Fetch profile matching tree_id
         const { data: profileRow, error: profileError } = await supabase
           .from("profiles")
           .select("*")
@@ -120,7 +137,7 @@ export default function PublicProfilePage({ params }) {
         }
         setCreatorProfile(profileRow);
 
-        // 3. Fetch theme configuration if profileRow has theme_id
+        // 4. Fetch theme configuration if profileRow has theme_id
         if (profileRow.theme_id) {
           const { data: themeRow } = await supabase
             .from("themes")
@@ -190,7 +207,7 @@ export default function PublicProfilePage({ params }) {
     };
 
     loadCreatorData();
-  }, [username]);
+  }, [username, slug]);
 
   // Handle link click analytics increment
   const handleLinkClick = async (link) => {
@@ -224,7 +241,7 @@ export default function PublicProfilePage({ params }) {
   };
 
   const handleCopyLink = () => {
-    const url = typeof window !== "undefined" ? window.location.href : `https://blinko.site/${username}`;
+    const url = typeof window !== "undefined" ? window.location.href : `https://blinko.site/${username}/${slug}`;
     navigator.clipboard.writeText(url);
     setCopyToast(true);
     setTimeout(() => setCopyToast(false), 2500);
@@ -283,8 +300,8 @@ export default function PublicProfilePage({ params }) {
           <AlertCircle className="h-8 w-8" />
         </div>
         <h1 className="text-xl font-bold tracking-tight text-white mt-6 sm:text-2xl">Profile Not Found</h1>
-        <p className="text-xs text-zinc-455 mt-2 text-center max-w-sm leading-relaxed">
-          The Blinko Tree handle <span className="font-mono text-violet-400">@{username}</span> is not registered. Double check the address or sign up to claim it!
+        <p className="text-xs text-zinc-450 mt-2 text-center max-w-sm leading-relaxed">
+          The Blinko Tree page <span className="font-mono text-violet-400">blinko.site/{username}/{slug}</span> is not registered. Double check the address or sign up to claim it!
         </p>
         <Link href="/signup" className="mt-8 inline-flex items-center gap-1.5 rounded-lg bg-violet-650 px-4 py-2 text-xs font-bold text-white hover:bg-violet-600 transition">
           Claim Handle
@@ -325,10 +342,10 @@ export default function PublicProfilePage({ params }) {
               <img
                 src={creatorProfile.avatar_url}
                 alt={creatorProfile.display_name}
-                className="h-24 w-24 rounded-full object-cover shadow-lg relative border border-zinc-855"
+                className="h-24 w-24 rounded-full object-cover shadow-lg relative border border-zinc-850"
               />
             ) : (
-              <div className="h-24 w-24 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 font-extrabold text-white text-3xl flex items-center justify-center relative shadow-lg shadow-violet-955/20">
+              <div className="h-24 w-24 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 font-extrabold text-white text-3xl flex items-center justify-center relative shadow-lg shadow-violet-950/20">
                 {creatorProfile.display_name.charAt(0).toUpperCase()}
               </div>
             )}
@@ -343,7 +360,7 @@ export default function PublicProfilePage({ params }) {
               <Check className="h-3 w-3 stroke-[3]" />
             </span>
           </div>
-          <p className="text-sm font-semibold font-mono mt-1" style={{ color: accentColor }}>@{username}</p>
+          <p className="text-sm font-semibold font-mono mt-1" style={{ color: accentColor }}>@{creatorProfile.username}/{slug}</p>
 
           {/* Bio */}
           {creatorProfile.bio && (
@@ -355,30 +372,30 @@ export default function PublicProfilePage({ params }) {
           {/* Location */}
           {creatorProfile.location && (
             <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-zinc-500">
-              <MapPin className="h-3.5 w-3.5 text-zinc-655" />
+              <MapPin className="h-3.5 w-3.5 text-zinc-650" />
               {creatorProfile.location}
             </div>
           )}
 
           {/* Views & Clicks Stats */}
-          <div className="mt-8 grid grid-cols-3 gap-3 w-full sm:max-w-md bg-zinc-955/60 border border-zinc-900 rounded-xl p-3">
+          <div className="mt-8 grid grid-cols-3 gap-3 w-full sm:max-w-md bg-zinc-950/60 border border-zinc-900 rounded-xl p-3">
             <div className="text-center">
               <span className="flex items-center justify-center gap-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                <Eye className="h-3 w-3 text-zinc-655" />
+                <Eye className="h-3 w-3 text-zinc-650" />
                 Views
               </span>
               <p className="text-base font-semibold text-zinc-200 mt-1">{viewsCount.toLocaleString()}</p>
             </div>
             <div className="text-center border-x border-zinc-900">
               <span className="flex items-center justify-center gap-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                <MousePointerClick className="h-3 w-3 text-zinc-655" />
+                <MousePointerClick className="h-3 w-3 text-zinc-650" />
                 Clicks
               </span>
               <p className="text-base font-semibold text-zinc-200 mt-1">{clicksCount.toLocaleString()}</p>
             </div>
             <div className="text-center">
               <span className="flex items-center justify-center gap-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                <Link2 className="h-3 w-3 text-zinc-655" />
+                <Link2 className="h-3 w-3 text-zinc-650" />
                 Links
               </span>
               <p className="text-base font-semibold text-zinc-200 mt-1">{links.length}</p>
@@ -419,12 +436,12 @@ export default function PublicProfilePage({ params }) {
                   target={target}
                   rel="noopener noreferrer"
                   onClick={() => handleLinkClick(link)}
-                  className={`group flex items-center gap-4 p-4 hover:shadow-lg hover:shadow-violet-955/5 hover:-translate-y-0.5 transition duration-300 relative overflow-hidden border ${buttonStyle} ${cardBgClass}`}
+                  className={`group flex items-center gap-4 p-4 hover:shadow-lg hover:shadow-violet-950/5 hover:-translate-y-0.5 transition duration-300 relative overflow-hidden border ${buttonStyle} ${cardBgClass}`}
                 >
                   {/* Left accent color strip */}
                   <div className="absolute left-0 top-0 bottom-0 w-[3px] opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ backgroundColor: accentColor }} />
                   
-                  <div className="rounded-lg bg-zinc-900 border border-zinc-855 p-2 text-violet-400 group-hover:bg-violet-600/10 transition-colors">
+                  <div className="rounded-lg bg-zinc-900 border border-zinc-850 p-2 text-violet-400 group-hover:bg-violet-600/10 transition-colors">
                     <Link2 className="h-5 w-5" style={{ color: accentColor }} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -433,13 +450,13 @@ export default function PublicProfilePage({ params }) {
                     </h3>
                     <p className="text-xs text-zinc-550 mt-0.5 leading-relaxed truncate pr-4">{link.url}</p>
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-zinc-655 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition duration-300 shrink-0" />
+                  <ArrowUpRight className="h-4 w-4 text-zinc-650 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition duration-300 shrink-0" />
                 </a>
               );
             })}
           </section>
         ) : (
-          <div className="rounded-xl border border-zinc-900 bg-zinc-950/45 p-8 text-center text-zinc-555 text-xs italic">
+          <div className="rounded-xl border border-zinc-900 bg-zinc-950/45 p-8 text-center text-zinc-550 text-xs italic">
             This Blinko Tree has no active links published yet.
           </div>
         )}
@@ -447,12 +464,12 @@ export default function PublicProfilePage({ params }) {
         {/* Portfolio Showcase Grid */}
         {projects.length > 0 && (
           <section className="space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-550">Featured Projects</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500">Featured Projects</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {projects.map((proj) => (
                 <div
                   key={proj.id}
-                  className="group flex flex-col justify-between rounded-xl border border-zinc-900 bg-zinc-955 p-4 hover:border-violet-500/25 hover:shadow-lg transition duration-300"
+                  className="group flex flex-col justify-between rounded-xl border border-zinc-900 bg-zinc-950 p-4 hover:border-violet-500/25 hover:shadow-lg transition duration-300"
                 >
                   <div>
                     {/* Project preview header */}
@@ -486,14 +503,14 @@ export default function PublicProfilePage({ params }) {
         {/* Digital Products Store */}
         {products.length > 0 && (
           <section className="space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-550">Digital Store</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500">Digital Store</h2>
             <div className="grid gap-4 sm:grid-cols-3">
               {products.map((prod) => {
                 const isBuying = buyingId === prod.id;
                 return (
                   <div
                     key={prod.id}
-                    className="flex flex-col justify-between rounded-xl border border-zinc-900 bg-zinc-955 p-4 hover:border-violet-500/20 transition duration-300"
+                    className="flex flex-col justify-between rounded-xl border border-zinc-900 bg-zinc-950 p-4 hover:border-violet-500/20 transition duration-300"
                   >
                     <div>
                       <div className="flex justify-between items-start mb-2">
@@ -509,7 +526,7 @@ export default function PublicProfilePage({ params }) {
                       <button
                         onClick={() => handleBuy(prod.id, prod.title)}
                         disabled={buyingId !== null}
-                        className="w-full rounded-lg border border-zinc-855 bg-zinc-900 py-1.5 text-[10px] font-bold text-zinc-350 hover:border-violet-500/50 hover:bg-violet-955/10 hover:text-violet-300 transition duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                        className="w-full rounded-lg border border-zinc-850 bg-zinc-900 py-1.5 text-[10px] font-bold text-zinc-350 hover:border-violet-500/50 hover:bg-violet-950/10 hover:text-violet-300 transition duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
                       >
                         {isBuying ? (
                           <>
@@ -532,7 +549,7 @@ export default function PublicProfilePage({ params }) {
         )}
 
         {/* Contact Form Section */}
-        <section className="rounded-xl border border-zinc-900 bg-zinc-955 p-6 space-y-4">
+        <section className="rounded-xl border border-zinc-900 bg-zinc-950 p-6 space-y-4">
           <div>
             <h3 className="text-sm font-semibold text-white flex items-center gap-2">
               <MessageSquare className="h-4 w-4 text-violet-400" />
@@ -598,7 +615,7 @@ export default function PublicProfilePage({ params }) {
         </section>
 
         {/* CTA Banner Section */}
-        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 p-6 text-center text-white shadow-xl shadow-violet-955/20">
+        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 p-6 text-center text-white shadow-xl shadow-violet-950/20">
           <div className="absolute right-0 top-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10 blur-2xl pointer-events-none" />
           <h3 className="text-lg font-bold tracking-tight">Create your own Blinko page</h3>
           <p className="mt-1 text-xs text-violet-100 max-w-sm mx-auto">
@@ -607,7 +624,7 @@ export default function PublicProfilePage({ params }) {
           <div className="mt-4">
             <Link
               href="/signup"
-              className="inline-flex items-center gap-1 rounded-lg bg-white px-4 py-2.5 text-xs font-bold text-violet-750 hover:bg-violet-50 transition"
+              className="inline-flex items-center gap-1 rounded-lg bg-white px-4 py-2.5 text-xs font-bold text-violet-700 hover:bg-violet-550 transition"
             >
               Get Started Free
               <ChevronRight className="h-3.5 w-3.5" />
@@ -621,7 +638,7 @@ export default function PublicProfilePage({ params }) {
             <span className="text-[10px] text-zinc-550">powered by</span>
             <Link
               href="/"
-              className="text-[10px] font-bold text-white tracking-wider bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-855 hover:opacity-100 hover:border-violet-500/20 transition"
+              className="text-[10px] font-bold text-white tracking-wider bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-850 hover:opacity-100 hover:border-violet-500/20 transition"
             >
               BLINKO
             </Link>
@@ -631,7 +648,7 @@ export default function PublicProfilePage({ params }) {
       </main>
 
       {/* Floating Share Control Bar */}
-      <div className="fixed bottom-6 z-40 flex items-center gap-2 rounded-full border border-zinc-855 bg-zinc-950/90 p-1.5 shadow-2xl shadow-black backdrop-blur-md animate-in slide-in-from-bottom-12 duration-500">
+      <div className="fixed bottom-6 z-40 flex items-center gap-2 rounded-full border border-zinc-850 bg-zinc-950/90 p-1.5 shadow-2xl shadow-black backdrop-blur-md animate-in slide-in-from-bottom-12 duration-500">
         <button
           onClick={handleCopyLink}
           className="flex h-9 items-center gap-1.5 rounded-full bg-violet-650/15 border border-violet-500/20 px-3.5 text-xs font-semibold text-violet-300 hover:bg-violet-650 hover:text-white transition cursor-pointer"
@@ -642,7 +659,7 @@ export default function PublicProfilePage({ params }) {
         </button>
         <button
           onClick={handleCopyLink}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900 border border-zinc-805 text-zinc-400 hover:text-white hover:border-zinc-700 transition cursor-pointer"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition cursor-pointer"
           aria-label="Share profile"
         >
           <Share2 className="h-3.5 w-3.5" />

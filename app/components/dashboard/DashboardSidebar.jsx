@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -10,22 +11,27 @@ import {
   Palette,
   CreditCard,
   X,
+  BarChart3,
+  GitBranch,
 } from "lucide-react";
 import BlinkoLogo from "../BlinkoLogo";
 import { useAuth } from "../../../context/AuthContext";
-
-const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Profile", href: "/dashboard/profile", icon: User },
-  { name: "Links", href: "/dashboard/links", icon: Link2 },
-  { name: "AI Builder", href: "/dashboard/ai-builder", icon: Sparkles, badge: "USP" },
-  { name: "Appearance", href: "/dashboard/appearance", icon: Palette },
-  { name: "Billing", href: "/dashboard/billing", icon: CreditCard },
-];
+import { supabase } from "../../../lib/supabase";
 
 export default function DashboardSidebar({ className = "", isMobile = false, onClose }) {
   const pathname = usePathname();
   const { user, profile } = useAuth();
+
+  const navItems = [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+    { name: "Billing", href: "/dashboard/billing", icon: CreditCard },
+    { 
+      name: "Blinko Trees", 
+      href: "/dashboard/blinko-trees", 
+      icon: GitBranch 
+    },
+  ];
 
   return (
     <aside

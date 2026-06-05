@@ -43,8 +43,10 @@ export default function SignupPage() {
   // Debounce username queries
   useEffect(() => {
     if (!username) {
-      setUsernameAvailable(null);
-      setUsernameStatusMsg("");
+      Promise.resolve().then(() => {
+        setUsernameAvailable(null);
+        setUsernameStatusMsg("");
+      });
       return;
     }
 
@@ -60,14 +62,31 @@ export default function SignupPage() {
       }
 
       try {
-        const { count, error } = await supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("username", valCheck.cleanValue);
+        const { data, error } = await supabase
+          .from("trees")
+          .select("id")
+          .eq("slug", valCheck.cleanValue)
+          .maybeSingle();
 
-        if (error) throw error;
+        if (error) {
+          // Fallback check on profiles table if slug column does not exist yet
+          const { data: profData } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("username", valCheck.cleanValue)
+            .maybeSingle();
 
-        if (count === 0) {
+          if (profData) {
+            setUsernameAvailable(false);
+            setUsernameStatusMsg(`@${valCheck.cleanValue} is already taken.`);
+          } else {
+            setUsernameAvailable(true);
+            setUsernameStatusMsg(`@${valCheck.cleanValue} is available!`);
+          }
+          return;
+        }
+
+        if (!data) {
           setUsernameAvailable(true);
           setUsernameStatusMsg(`@${valCheck.cleanValue} is available!`);
         } else {
@@ -75,7 +94,26 @@ export default function SignupPage() {
           setUsernameStatusMsg(`@${valCheck.cleanValue} is already taken.`);
         }
       } catch (err) {
-        console.error("Username Check Error:", err);
+        console.error("Username Check Error:", err.message || err);
+        // Fallback check on profiles table on catch
+        try {
+          const { data: profData } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("username", valCheck.cleanValue)
+            .maybeSingle();
+
+          if (profData) {
+            setUsernameAvailable(false);
+            setUsernameStatusMsg(`@${valCheck.cleanValue} is already taken.`);
+          } else {
+            setUsernameAvailable(false);
+            setUsernameStatusMsg("Error checking handle availability.");
+          }
+        } catch {
+          setUsernameAvailable(false);
+          setUsernameStatusMsg("Error checking handle availability.");
+        }
       } finally {
         setUsernameChecking(false);
       }

@@ -154,7 +154,7 @@ function VerifyEmailContent() {
             ) : (
               <>
                 <RefreshCw className="h-3.5 w-3.5 text-zinc-400" />
-                Didn't receive email? Resend
+                Didn&apos;t receive email? Resend
               </>
             )}
           </button>

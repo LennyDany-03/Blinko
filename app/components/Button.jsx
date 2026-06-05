@@ -23,6 +23,7 @@ export default function Button({
   className = "",
   icon: Icon,
   type = "button",
+  ...props
 }) {
   const classes = [
     "inline-flex items-center justify-center gap-2 rounded-md border font-medium transition duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-violet-500/60 focus:ring-offset-2 focus:ring-offset-[#0A0A0A] disabled:pointer-events-none disabled:opacity-50",
@@ -40,14 +41,14 @@ export default function Button({
 
   if (href) {
     return (
-      <Link href={href} className={classes}>
+      <Link href={href} className={classes} {...props}>
         {content}
       </Link>
     );
   }
 
   return (
-    <button type={type} className={classes}>
+    <button type={type} className={classes} {...props}>
       {content}
     </button>
   );
