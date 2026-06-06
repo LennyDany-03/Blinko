@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Sparkles,
   ArrowRight,
@@ -40,6 +40,25 @@ export default function AiBuilderPage() {
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const queryPrompt = params.get("prompt");
+      if (queryPrompt) {
+        setPrompt(queryPrompt);
+        localStorage.removeItem("blinko_pending_prompt");
+        const newUrl = window.location.pathname;
+        window.history.replaceState({ path: newUrl }, "", newUrl);
+      } else {
+        const storedPrompt = localStorage.getItem("blinko_pending_prompt");
+        if (storedPrompt) {
+          setPrompt(storedPrompt);
+          localStorage.removeItem("blinko_pending_prompt");
+        }
+      }
+    }
+  }, []);
 
   const handleSelectSample = (sample) => {
     setPrompt(sample.text);

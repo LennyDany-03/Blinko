@@ -154,11 +154,10 @@ export default function BlinkoTreesDashboard() {
         description="Manage all your public bio pages from one place."
       >
         <Button 
-          variant="primary" 
+          variant="luminous" 
           size="sm" 
           icon={Plus} 
           onClick={handleCreateNewTree}
-          className="bg-gradient-to-r from-violet-600 to-fuchsia-600 font-bold"
         >
           Create New Tree
         </Button>
@@ -166,12 +165,12 @@ export default function BlinkoTreesDashboard() {
 
       {trees.length === 0 ? (
         <DashboardCard className="py-12 text-center max-w-2xl mx-auto space-y-4">
-          <Globe className="h-12 w-12 text-zinc-650 mx-auto" />
-          <h3 className="text-lg font-bold text-white">No Blinko Trees found</h3>
-          <p className="text-xs text-zinc-500 max-w-sm mx-auto leading-relaxed">
+          <Globe className="h-12 w-12 text-on-surface-variant/60 mx-auto" />
+          <h3 className="text-lg font-bold text-on-surface">No Blinko Trees found</h3>
+          <p className="text-xs text-on-surface-variant max-w-sm mx-auto leading-relaxed">
             Create your first public page to display visual links, portfolio projects, digital products, and start tracking views.
           </p>
-          <Button variant="primary" size="sm" icon={Plus} onClick={handleCreateNewTree}>
+          <Button variant="luminous" size="sm" icon={Plus} onClick={handleCreateNewTree}>
             Create your first tree
           </Button>
         </DashboardCard>
@@ -189,61 +188,61 @@ export default function BlinkoTreesDashboard() {
             return (
               <DashboardCard 
                 key={tree.id}
-                className="flex flex-col justify-between border-zinc-900 bg-zinc-950/45 hover:border-violet-500/20 hover:shadow-lg hover:shadow-violet-950/5 transition-all duration-300 group relative"
+                className="flex flex-col justify-between border-white/60 bg-white/40 shadow-sm backdrop-blur-md hover:border-primary/20 hover:shadow-md hover:shadow-primary/5 transition-all duration-300 group relative"
               >
                 {/* Active Indicator Badge */}
                 {tree.is_active && (
-                  <span className="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Active
                   </span>
                 )}
 
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-extrabold text-white group-hover:text-violet-300 transition-colors">
+                    <h3 className="text-sm font-extrabold text-on-surface group-hover:text-primary transition-colors">
                       {tree.name}
                     </h3>
                     <a 
                       href={publicUrl} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="text-[11px] font-semibold text-zinc-400 hover:text-violet-400 transition-colors inline-flex items-center gap-1.5 mt-1"
+                      className="text-[11px] font-semibold text-on-surface-variant hover:text-primary transition-colors inline-flex items-center gap-1.5 mt-1"
                     >
-                      <Globe className="h-3 w-3 text-zinc-550 shrink-0" />
+                      <Globe className="h-3 w-3 text-on-surface-variant/70 shrink-0" />
                       blinko.site{publicUrl}
                     </a>
                   </div>
 
                   {/* Analytics snapshot grid */}
-                  <div className="grid grid-cols-2 gap-2 bg-black/25 rounded-lg p-2.5 border border-zinc-900">
+                  <div className="grid grid-cols-2 gap-2 bg-white/50 border border-black/5 rounded-lg p-2.5 shadow-inner">
                     <div>
-                      <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-zinc-550">
-                        <Eye className="h-3 w-3 text-zinc-650" />
+                      <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">
+                        <Eye className="h-3 w-3 text-on-surface-variant/70" />
                         Views
                       </span>
-                      <p className="text-sm font-bold text-zinc-200 mt-0.5">{stats.views.toLocaleString()}</p>
+                      <p className="text-sm font-bold text-on-surface mt-0.5">{stats.views.toLocaleString()}</p>
                     </div>
                     <div>
-                      <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-zinc-550">
-                        <BarChart3 className="h-3 w-3 text-zinc-650" />
+                      <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">
+                        <BarChart3 className="h-3 w-3 text-on-surface-variant/70" />
                         Clicks
                       </span>
-                      <p className="text-sm font-bold text-zinc-200 mt-0.5">{stats.clicks.toLocaleString()}</p>
+                      <p className="text-sm font-bold text-on-surface mt-0.5">{stats.clicks.toLocaleString()}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-zinc-500">
-                    <Calendar className="h-3 w-3 text-zinc-650" />
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-on-surface-variant/70">
+                    <Calendar className="h-3 w-3 text-on-surface-variant/70" />
                     <span>Created: {creationDate}</span>
                   </div>
                 </div>
 
                 {/* Card Action Controls */}
-                <div className="flex gap-2.5 pt-6 border-t border-zinc-900/50 mt-6">
+                <div className="flex gap-2.5 pt-6 border-t border-black/5 mt-6">
                   <button
                     onClick={() => router.push(`/dashboard/tree?id=${tree.id}`)}
-                    className="flex-1 flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-850 bg-zinc-900 text-xs font-bold text-zinc-300 hover:bg-zinc-800 hover:text-white transition cursor-pointer"
+                    className="flex-1 flex h-9 items-center justify-center gap-1.5 rounded-lg border border-black/10 bg-white/60 text-xs font-bold text-on-surface hover:bg-white/95 transition cursor-pointer"
                   >
                     <Edit2 className="h-3.5 w-3.5" />
                     Edit
@@ -252,7 +251,7 @@ export default function BlinkoTreesDashboard() {
                     href={publicUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-850 bg-zinc-900 text-zinc-400 hover:text-white hover:border-zinc-700 transition"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 bg-white/60 text-on-surface-variant hover:text-on-surface transition"
                     title="View public page"
                   >
                     <Eye className="h-4 w-4" />
@@ -260,7 +259,7 @@ export default function BlinkoTreesDashboard() {
                   <button
                     onClick={() => handleDeleteTree(tree)}
                     disabled={deletingId === tree.id}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-rose-500/15 bg-rose-500/5 text-rose-450 hover:bg-rose-600 hover:text-white transition cursor-pointer disabled:opacity-50"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-600 hover:bg-rose-500 hover:text-white transition cursor-pointer disabled:opacity-50"
                     title="Delete page"
                   >
                     {deletingId === tree.id ? (
@@ -278,23 +277,23 @@ export default function BlinkoTreesDashboard() {
 
       {/* FREEMIUM UPGRADE MODAL */}
       {showUpgradeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm px-4 select-none">
-          <div className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-[#111111]/95 p-6 shadow-2xl text-center animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 select-none">
+          <div className="relative w-full max-w-lg rounded-2xl border border-white/60 bg-white/80 backdrop-blur-2xl p-6 shadow-2xl text-center animate-in zoom-in-95 duration-200">
             {/* Close Button */}
             <button
               onClick={() => setShowUpgradeModal(false)}
-              className="absolute top-4 right-4 text-zinc-500 hover:text-white transition"
+              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition cursor-pointer"
               aria-label="Close modal"
             >
               <X className="h-5 w-5" />
             </button>
 
             {/* Modal Header */}
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-violet-650/15 text-violet-400 mb-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
               <Sparkles className="h-6 w-6 animate-pulse" />
             </div>
-            <h3 className="text-xl font-extrabold text-white">🚀 Unlock Unlimited Blinko Trees</h3>
-            <p className="text-xs text-zinc-400 mt-2 max-w-sm mx-auto leading-relaxed">
+            <h3 className="text-xl font-extrabold text-on-surface">🚀 Unlock Unlimited Blinko Trees</h3>
+            <p className="text-xs text-on-surface-variant mt-2 max-w-sm mx-auto leading-relaxed">
               You have reached the free plan limit of 2 trees. Upgrade to Pro to create unlimited trees and unlock advanced features.
             </p>
 
@@ -307,11 +306,11 @@ export default function BlinkoTreesDashboard() {
                 { title: "Custom Domains", desc: "Use yourname.com instead of blinko.site/username." },
                 { title: "Remove Blinko Branding", desc: "Remove all platform watermarks." }
               ].map((benefit, idx) => (
-                <div key={idx} className="flex gap-2.5 rounded-lg border border-zinc-900 bg-zinc-950 p-2.5 text-xs">
-                  <CheckCircle className="h-4.5 w-4.5 text-emerald-400 shrink-0 mt-0.5" />
+                <div key={idx} className="flex gap-2.5 rounded-lg border border-black/5 bg-white/50 p-2.5 text-xs">
+                  <CheckCircle className="h-4.5 w-4.5 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-semibold text-white">{benefit.title}</h4>
-                    <p className="text-[10px] text-zinc-500 mt-0.5">{benefit.desc}</p>
+                    <h4 className="font-semibold text-on-surface">{benefit.title}</h4>
+                    <p className="text-[10px] text-on-surface-variant mt-0.5">{benefit.desc}</p>
                   </div>
                 </div>
               ))}
@@ -324,13 +323,13 @@ export default function BlinkoTreesDashboard() {
                   setShowUpgradeModal(false);
                   router.push("/dashboard/billing");
                 }}
-                className="w-full flex h-11 items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-500 text-xs font-bold text-white hover:from-violet-500 hover:to-fuchsia-400 transition cursor-pointer"
+                className="w-full flex h-11 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white hover:bg-primary/95 transition cursor-pointer shadow-sm"
               >
                 Upgrade to Pro
               </button>
               <button
                 onClick={() => setShowUpgradeModal(false)}
-                className="w-full text-zinc-500 hover:text-zinc-350 text-xs font-semibold py-2 transition"
+                className="w-full text-on-surface-variant hover:text-primary text-xs font-semibold py-2 transition cursor-pointer"
               >
                 Not Right Now
               </button>

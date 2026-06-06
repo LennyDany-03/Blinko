@@ -25,6 +25,16 @@ export default function DashboardPage() {
   const [activities, setActivities] = useState([]);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const pendingPrompt = localStorage.getItem("blinko_pending_prompt");
+      if (pendingPrompt) {
+        router.push(`/dashboard/ai-builder?prompt=${encodeURIComponent(pendingPrompt)}`);
+        return;
+      }
+    }
+  }, [router]);
+
+  useEffect(() => {
     if (!user) return;
 
     const fetchDashboardData = async () => {
@@ -139,26 +149,26 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 p-6 md:p-8">
-        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-[32px] border border-white/60 bg-white/40 p-6 md:p-8 shadow-sm backdrop-blur-md">
+        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
         <div className="relative z-10">
-          <h1 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-on-surface md:text-3xl font-display-xl">
             Welcome back, {profile?.display_name || user?.email?.split("@")[0] || "Creator"} 👋
           </h1>
-          <p className="mt-2 text-sm text-zinc-400 md:text-base">
+          <p className="mt-2 text-sm text-on-surface-variant/80 md:text-base font-body-md">
             Your Blinko Tree is fully initialized. Live data is loading directly from your database.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               href="/dashboard/tree"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-500 px-3.5 py-2 text-xs font-semibold text-white shadow-md shadow-violet-950/20 hover:from-violet-500 hover:to-fuchsia-400 transition"
+              className="inline-flex items-center justify-center gap-2 bg-primary text-white border border-primary/20 shadow-md rounded-full px-5 py-2.5 text-xs font-semibold hover:bg-primary/95 transition-all scale-95 active:scale-90 w-fit"
             >
               <GitBranch className="h-3.5 w-3.5" />
               Customize Tree
             </Link>
             <Link
               href="/dashboard/analytics"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900/60 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900 transition"
+              className="inline-flex items-center justify-center gap-2 bg-white/45 text-on-surface border border-white/60 shadow-sm backdrop-blur-md px-5 py-2.5 rounded-full hover:bg-white/60 transition-all duration-300 scale-95 active:scale-90 text-xs font-semibold"
             >
               <TrendingUp className="h-3.5 w-3.5" />
               View Analytics
@@ -169,30 +179,17 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {statsList.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.id} className="rounded-xl border border-zinc-900 bg-zinc-950 p-5 flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-400">{stat.label}</span>
-                <span className="rounded-lg bg-zinc-900 border border-zinc-850 p-1.5 text-violet-400">
-                  <Icon className="h-4 w-4" />
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-2xl font-semibold text-white tracking-tight">{stat.value}</h3>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className="text-[10px] rounded bg-emerald-500/10 px-1.5 py-0.2 font-semibold text-emerald-400">
-                    {stat.change}
-                  </span>
-                  <span className="text-[10px] text-zinc-500 font-medium">
-                    {stat.timeframe}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {statsList.map((stat) => (
+          <StatsCard
+            key={stat.id}
+            label={stat.label}
+            value={stat.value}
+            change={stat.change}
+            isPositive={stat.isPositive}
+            timeframe={stat.timeframe}
+            iconName={stat.id === "views" ? "Eye" : stat.id === "clicks" ? "MousePointerClick" : stat.id === "ctr" ? "TrendingUp" : "Link2"}
+          />
+        ))}
       </div>
 
       {/* Graphs & Charts & Activities */}
@@ -202,15 +199,15 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-semibold text-white">Performance Overview</h3>
-                <p className="text-xs text-zinc-500 mt-0.5">Real-time interactions over the past week</p>
+                <h3 className="text-base font-semibold text-on-surface">Performance Overview</h3>
+                <p className="text-xs text-on-surface-variant/80 mt-0.5">Real-time interactions over the past week</p>
               </div>
               <div className="flex gap-2">
-                <span className="inline-flex items-center gap-1 text-[10px] text-zinc-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                <span className="inline-flex items-center gap-1.5 text-[10px] text-on-surface-variant/70 font-semibold uppercase">
+                  <span className="h-1.5 w-1.5 rounded-full bg-tertiary" />
                   Views
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10px] text-zinc-400">
+                <span className="inline-flex items-center gap-1.5 text-[10px] text-on-surface-variant/70 font-semibold uppercase">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                   Clicks
                 </span>
@@ -222,19 +219,19 @@ export default function DashboardPage() {
               <svg className="h-full w-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
+                    <stop offset="0%" stopColor="var(--color-tertiary)" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="var(--color-tertiary)" stopOpacity="0" />
                   </linearGradient>
                   <linearGradient id="clicksGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
                     <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
                   </linearGradient>
                 </defs>
 
                 {/* Grid Lines */}
-                <line x1="0" y1="5" x2="100" y2="5" stroke="#222" strokeWidth="0.1" strokeDasharray="1" />
-                <line x1="0" y1="15" x2="100" y2="15" stroke="#222" strokeWidth="0.1" strokeDasharray="1" />
-                <line x1="0" y1="25" x2="100" y2="25" stroke="#222" strokeWidth="0.1" strokeDasharray="1" />
+                <line x1="0" y1="5" x2="100" y2="5" stroke="rgba(0,0,0,0.06)" strokeWidth="0.1" strokeDasharray="150" />
+                <line x1="0" y1="15" x2="100" y2="15" stroke="rgba(0,0,0,0.06)" strokeWidth="0.1" strokeDasharray="150" />
+                <line x1="0" y1="25" x2="100" y2="25" stroke="rgba(0,0,0,0.06)" strokeWidth="0.1" strokeDasharray="150" />
 
                 {/* Views Area Fill */}
                 <path
@@ -245,7 +242,7 @@ export default function DashboardPage() {
                 <path
                   d="M 0 25 Q 15 15, 30 18 T 60 8 T 85 14 T 100 4"
                   fill="none"
-                  stroke="#7c3aed"
+                  stroke="var(--color-tertiary)"
                   strokeWidth="0.65"
                   strokeLinecap="round"
                 />
@@ -266,12 +263,12 @@ export default function DashboardPage() {
               </svg>
 
               {/* Glowing Dots */}
-              <span className="absolute top-[13%] right-0 h-2 w-2 -translate-x-1/2 rounded-full border-2 border-zinc-950 bg-violet-400 shadow-[0_0_8px_rgba(124,58,237,0.8)]" />
-              <span className="absolute top-[40%] right-0 h-2 w-2 -translate-x-1/2 rounded-full border-2 border-zinc-950 bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+              <span className="absolute top-[13%] right-0 h-2 w-2 -translate-x-1/2 rounded-full border-2 border-white bg-tertiary shadow-[0_0_8px_rgba(50,101,120,0.5)]" />
+              <span className="absolute top-[40%] right-0 h-2 w-2 -translate-x-1/2 rounded-full border-2 border-white bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
             </div>
 
             {/* X-axis indicators */}
-            <div className="flex justify-between text-[10px] text-zinc-650 mt-2 font-mono">
+            <div className="flex justify-between text-[10px] text-on-surface-variant/50 mt-2 font-mono font-semibold">
               <span>Mon</span>
               <span>Tue</span>
               <span>Wed</span>
@@ -285,24 +282,24 @@ export default function DashboardPage() {
 
         {/* Recent Activity Panel */}
         <DashboardCard>
-          <h3 className="text-base font-semibold text-white">Recent Activity</h3>
-          <p className="text-xs text-zinc-500 mt-0.5">Live interactions on your page</p>
+          <h3 className="text-base font-semibold text-on-surface">Recent Activity</h3>
+          <p className="text-xs text-on-surface-variant/80 mt-0.5 font-body-md">Live interactions on your page</p>
 
           <div className="mt-6 space-y-4">
             {activities.map((activity) => {
               const Icon = activity.icon;
               return (
                 <div key={activity.id} className="flex gap-3 text-xs leading-relaxed group">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 group-hover:border-violet-500/30 group-hover:text-violet-400 transition-colors">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/5 bg-white/50 text-on-surface-variant/65 group-hover:border-primary/30 group-hover:text-primary transition-colors shadow-sm">
                     <Icon className="h-3.5 w-3.5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-zinc-200">
-                      <span className="text-white">{activity.user}</span> {activity.action}
+                    <p className="font-medium text-on-surface-variant/80">
+                      <span className="text-on-surface font-semibold">{activity.user}</span> {activity.action}
                     </p>
-                    <p className="text-[10px] text-zinc-550 mt-0.5">{activity.details}</p>
+                    <p className="text-[10px] text-on-surface-variant/50 mt-0.5 font-semibold">{activity.details}</p>
                   </div>
-                  <span className="text-[10px] text-zinc-600 shrink-0">{activity.time}</span>
+                  <span className="text-[10px] text-on-surface-variant/50 shrink-0 font-medium">{activity.time}</span>
                 </div>
               );
             })}
@@ -313,47 +310,47 @@ export default function DashboardPage() {
       {/* Quick Actions Panel */}
       <div className="grid gap-5 sm:grid-cols-3">
         <Link href="/dashboard/tree" className="group">
-          <DashboardCard hoverEffect className="flex items-center justify-between border-dashed p-5">
+          <DashboardCard hoverEffect className="flex items-center justify-between border-dashed border-black/15 p-5">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-zinc-900 p-2.5 text-zinc-400 group-hover:bg-violet-600/10 group-hover:text-violet-400 transition-colors">
+              <div className="rounded-xl border border-black/5 bg-white/50 p-2.5 text-on-surface-variant/65 group-hover:bg-primary/10 group-hover:text-primary transition-all shadow-sm">
                 <UserCheck className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-white">Blinko Tree Settings</h4>
-                <p className="text-xs text-zinc-500 mt-0.5">Bio, template & social connections</p>
+                <h4 className="text-sm font-semibold text-on-surface">Blinko Tree Settings</h4>
+                <p className="text-xs text-on-surface-variant/80 mt-0.5">Bio, template & social connections</p>
               </div>
             </div>
-            <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-white transition-colors" />
+            <ArrowRight className="h-4 w-4 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
           </DashboardCard>
         </Link>
 
         <Link href="/dashboard/tree?tab=links" className="group">
-          <DashboardCard hoverEffect className="flex items-center justify-between border-dashed p-5">
+          <DashboardCard hoverEffect className="flex items-center justify-between border-dashed border-black/15 p-5">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-zinc-900 p-2.5 text-zinc-400 group-hover:bg-violet-600/10 group-hover:text-violet-400 transition-colors">
+              <div className="rounded-xl border border-black/5 bg-white/50 p-2.5 text-on-surface-variant/65 group-hover:bg-primary/10 group-hover:text-primary transition-all shadow-sm">
                 <Link2 className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-white">Configure Links</h4>
-                <p className="text-xs text-zinc-500 mt-0.5">Insert custom links & track clicks</p>
+                <h4 className="text-sm font-semibold text-on-surface">Configure Links</h4>
+                <p className="text-xs text-on-surface-variant/80 mt-0.5">Insert custom links & track clicks</p>
               </div>
             </div>
-            <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-white transition-colors" />
+            <ArrowRight className="h-4 w-4 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
           </DashboardCard>
         </Link>
 
         <Link href="/dashboard/tree?tab=design" className="group">
-          <DashboardCard hoverEffect className="flex items-center justify-between border-dashed p-5">
+          <DashboardCard hoverEffect className="flex items-center justify-between border-dashed border-black/15 p-5">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-zinc-900 p-2.5 text-zinc-400 group-hover:bg-violet-600/10 group-hover:text-violet-400 transition-colors">
+              <div className="rounded-xl border border-black/5 bg-white/50 p-2.5 text-on-surface-variant/65 group-hover:bg-primary/10 group-hover:text-primary transition-all shadow-sm">
                 <Sparkles className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-white">Design & Themes</h4>
-                <p className="text-xs text-zinc-500 mt-0.5">Modify styles & layout palettes</p>
+                <h4 className="text-sm font-semibold text-on-surface">Design & Themes</h4>
+                <p className="text-xs text-on-surface-variant/80 mt-0.5">Modify styles & layout palettes</p>
               </div>
             </div>
-            <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-white transition-colors" />
+            <ArrowRight className="h-4 w-4 text-on-surface-variant/40 group-hover:text-primary transition-colors" />
           </DashboardCard>
         </Link>
       </div>

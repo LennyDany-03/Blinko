@@ -184,6 +184,7 @@ export default function OnboardingSetup() {
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [website, setWebsite] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [links, setLinks] = useState(() => 
     TEMPLATES[1].defaultLinks.map((dl, idx) => ({
       id: `link-${idx}`,
@@ -217,7 +218,18 @@ export default function OnboardingSetup() {
     fetchThemes();
   }, []);
 
-  // Pre-fill fields from profile when step 2 opens or templates change
+  // Pre-fill fields from profile or Google metadata on mount / auth change
+  useEffect(() => {
+    if (user) {
+      if (!displayName) {
+        setDisplayName(user.user_metadata?.full_name || user.user_metadata?.name || "");
+      }
+      if (!avatarUrl) {
+        setAvatarUrl(user.user_metadata?.avatar_url || user.user_metadata?.picture || "");
+      }
+    }
+  }, [user]);
+
   useEffect(() => {
     if (profile) {
       Promise.resolve().then(() => {
@@ -226,6 +238,7 @@ export default function OnboardingSetup() {
         setBio(bio || profile.bio || "");
         setLocation(location || profile.location || "");
         setWebsite(website || profile.website || "");
+        setAvatarUrl(avatarUrl || profile.avatar_url || "");
       });
     }
   }, [profile]);
@@ -390,6 +403,7 @@ export default function OnboardingSetup() {
         button_style: selectedTheme?.config?.buttonStyle || "rounded-md",
         font_style: selectedTheme?.config?.fontFamily || "font-sans",
         background_type: selectedTheme?.config?.bgClass || "bg-zinc-950",
+        avatar_url: avatarUrl.trim() || null,
       };
 
       const { error: profileError } = await supabase
@@ -466,26 +480,14 @@ export default function OnboardingSetup() {
   const cardBgClass = selectedTheme?.config?.previewCard || "bg-zinc-900 border-zinc-800 text-zinc-300";
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-zinc-100 flex flex-col justify-between">
+    <div className="min-h-screen bg-transparent text-on-background flex flex-col justify-between relative grain pb-12">
       {/* Header Bar */}
-      <header className="border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-40">
+      <header className="border-b border-black/5 bg-white/45 backdrop-blur-xl px-6 py-4 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <BlinkoLogo href="#" />
-          <span className="h-4 w-px bg-zinc-800" />
-          <span className="text-xs font-semibold text-zinc-400">Tree Setup Wizard</span>
+          <span className="h-4 w-px bg-black/10" />
+          <span className="text-xs font-semibold text-on-surface-variant">Tree Setup Wizard</span>
         </div>
-        {step < 6 && (
-          <div className="flex items-center gap-2">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span 
-                key={i} 
-                className={`h-1.5 w-6 rounded-full transition-all duration-300 ${
-                  step > i ? "bg-violet-500 shadow-[0_0_8px_rgba(124,58,237,0.5)]" : "bg-zinc-800"
-                }`}
-              />
-            ))}
-          </div>
-        )}
       </header>
 
       {/* Main content body */}
@@ -508,13 +510,13 @@ export default function OnboardingSetup() {
               {/* Filters & Search */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-on-surface-variant/60" />
                   <input
                     type="text"
                     placeholder="Search templates..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 py-2 pl-10 pr-4 text-xs text-zinc-200 outline-none transition focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/40 py-2 pl-10 pr-4 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/10"
                   />
                 </div>
                 <div className="flex gap-1 overflow-x-auto no-scrollbar pb-1">
@@ -522,10 +524,10 @@ export default function OnboardingSetup() {
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition cursor-pointer ${
                         selectedCategory === cat 
-                          ? "bg-violet-600/15 border border-violet-500/30 text-violet-300"
-                          : "border border-transparent text-zinc-400 hover:bg-zinc-900/60"
+                          ? "bg-primary/15 border border-primary/30 text-primary"
+                          : "border border-black/5 text-on-surface-variant hover:bg-white/50"
                       }`}
                     >
                       {cat}
@@ -542,24 +544,24 @@ export default function OnboardingSetup() {
                     <button
                       key={tpl.id}
                       onClick={() => handleSelectTemplate(tpl)}
-                      className={`group rounded-xl border p-5 text-left transition duration-300 ${
+                      className={`group rounded-xl border p-5 text-left transition duration-300 cursor-pointer shadow-sm ${
                         isSelected 
-                          ? "border-violet-500 bg-violet-650/5 ring-1 ring-violet-500/30"
-                          : "border-zinc-900 bg-zinc-950 hover:border-zinc-850 hover:bg-zinc-900/40"
+                          ? "border-primary bg-white/60 ring-1 ring-primary/30"
+                          : "border-black/5 bg-white/35 hover:border-primary/35 hover:bg-white/50"
                       }`}
                     >
                       <div className="flex items-start justify-between">
-                        <span className="text-xs font-bold uppercase tracking-wider text-violet-400 font-mono bg-violet-500/5 px-2 py-0.5 rounded border border-violet-500/15">
+                        <span className="text-xs font-bold uppercase tracking-wider text-primary font-mono bg-primary/5 px-2 py-0.5 rounded border border-primary/10">
                           {tpl.category}
                         </span>
                         {isSelected && (
-                          <span className="rounded-full bg-violet-500 p-0.5 text-white">
+                          <span className="rounded-full bg-primary p-0.5 text-white">
                             <Check className="h-3.5 w-3.5" />
                           </span>
                         )}
                       </div>
-                      <h3 className="text-sm font-bold text-white mt-3 group-hover:text-violet-300 transition">{tpl.name}</h3>
-                      <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">{tpl.desc}</p>
+                      <h3 className="text-sm font-bold text-on-surface mt-3 group-hover:text-primary transition">{tpl.name}</h3>
+                      <p className="text-xs text-on-surface-variant mt-1.5 leading-relaxed">{tpl.desc}</p>
                     </button>
                   );
                 })}
@@ -571,31 +573,31 @@ export default function OnboardingSetup() {
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-white">Customize Content</h1>
-                <p className="text-sm text-zinc-400 mt-1">Configure your handle, details, and initial biographical info.</p>
+                <h1 className="text-2xl font-bold text-on-surface">Customize Content</h1>
+                <p className="text-sm text-on-surface-variant mt-1">Configure your handle, details, and initial biographical info.</p>
               </div>
 
-              <div className="space-y-5 rounded-xl border border-zinc-900 bg-zinc-950 p-5">
+              <div className="space-y-5 rounded-xl border border-white/60 bg-white/40 shadow-sm backdrop-blur-md p-5">
                 {/* Tree Name field */}
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Tree Name</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Tree Name</label>
                   <input
                     type="text"
                     value={treeName}
                     onChange={(e) => setTreeName(e.target.value)}
                     placeholder="e.g. Developer Portfolio"
                     required
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/30 px-3.5 py-2 text-xs text-zinc-200 outline-none transition focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/10"
                   />
                   {/* Status Indicator */}
                   {treeName && (
                     <p className="text-[10px] mt-1.5">
                       {slugChecking ? (
-                        <span className="text-zinc-550 flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Resolving unique URL slug...</span>
+                        <span className="text-on-surface-variant/75 flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin text-primary" /> Resolving unique URL slug...</span>
                       ) : resolvedSlug ? (
-                        <span className="text-emerald-400 flex items-center gap-1 font-semibold"><CheckCircle2 className="h-3 w-3 text-emerald-400" /> URL resolved: blinko.site/{resolvedSlug}</span>
+                        <span className="text-emerald-600 flex items-center gap-1 font-semibold"><CheckCircle2 className="h-3 w-3 text-emerald-500" /> URL resolved: blinko.site/{resolvedSlug}</span>
                       ) : (
-                        <span className="text-rose-400 flex items-center gap-1 font-semibold">Please enter a valid tree name.</span>
+                        <span className="text-rose-600 flex items-center gap-1 font-semibold">Please enter a valid tree name.</span>
                       )}
                     </p>
                   )}
@@ -603,51 +605,51 @@ export default function OnboardingSetup() {
 
                 {/* Display Name */}
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Display Name</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Display Name</label>
                   <input
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="e.g. Avery Stone"
                     required
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/30 px-3.5 py-2 text-xs text-zinc-200 outline-none transition focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/10"
                   />
                 </div>
 
                 {/* Biography */}
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Bio Details</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Bio Details</label>
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="Write a brief description about what you build, share, or do..."
                     rows="3"
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/30 px-3.5 py-2 text-xs text-zinc-200 outline-none transition focus:border-violet-500/50 resize-none"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/10 resize-none"
                   />
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   {/* Location */}
                   <div>
-                    <label className="block text-xs font-medium text-zinc-400 mb-1.5">Location</label>
+                    <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Location</label>
                     <input
                       type="text"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       placeholder="e.g. San Francisco, CA"
-                      className="w-full rounded-lg border border-zinc-900 bg-zinc-900/30 px-3.5 py-2 text-xs text-zinc-200 outline-none transition focus:border-violet-500/50"
+                      className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/10"
                     />
                   </div>
 
                   {/* Personal Website */}
                   <div>
-                    <label className="block text-xs font-medium text-zinc-400 mb-1.5">Website</label>
+                    <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Website</label>
                     <input
                       type="url"
                       value={website}
                       onChange={(e) => setWebsite(e.target.value)}
                       placeholder="https://yourpage.com"
-                      className="w-full rounded-lg border border-zinc-900 bg-zinc-900/30 px-3.5 py-2 text-xs text-zinc-200 outline-none transition focus:border-violet-500/50"
+                      className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/10"
                     />
                   </div>
                 </div>
@@ -659,12 +661,12 @@ export default function OnboardingSetup() {
           {step === 3 && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-white">Template Links Setup</h1>
-                <p className="text-sm text-zinc-400 mt-1">Review and insert direct URLs for the template links configured.</p>
+                <h1 className="text-2xl font-bold text-on-surface">Template Links Setup</h1>
+                <p className="text-sm text-on-surface-variant mt-1">Review and insert direct URLs for the template links configured.</p>
               </div>
 
               {links.length === 0 ? (
-                <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-8 text-center text-zinc-500 text-xs">
+                <div className="rounded-xl border border-black/10 bg-white/40 shadow-sm p-8 text-center text-on-surface-variant text-xs">
                   This template starts with no initial links. Click next to proceed, or add customized links on the dashboard later.
                 </div>
               ) : (
@@ -672,31 +674,31 @@ export default function OnboardingSetup() {
                   {links.map((link) => {
                     const LinkIcon = iconMap[link.icon] || Link2;
                     return (
-                      <div key={link.id} className="rounded-xl border border-zinc-900 bg-zinc-950 p-4 space-y-3.5">
+                      <div key={link.id} className="rounded-xl border border-white/60 bg-white/40 shadow-sm backdrop-blur-md p-4 space-y-3.5">
                         <div className="flex items-center gap-2">
-                          <span className="rounded bg-zinc-900 border border-zinc-850 p-1.5 text-violet-400">
+                          <span className="rounded bg-primary/10 border border-primary/20 p-1.5 text-primary">
                             <LinkIcon className="h-3.5 w-3.5" />
                           </span>
-                          <span className="text-xs font-bold text-white">{link.title}</span>
+                          <span className="text-xs font-bold text-on-surface">{link.title}</span>
                         </div>
                         <div className="grid gap-3 sm:grid-cols-2">
                           <div>
-                            <label className="block text-[10px] font-semibold text-zinc-500 mb-1">Link Title</label>
+                            <label className="block text-[10px] font-semibold text-on-surface-variant mb-1">Link Title</label>
                             <input
                               type="text"
                               value={link.title}
                               onChange={(e) => handleLinkChange(link.id, "title", e.target.value)}
-                              className="w-full rounded-lg border border-zinc-900 bg-zinc-900/35 px-3 py-1.5 text-xs text-white outline-none focus:border-violet-500/40"
+                              className="w-full rounded-lg border border-black/10 bg-white/45 px-3 py-1.5 text-xs text-on-surface outline-none focus:border-primary/50 focus:ring-primary/10"
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] font-semibold text-zinc-500 mb-1">Destination URL</label>
+                            <label className="block text-[10px] font-semibold text-on-surface-variant mb-1">Destination URL</label>
                             <input
                               type="url"
                               value={link.url}
                               onChange={(e) => handleLinkChange(link.id, "url", e.target.value)}
                               placeholder="https://"
-                              className="w-full rounded-lg border border-zinc-900 bg-zinc-900/35 px-3 py-1.5 text-xs text-white outline-none focus:border-violet-500/40"
+                              className="w-full rounded-lg border border-black/10 bg-white/45 px-3 py-1.5 text-xs text-on-surface outline-none focus:border-primary/50 focus:ring-primary/10"
                             />
                           </div>
                         </div>
@@ -712,8 +714,8 @@ export default function OnboardingSetup() {
           {step === 4 && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-white">Choose a Theme</h1>
-                <p className="text-sm text-zinc-400 mt-1">Select the starting visual colors, button borders, and font style.</p>
+                <h1 className="text-2xl font-bold text-on-surface">Choose a Theme</h1>
+                <p className="text-sm text-on-surface-variant mt-1">Select the starting visual colors, button borders, and font style.</p>
               </div>
 
               <div className="grid gap-4 grid-cols-2 sm:grid-cols-3">
@@ -724,33 +726,33 @@ export default function OnboardingSetup() {
                       key={theme.id}
                       type="button"
                       onClick={() => setSelectedTheme(theme)}
-                      className={`group flex flex-col gap-2 rounded-xl border p-3.5 text-left transition duration-300 ${
+                      className={`group flex flex-col gap-2 rounded-xl border p-3.5 text-left transition duration-300 cursor-pointer ${
                         isSelected 
-                          ? "border-violet-500 bg-violet-650/5 ring-1 ring-violet-500/30"
-                          : "border-zinc-900 bg-zinc-950 hover:border-zinc-850 hover:bg-zinc-900/40"
+                          ? "border-primary bg-white/60 ring-1 ring-primary/30"
+                          : "border-black/10 bg-white/35 hover:border-primary/35 hover:bg-white/50"
                       }`}
                     >
                       {/* Theme Miniature Preview Block */}
                       <div
-                        className="aspect-video w-full rounded-lg flex flex-col justify-between p-2 border border-zinc-800"
+                        className="aspect-video w-full rounded-lg flex flex-col justify-between p-2 border border-black/5"
                         style={{ backgroundColor: theme.config?.previewBg }}
                       >
                         <div className="flex items-center gap-1">
                           <div className="h-2 w-2 rounded-full" style={{ backgroundColor: theme.config?.accentColor }} />
-                          <div className="h-1 w-6 rounded bg-zinc-700/60" />
+                          <div className="h-1 w-6 rounded bg-black/10" />
                         </div>
                         <div className="space-y-1">
-                          <div className="h-1.5 w-full rounded bg-zinc-700/60" />
-                          <div className="h-1.5 w-2/3 rounded bg-zinc-700/60" />
+                          <div className="h-1.5 w-full rounded bg-black/10" />
+                          <div className="h-1.5 w-2/3 rounded bg-black/10" />
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs font-semibold text-zinc-300 group-hover:text-white transition">
+                        <span className="text-xs font-semibold text-on-surface-variant group-hover:text-primary transition">
                           {theme.name}
                         </span>
                         {isSelected && (
-                          <span className="rounded bg-violet-500/10 p-0.5 text-violet-400 border border-violet-500/20">
+                          <span className="rounded bg-primary/10 p-0.5 text-primary border border-primary/20">
                             <Check className="h-3 w-3" />
                           </span>
                         )}
@@ -766,68 +768,52 @@ export default function OnboardingSetup() {
           {step === 5 && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-white">Review & Publish</h1>
-                <p className="text-sm text-zinc-400 mt-1">Confirm details and write your custom Blinko Tree configuration to live server.</p>
+                <h1 className="text-2xl font-bold text-on-surface">Review & Publish</h1>
+                <p className="text-sm text-on-surface-variant mt-1">Confirm details and write your custom Blinko Tree configuration to live server.</p>
               </div>
 
-              <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-5 space-y-4 text-xs">
-                <div className="flex justify-between border-b border-zinc-900 pb-3">
-                  <span className="text-zinc-500">Selected Template</span>
-                  <span className="text-white font-semibold">{selectedTemplate.name}</span>
+              <div className="rounded-xl border border-white/60 bg-white/40 shadow-sm backdrop-blur-md p-5 space-y-4 text-xs">
+                <div className="flex justify-between border-b border-black/5 pb-3">
+                  <span className="text-on-surface-variant">Selected Template</span>
+                  <span className="text-on-surface font-semibold">{selectedTemplate.name}</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-900 pb-3">
-                  <span className="text-zinc-550">Public URL</span>
-                  <span className="text-violet-400 font-mono font-semibold">blinko.site/{resolvedSlug}</span>
+                <div className="flex justify-between border-b border-black/5 pb-3">
+                  <span className="text-on-surface-variant">Public URL</span>
+                  <span className="text-primary font-mono font-semibold">blinko.site/{resolvedSlug}</span>
                 </div>
-                <div className="flex justify-between border-b border-zinc-900 pb-3">
-                  <span className="text-zinc-550">Theme selection</span>
-                  <span className="text-white font-semibold">{selectedTheme?.name}</span>
+                <div className="flex justify-between border-b border-black/5 pb-3">
+                  <span className="text-on-surface-variant">Theme selection</span>
+                  <span className="text-on-surface font-semibold">{selectedTheme?.name}</span>
                 </div>
                 <div className="flex justify-between pb-1">
-                  <span className="text-zinc-550">Total links</span>
-                  <span className="text-white font-semibold">{links.length} links</span>
+                  <span className="text-on-surface-variant">Total links</span>
+                  <span className="text-on-surface font-semibold">{links.length} links</span>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl border border-violet-500/15 bg-violet-500/5 text-xs text-zinc-400 leading-relaxed">
+              <div className="p-4 rounded-xl border border-primary/25 bg-primary/5 text-xs text-on-surface-variant leading-relaxed">
                 By clicking Publish, your page configuration becomes immediately public. You can manage analytics, reorder links, and customize theme settings anytime from your owner control panels.
               </div>
-
-              <Button
-                variant="primary"
-                className="w-full h-11 text-sm font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-md shadow-violet-950/20"
-                onClick={handlePublish}
-                disabled={publishing}
-              >
-                {publishing ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Publishing your page details...
-                  </span>
-                ) : (
-                  "Publish Blinko Tree"
-                )}
-              </Button>
             </div>
           )}
 
           {/* STEP 6: Success screen */}
           {step === 6 && (
             <div className="space-y-6 text-center animate-in zoom-in-95 duration-300">
-              <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
+              <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
                 <div className="absolute inset-0 animate-ping rounded-full bg-emerald-500/5 opacity-75" />
                 <Check className="h-8 w-8" />
               </div>
 
               <div>
-                <h1 className="text-3xl font-extrabold text-white">🎉 Your Blinko Tree is Live!</h1>
-                <p className="text-sm text-zinc-400 mt-2">Share your link-in-bio page with your audience to track views and click CTR.</p>
+                <h1 className="text-3xl font-extrabold text-on-surface">🎉 Your Blinko Tree is Live!</h1>
+                <p className="text-sm text-on-surface-variant mt-2">Share your link-in-bio page with your audience to track views and click CTR.</p>
               </div>
 
               {/* QR Code and Sharing Actions Card */}
-              <div className="rounded-2xl border border-zinc-900 bg-zinc-950 p-6 flex flex-col items-center gap-6">
+              <div className="rounded-2xl border border-white/60 bg-white/40 shadow-sm backdrop-blur-md p-6 flex flex-col items-center gap-6">
                 {/* Dynamic QR API Image */}
-                <div className="p-4 bg-white rounded-xl shadow-inner border border-zinc-800 flex items-center justify-center">
+                <div className="p-4 bg-white rounded-xl shadow-inner border border-black/5 flex items-center justify-center">
                   <img 
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(typeof window !== "undefined" ? `${window.location.origin}/${resolvedSlug}` : `https://blinko.site/${resolvedSlug}`)}`} 
                     alt="Blinko Page QR Code"
@@ -836,14 +822,14 @@ export default function OnboardingSetup() {
                 </div>
 
                 <div className="w-full space-y-3">
-                  <div className="rounded-lg bg-zinc-900 border border-zinc-850 px-4 py-2.5 font-mono text-xs text-violet-300 select-all break-all text-center">
+                  <div className="rounded-lg bg-primary/5 border border-primary/20 px-4 py-2.5 font-mono text-xs text-primary select-all break-all text-center">
                     blinko.site/{resolvedSlug}
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     <button
                       onClick={handleCopyLink}
-                      className="flex h-10 items-center justify-center gap-2 rounded-lg bg-violet-600/15 border border-violet-500/20 text-xs font-semibold text-violet-300 hover:bg-violet-600 hover:text-white transition cursor-pointer"
+                      className="flex h-10 items-center justify-center gap-2 rounded-lg bg-primary/10 border border-primary/20 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition cursor-pointer"
                     >
                       <Copy className="h-4 w-4" />
                       Copy Link
@@ -852,7 +838,7 @@ export default function OnboardingSetup() {
                       href={`/${resolvedSlug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white transition"
+                      className="flex h-10 items-center justify-center gap-2 rounded-lg bg-white/60 border border-black/10 text-xs font-semibold text-on-surface hover:bg-white/95 transition"
                     >
                       <ExternalLink className="h-4 w-4" />
                       Open Profile
@@ -862,8 +848,8 @@ export default function OnboardingSetup() {
               </div>
 
               <Button
-                variant="ghost"
-                className="w-full text-zinc-400 hover:text-white text-xs font-semibold mt-4"
+                variant="secondary"
+                className="w-full text-on-surface-variant hover:text-on-surface text-xs font-semibold mt-4"
                 onClick={() => router.push("/dashboard")}
               >
                 Go to Dashboard Home &rarr;
@@ -871,7 +857,7 @@ export default function OnboardingSetup() {
 
               {/* Toast */}
               {copyToast && (
-                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-emerald-500/30 bg-zinc-950 px-4 py-2.5 text-xs font-semibold text-emerald-400 shadow-xl shadow-black">
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-emerald-500/30 bg-white px-4 py-2.5 text-xs font-semibold text-emerald-600 shadow-xl shadow-black/10">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   <span>Public URL copied to clipboard!</span>
                 </div>
@@ -880,26 +866,57 @@ export default function OnboardingSetup() {
           )}
 
           {/* Stepper buttons (prev / next) */}
-          {step < 5 && (
-            <div className="flex items-center justify-between pt-6 border-t border-zinc-900">
+          {step < 6 && (
+            <div className="flex items-center justify-between pt-6 border-t border-black/5">
               <button
                 type="button"
                 onClick={() => setStep(prev => prev - 1)}
-                disabled={step === 1}
-                className="flex items-center gap-1 text-xs font-semibold text-zinc-500 hover:text-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                disabled={step === 1 || publishing}
+                className="flex items-center gap-1 text-xs font-semibold text-on-surface-variant/60 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Previous Step
               </button>
-              <Button
-                variant="primary"
-                size="sm"
-                icon={ArrowRight}
-                onClick={() => setStep(prev => prev + 1)}
-                disabled={step === 2 && (!slugAvailable || !treeName || !displayName || slugChecking)}
-              >
-                Next Step
-              </Button>
+
+              {/* Progress Indicator */}
+              <div className="flex items-center gap-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <span 
+                    key={i} 
+                    className={`h-1.5 w-6 rounded-full transition-all duration-300 ${
+                      step > i ? "bg-primary shadow-[0_0_8px_rgba(159,65,34,0.15)]" : "bg-black/10"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {step < 5 ? (
+                <Button
+                  variant="luminous"
+                  size="sm"
+                  icon={ArrowRight}
+                  onClick={() => setStep(prev => prev + 1)}
+                  disabled={step === 2 && (!slugAvailable || !treeName || !displayName || slugChecking)}
+                >
+                  Next Step
+                </Button>
+              ) : (
+                <Button
+                  variant="luminous"
+                  size="sm"
+                  onClick={handlePublish}
+                  disabled={publishing}
+                >
+                  {publishing ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Publishing...
+                    </span>
+                  ) : (
+                    "Publish Tree"
+                  )}
+                </Button>
+              )}
             </div>
           )}
         </section>
@@ -923,9 +940,17 @@ export default function OnboardingSetup() {
                 <div className="w-full flex flex-col items-center text-center">
                   
                   {/* User avatar mockup */}
-                  <div className="h-16 w-16 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 shadow-md shadow-violet-500/20 flex items-center justify-center text-lg font-bold text-white mb-3 mt-4">
-                    {displayName ? displayName.charAt(0).toUpperCase() : "?"}
-                  </div>
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={displayName}
+                      className="h-16 w-16 rounded-full object-cover shadow-md mb-3 mt-4"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 shadow-md shadow-violet-500/20 flex items-center justify-center text-lg font-bold text-white mb-3 mt-4">
+                      {displayName ? displayName.charAt(0).toUpperCase() : "?"}
+                    </div>
+                  )}
 
                   {/* Display Name */}
                   <h4 className="text-sm font-bold text-zinc-100 leading-tight">

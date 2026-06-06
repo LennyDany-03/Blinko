@@ -117,16 +117,19 @@ export default function BlinkoTreeBuilder() {
 
         // 4. Set Form states from current user profile
         if (profile) {
-          setDisplayName(profile.display_name || "");
+          setDisplayName(profile.display_name || user?.user_metadata?.full_name || user?.user_metadata?.name || "");
           setBio(profile.bio || "");
           setLocation(profile.location || "");
           setWebsite(profile.website || "");
-          setAvatarUrl(profile.avatar_url || "");
+          setAvatarUrl(profile.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "");
           setSelectedThemeId(profile.theme_id);
           setAccentColor(profile.accent_color || "#7c3aed");
           setFontStyle(profile.font_style || "font-sans");
           setButtonStyle(profile.button_style || "rounded-md");
           setBackgroundType(profile.background_type || "bg-zinc-950");
+        } else {
+          setDisplayName(user?.user_metadata?.full_name || user?.user_metadata?.name || "");
+          setAvatarUrl(user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "");
         }
 
       } catch (err) {
@@ -219,8 +222,8 @@ export default function BlinkoTreeBuilder() {
     return (
       <div className="flex h-[70vh] items-center justify-center">
         <div className="text-center space-y-4">
-          <Loader2 className="h-10 w-10 animate-spin text-violet-500 mx-auto" />
-          <p className="text-sm text-zinc-400">Loading Blinko Tree settings...</p>
+          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
+          <p className="text-sm text-on-surface-variant">Loading Blinko Tree settings...</p>
         </div>
       </div>
     );
@@ -242,7 +245,7 @@ export default function BlinkoTreeBuilder() {
             href={`/${profile?.username}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-850 bg-zinc-900 px-3.5 py-1.5 text-xs font-semibold text-zinc-300 hover:text-white transition"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/50 px-3.5 py-1.5 text-xs font-semibold text-on-surface hover:bg-white/80 hover:text-on-surface transition"
           >
             <Eye className="h-3.5 w-3.5" />
             View Public Page
@@ -250,7 +253,7 @@ export default function BlinkoTreeBuilder() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-violet-500 transition cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-bold text-white hover:bg-primary/90 transition cursor-pointer disabled:opacity-50"
           >
             {saving ? (
               <>
@@ -269,7 +272,7 @@ export default function BlinkoTreeBuilder() {
 
       {/* Success Toast */}
       {showToast && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-zinc-950 px-4 py-3 text-sm text-emerald-400 shadow-xl shadow-black/50 animate-in fade-in slide-in-from-bottom-4">
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-lg border border-emerald-250 bg-white px-4 py-3 text-sm text-emerald-700 shadow-lg animate-in fade-in slide-in-from-bottom-4">
           <CheckCircle2 className="h-4 w-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
@@ -281,7 +284,7 @@ export default function BlinkoTreeBuilder() {
         <div className="lg:col-span-3 space-y-6">
           
           {/* Menu tab selection row */}
-          <div className="flex border-b border-zinc-900 pb-px gap-4">
+          <div className="flex border-b border-black/5 pb-px gap-4">
             {[
               { id: "profile", label: "Profile Info", icon: User },
               { id: "socials", label: "Social Integrations", icon: Link2 },
@@ -294,8 +297,8 @@ export default function BlinkoTreeBuilder() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 pb-3 text-sm font-semibold transition border-b-2 -mb-px cursor-pointer ${
                     activeTab === tab.id 
-                      ? "border-violet-500 text-violet-400"
-                      : "border-transparent text-zinc-400 hover:text-zinc-200"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
                   <TabIcon className="h-4 w-4" />
@@ -308,21 +311,29 @@ export default function BlinkoTreeBuilder() {
           {/* TAB 1: Profile Info form */}
           {activeTab === "profile" && (
             <DashboardCard className="space-y-5">
-              <h3 className="text-base font-semibold text-white">Basic Information</h3>
+              <h3 className="text-base font-semibold text-on-surface">Basic Information</h3>
               
               {/* Profile Image Row */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-2xl font-bold text-white shadow-lg shadow-violet-950/20">
-                  {displayName ? displayName.charAt(0).toUpperCase() : "?"}
-                </div>
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="h-16 w-16 rounded-full object-cover shadow-md border border-black/5"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-primary-container text-2xl font-bold text-white shadow-lg border border-white/60">
+                    {displayName ? displayName.charAt(0).toUpperCase() : "?"}
+                  </div>
+                )}
                 <div className="flex-1 space-y-2">
-                  <label className="block text-xs font-semibold text-zinc-500">Avatar Image Link</label>
+                  <label className="block text-xs font-semibold text-on-surface-variant">Avatar Image Link</label>
                   <input
                     type="url"
                     value={avatarUrl}
                     onChange={(e) => setAvatarUrl(e.target.value)}
                     placeholder="https://images.unsplash.com/... or profile image link"
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3 py-1.5 text-xs text-white outline-none focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3 py-1.5 text-xs text-on-surface outline-none focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
               </div>
@@ -330,25 +341,25 @@ export default function BlinkoTreeBuilder() {
               {/* Display Name & Handle display */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Display Name</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Display Name</label>
                   <input
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-zinc-205 outline-none transition focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Username Handle (Read-only)</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Username Handle (Read-only)</label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-3 text-xs font-mono text-zinc-650">blinko.site/</span>
+                    <span className="absolute left-3 text-xs font-mono text-on-surface-variant/65">blinko.site/</span>
                     <input
                       type="text"
                       value={profile?.username || ""}
                       readOnly
                       disabled
-                      className="w-full rounded-lg border border-zinc-900 bg-zinc-900/10 py-2 pl-[80px] pr-3.5 text-xs text-zinc-500 outline-none cursor-not-allowed"
+                      className="w-full rounded-lg border border-black/10 bg-black/5 py-2 pl-[80px] pr-3.5 text-xs text-on-surface-variant/50 outline-none cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -356,34 +367,34 @@ export default function BlinkoTreeBuilder() {
 
               {/* Biography details */}
               <div>
-                <label className="block text-xs font-medium text-zinc-400 mb-1.5">Bio</label>
+                <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Bio</label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   rows="3"
-                  className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-zinc-205 outline-none transition focus:border-violet-500/50 resize-none"
+                  className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/15 resize-none"
                 />
               </div>
 
               {/* Location and website link */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Location</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Location</label>
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-zinc-205 outline-none transition focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Personal Website</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Personal Website</label>
                   <input
                     type="url"
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="https://"
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-zinc-205 outline-none transition focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
               </div>
@@ -393,13 +404,13 @@ export default function BlinkoTreeBuilder() {
           {/* TAB 2: Social accounts mapping */}
           {activeTab === "socials" && (
             <DashboardCard className="space-y-4">
-              <h3 className="text-base font-semibold text-white">Social Integrations</h3>
-              <p className="text-xs text-zinc-500 mb-2">Provide your profile URLs. Only filled platforms will appear on your public page.</p>
+              <h3 className="text-base font-semibold text-on-surface">Social Integrations</h3>
+              <p className="text-xs text-on-surface-variant/75 mb-2">Provide your profile URLs. Only filled platforms will appear on your public page.</p>
               
               {Object.keys(socials).map((platform) => (
                 <div key={platform}>
-                  <label className="flex items-center gap-2 text-xs font-medium text-zinc-400 mb-1.5 capitalize">
-                    <span className="rounded bg-zinc-900 border border-zinc-850 p-1 text-zinc-500">
+                  <label className="flex items-center gap-2 text-xs font-medium text-on-surface-variant mb-1.5 capitalize">
+                    <span className="rounded bg-white/60 border border-black/5 p-1 text-primary">
                       <Link2 className="h-3 w-3" />
                     </span>
                     {platform} URL
@@ -409,7 +420,7 @@ export default function BlinkoTreeBuilder() {
                     placeholder={`https://${platform}.com/username`}
                     value={socials[platform]}
                     onChange={(e) => handleSocialChange(platform, e.target.value)}
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-zinc-205 outline-none transition focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
               ))}
@@ -421,7 +432,7 @@ export default function BlinkoTreeBuilder() {
             <div className="space-y-6">
               {/* Presets Gallery */}
               <DashboardCard>
-                <h3 className="text-base font-semibold text-white mb-4">Choose Theme Preset</h3>
+                <h3 className="text-base font-semibold text-on-surface mb-4">Choose Theme Preset</h3>
                 <div className="grid gap-4 grid-cols-2 sm:grid-cols-3">
                   {themesList.map((theme) => {
                     const isSelected = selectedThemeId === theme.id;
@@ -432,31 +443,31 @@ export default function BlinkoTreeBuilder() {
                         onClick={() => handleSelectTheme(theme)}
                         className={`group flex flex-col gap-2 rounded-xl border p-3.5 text-left transition duration-300 ${
                           isSelected 
-                            ? "border-violet-500 bg-violet-650/5 ring-1 ring-violet-500/30"
-                            : "border-zinc-900 bg-zinc-950 hover:border-zinc-850 hover:bg-zinc-900/40"
+                            ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                            : "border-black/10 bg-white/40 hover:border-black/20 hover:bg-white/60"
                         }`}
                       >
                         {/* Miniature graphic */}
                         <div
-                          className="aspect-video w-full rounded-lg flex flex-col justify-between p-2 border border-zinc-800"
+                          className="aspect-video w-full rounded-lg flex flex-col justify-between p-2 border border-black/10"
                           style={{ backgroundColor: theme.config?.previewBg }}
                         >
                           <div className="flex items-center gap-1">
                             <div className="h-2 w-2 rounded-full" style={{ backgroundColor: theme.config?.accentColor }} />
-                            <div className="h-1 w-6 rounded bg-zinc-700/60" />
+                            <div className="h-1 w-6 rounded bg-black/15" />
                           </div>
                           <div className="space-y-1">
-                            <div className="h-1.5 w-full rounded bg-zinc-700/60" />
-                            <div className="h-1.5 w-2/3 rounded bg-zinc-700/60" />
+                            <div className="h-1.5 w-full rounded bg-black/15" />
+                            <div className="h-1.5 w-2/3 rounded bg-black/15" />
                           </div>
                         </div>
                         
                         <div className="flex items-center justify-between mt-1">
-                          <span className="text-xs font-semibold text-zinc-300 group-hover:text-white transition">
+                          <span className="text-xs font-semibold text-on-surface-variant group-hover:text-on-surface transition">
                             {theme.name}
                           </span>
                           {isSelected && (
-                            <span className="rounded bg-violet-500/10 p-0.5 text-violet-400 border border-violet-500/20">
+                            <span className="rounded bg-primary/10 p-0.5 text-primary border border-primary/20">
                               <CheckCircle2 className="h-3 w-3" />
                             </span>
                           )}
@@ -469,8 +480,8 @@ export default function BlinkoTreeBuilder() {
 
               {/* Accent Color picker */}
               <DashboardCard>
-                <h3 className="text-base font-semibold text-white mb-1.5">Accent Color</h3>
-                <p className="text-xs text-zinc-500 mb-4 font-normal">Choose visual color highlight for social buttons and lines.</p>
+                <h3 className="text-base font-semibold text-on-surface mb-1.5">Accent Color</h3>
+                <p className="text-xs text-on-surface-variant/75 mb-4 font-normal">Choose visual color highlight for social buttons and lines.</p>
                 <div className="flex flex-wrap gap-3">
                   {colors.map((color) => {
                     const isSelected = accentColor.toLowerCase() === color.toLowerCase();
@@ -480,8 +491,8 @@ export default function BlinkoTreeBuilder() {
                         type="button"
                         onClick={() => setAccentColor(color)}
                         style={{ backgroundColor: color }}
-                        className={`relative flex h-8 w-8 items-center justify-center rounded-full border border-zinc-950 shadow-md transition hover:scale-110 focus:outline-none ${
-                          isSelected ? "ring-2 ring-violet-500 ring-offset-2 ring-offset-zinc-950" : ""
+                        className={`relative flex h-8 w-8 items-center justify-center rounded-full border border-black/10 shadow-md transition hover:scale-110 focus:outline-none ${
+                          isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-white" : ""
                         }`}
                       />
                     );
@@ -491,7 +502,7 @@ export default function BlinkoTreeBuilder() {
 
               {/* Fonts typography */}
               <DashboardCard>
-                <h3 className="text-base font-semibold text-white mb-4">Typography Fonts</h3>
+                <h3 className="text-base font-semibold text-on-surface mb-4">Typography Fonts</h3>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {fonts.map((font) => {
                     const isSelected = fontStyle === font.id;
@@ -502,8 +513,8 @@ export default function BlinkoTreeBuilder() {
                         onClick={() => setFontStyle(font.id)}
                         className={`rounded-lg border p-3 text-center text-xs font-semibold transition duration-200 ${
                           isSelected
-                            ? "border-violet-500 bg-violet-950/15 text-violet-300"
-                            : "border-zinc-900 bg-zinc-950 text-zinc-400 hover:bg-zinc-900/60 hover:text-white"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-black/10 bg-white/40 text-on-surface-variant hover:bg-white/60 hover:text-on-surface"
                         } ${font.id}`}
                       >
                         {font.name}
@@ -515,7 +526,7 @@ export default function BlinkoTreeBuilder() {
 
               {/* Button Shape customization */}
               <DashboardCard>
-                <h3 className="text-base font-semibold text-white mb-4">Button Shape</h3>
+                <h3 className="text-base font-semibold text-on-surface mb-4">Button Shape</h3>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {buttonStyles.map((style) => {
                     const isSelected = buttonStyle === style.id;
@@ -526,12 +537,12 @@ export default function BlinkoTreeBuilder() {
                         onClick={() => setButtonStyle(style.id)}
                         className={`rounded-lg border p-3 text-center text-xs font-semibold transition duration-200 flex flex-col items-center gap-2 ${
                           isSelected
-                            ? "border-violet-500 bg-violet-950/15 text-violet-300"
-                            : "border-zinc-900 bg-zinc-950 text-zinc-400 hover:bg-zinc-900/60 hover:text-white"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-black/10 bg-white/40 text-on-surface-variant hover:bg-white/60"
                         }`}
                       >
                         <span>{style.name}</span>
-                        <span className={`h-5 w-16 border border-zinc-800 bg-zinc-900 block ${style.id}`} />
+                        <span className={`h-5 w-16 border border-black/10 bg-black/5 block ${style.id}`} />
                       </button>
                     );
                   })}

@@ -183,7 +183,7 @@ export default function BillingPage() {
 
       {/* Premium Upgrade Toast */}
       {upgraded && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-xl border border-violet-500/30 bg-zinc-950 px-4 py-3 text-sm text-violet-400 shadow-2xl shadow-black/80 animate-in fade-in slide-in-from-bottom-4">
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-xl border border-primary/20 bg-white px-4 py-3 text-sm text-primary shadow-2xl animate-in fade-in slide-in-from-bottom-4">
           <Sparkles className="h-4 w-4 animate-bounce" />
           <span>Congratulations! You are now subscribed to Blinko Pro. 🎉</span>
         </div>
@@ -195,8 +195,8 @@ export default function BillingPage() {
         <DashboardCard className="md:col-span-3 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-white">Resource Usage</h3>
-              <span className="rounded-full bg-zinc-900 border border-zinc-800 px-2.5 py-0.5 text-[10px] text-zinc-400 font-medium">
+              <h3 className="text-base font-semibold text-on-surface">Resource Usage</h3>
+              <span className="rounded-full bg-white/50 border border-black/5 px-2.5 py-0.5 text-[10px] text-on-surface-variant font-medium">
                 Billing Cycle
               </span>
             </div>
@@ -205,20 +205,20 @@ export default function BillingPage() {
               {metrics.map((metric) => (
                 <div key={metric.name} className="space-y-2">
                   <div className="flex justify-between text-xs font-semibold">
-                    <span className="text-zinc-300">{metric.name}</span>
-                    <span className="text-zinc-500 font-mono">
-                      {metric.current} / <span className="text-zinc-350">{metric.limit}</span>
+                    <span className="text-on-surface-variant">{metric.name}</span>
+                    <span className="text-on-surface font-mono">
+                      {metric.current} / <span className="text-on-surface-variant/80">{metric.limit}</span>
                     </span>
                   </div>
                   {/* Progress track */}
-                  <div className="h-2 w-full rounded-full bg-zinc-900 overflow-hidden">
+                  <div className="h-2 w-full rounded-full bg-black/5 overflow-hidden shadow-inner">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         planName === "Pro"
-                          ? "bg-gradient-to-r from-violet-500 to-fuchsia-500"
+                          ? "bg-gradient-to-r from-primary to-primary-container"
                           : metric.percent > 75
                           ? "bg-rose-500"
-                          : "bg-violet-500"
+                          : "bg-primary"
                       }`}
                       style={{ width: `${metric.percent}%` }}
                     />
@@ -228,30 +228,30 @@ export default function BillingPage() {
             </div>
           </div>
 
-          <div className="mt-8 text-xs text-zinc-500 leading-relaxed border-t border-zinc-900 pt-4">
+          <div className="mt-8 text-xs text-on-surface-variant/70 border-t border-black/5 pt-4">
             * Limits reflect counts for the current billing cycle. Upgrade to access unlimited resources.
           </div>
         </DashboardCard>
 
         {/* Current Subscription Card */}
-        <DashboardCard className="md:col-span-2 relative overflow-hidden bg-zinc-950 flex flex-col justify-between">
-          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-violet-600/10 blur-2xl pointer-events-none" />
+        <DashboardCard className="md:col-span-2 relative overflow-hidden bg-white/40 border-white/60 shadow-sm backdrop-blur-md flex flex-col justify-between">
+          <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-primary/5 blur-2xl pointer-events-none" />
           
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Current Plan</span>
-            <h4 className="text-3xl font-extrabold text-white mt-2 flex items-baseline gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant/80">Current Plan</span>
+            <h4 className="text-3xl font-extrabold text-on-surface mt-2 flex items-baseline gap-2">
               {planName}
               {planName === "Pro" ? (
-                <span className="rounded-full bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 text-xs text-violet-300 font-semibold uppercase tracking-wider">
+                <span className="rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 text-xs text-primary font-semibold uppercase tracking-wider">
                   Active
                 </span>
               ) : (
-                <span className="rounded-full bg-zinc-900 border border-zinc-800 px-2 py-0.5 text-[9px] text-zinc-500 font-semibold uppercase tracking-wider">
+                <span className="rounded-full bg-black/5 border border-black/5 px-2 py-0.5 text-[9px] text-on-surface-variant/70 font-semibold uppercase tracking-wider">
                   Basic
                 </span>
               )}
             </h4>
-            <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+            <p className="text-xs text-on-surface-variant mt-2 leading-relaxed">
               {planName === "Pro"
                 ? "You have unlocked complete access to advanced themes, domain bindings, and AI creators."
                 : "Ideal for basic link sharing. Upgrade to remove branding and unlock SEO controls."}
@@ -260,11 +260,11 @@ export default function BillingPage() {
 
           <div className="mt-8">
             {planName === "Free" ? (
-              <Button variant="primary" className="w-full text-xs font-bold" onClick={handleUpgrade} disabled={upgrading}>
+              <Button variant="luminous" className="w-full text-xs font-bold" onClick={handleUpgrade} disabled={upgrading}>
                 {upgrading ? "Processing..." : "Upgrade to Pro ($5/mo)"}
               </Button>
             ) : (
-              <Button variant="secondary" className="w-full text-xs font-bold text-zinc-350" disabled>
+              <Button variant="secondary" className="w-full text-xs font-bold text-on-surface-variant" disabled>
                 Manage Subscription
               </Button>
             )}
@@ -274,78 +274,78 @@ export default function BillingPage() {
 
       {/* Pricing Comparison Grid */}
       <div className="space-y-4">
-        <h3 className="text-base font-semibold text-white">Compare Plans</h3>
+        <h3 className="text-base font-semibold text-on-surface">Compare Plans</h3>
         <div className="grid gap-6 md:grid-cols-2">
           {/* Free Card */}
-          <DashboardCard className="relative flex flex-col justify-between border border-zinc-900 p-6">
+          <DashboardCard className="relative flex flex-col justify-between border border-white/60 bg-white/40 shadow-sm p-6">
             <div>
-              <h4 className="text-base font-semibold text-white">Free Basic</h4>
-              <p className="text-xs text-zinc-500 mt-1.5">Ideal for basic social profiles or simple directories.</p>
+              <h4 className="text-base font-semibold text-on-surface">Free Basic</h4>
+              <p className="text-xs text-on-surface-variant mt-1.5">Ideal for basic social profiles or simple directories.</p>
               <div className="mt-5 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-white">$0</span>
-                <span className="text-xs text-zinc-500">/forever</span>
+                <span className="text-3xl font-extrabold text-on-surface">$0</span>
+                <span className="text-xs text-on-surface-variant">/forever</span>
               </div>
               <ul className="mt-6 space-y-3">
-                <li className="flex gap-2 text-xs text-zinc-400">
-                  <Check className="h-4 w-4 text-violet-400 shrink-0" />
+                <li className="flex gap-2 text-xs text-on-surface-variant">
+                  <Check className="h-4 w-4 text-primary shrink-0" />
                   <span>Up to 5 live links</span>
                 </li>
-                <li className="flex gap-2 text-xs text-zinc-400">
-                  <Check className="h-4 w-4 text-violet-400 shrink-0" />
+                <li className="flex gap-2 text-xs text-on-surface-variant">
+                  <Check className="h-4 w-4 text-primary shrink-0" />
                   <span>Standard Theme designs</span>
                 </li>
-                <li className="flex gap-2 text-xs text-zinc-400">
-                  <Check className="h-4 w-4 text-violet-400 shrink-0" />
+                <li className="flex gap-2 text-xs text-on-surface-variant">
+                  <Check className="h-4 w-4 text-primary shrink-0" />
                   <span>Basic performance metrics</span>
                 </li>
               </ul>
             </div>
             <div className="mt-8">
-              <button disabled className="w-full rounded-lg border border-zinc-800 bg-zinc-900/50 py-2.5 text-xs font-semibold text-zinc-500 cursor-not-allowed text-center">
+              <button disabled className="w-full rounded-lg border border-black/5 bg-black/5 py-2.5 text-xs font-semibold text-on-surface-variant/70 cursor-not-allowed text-center">
                 {planName === "Free" ? "Your Current Plan" : "Basic Tier"}
               </button>
             </div>
           </DashboardCard>
 
           {/* Pro Card */}
-          <DashboardCard className={`relative flex flex-col justify-between border p-6 ${planName === "Free" ? "border-violet-500/50 bg-violet-650/[0.03]" : "border-zinc-900"}`}>
+          <DashboardCard className={`relative flex flex-col justify-between border backdrop-blur-md shadow-sm p-6 ${planName === "Free" ? "border-primary/50 bg-primary/5 shadow-primary/5" : "border-white/60 bg-white/40"}`}>
             <div>
               <div className="flex justify-between items-start">
-                <h4 className="text-base font-semibold text-white">Blinko Pro</h4>
-                <span className="rounded bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 text-[10px] text-violet-400 font-semibold uppercase tracking-wider">
+                <h4 className="text-base font-semibold text-on-surface">Blinko Pro</h4>
+                <span className="rounded bg-primary/10 border border-primary/20 px-2 py-0.5 text-[10px] text-primary font-semibold uppercase tracking-wider">
                   Recommended
                 </span>
               </div>
-              <p className="text-xs text-zinc-500 mt-1.5">Unlocks complete styling customization and analytics views.</p>
+              <p className="text-xs text-on-surface-variant mt-1.5">Unlocks complete styling customization and analytics views.</p>
               <div className="mt-5 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-white">$5</span>
-                <span className="text-xs text-zinc-500">/monthly</span>
+                <span className="text-3xl font-extrabold text-on-surface">$5</span>
+                <span className="text-xs text-on-surface-variant">/monthly</span>
               </div>
               <ul className="mt-6 space-y-3">
-                <li className="flex gap-2 text-xs text-zinc-400">
-                  <Check className="h-4 w-4 text-violet-400 shrink-0" />
+                <li className="flex gap-2 text-xs text-on-surface-variant">
+                  <Check className="h-4 w-4 text-primary shrink-0" />
                   <span>Unlimited Link additions</span>
                 </li>
-                <li className="flex gap-2 text-xs text-zinc-400">
-                  <Check className="h-4 w-4 text-violet-400 shrink-0" />
+                <li className="flex gap-2 text-xs text-on-surface-variant">
+                  <Check className="h-4 w-4 text-primary shrink-0" />
                   <span>Premium themes (Neon, Cyberpunk, Glassmorphism)</span>
                 </li>
-                <li className="flex gap-2 text-xs text-zinc-400">
-                  <Check className="h-4 w-4 text-violet-400 shrink-0" />
+                <li className="flex gap-2 text-xs text-on-surface-variant">
+                  <Check className="h-4 w-4 text-primary shrink-0" />
                   <span>Full click CTR dashboard analytics</span>
                 </li>
               </ul>
             </div>
             <div className="mt-8">
               {planName === "Pro" ? (
-                <button disabled className="w-full rounded-lg border border-zinc-800 bg-zinc-900/50 py-2.5 text-xs font-semibold text-zinc-500 cursor-not-allowed text-center">
+                <button disabled className="w-full rounded-lg border border-black/5 bg-black/5 py-2.5 text-xs font-semibold text-on-surface-variant/70 cursor-not-allowed text-center">
                   Your Current Plan
                 </button>
               ) : (
                 <button
                   onClick={handleUpgrade}
                   disabled={upgrading}
-                  className="w-full rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-500 py-2.5 text-xs font-bold text-white hover:from-violet-500 hover:to-fuchsia-400 transition cursor-pointer text-center"
+                  className="w-full rounded-lg bg-primary py-2.5 text-xs font-bold text-white hover:bg-primary/95 transition cursor-pointer text-center shadow-sm"
                 >
                   {upgrading ? "Processing..." : "Upgrade to Pro"}
                 </button>
@@ -359,14 +359,14 @@ export default function BillingPage() {
       {history.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-violet-400" />
-            <h3 className="text-base font-semibold text-white">Payment History</h3>
+            <CreditCard className="h-4 w-4 text-primary" />
+            <h3 className="text-base font-semibold text-on-surface">Payment History</h3>
           </div>
 
-          <DashboardCard className="overflow-x-auto p-0 border-zinc-900">
+          <DashboardCard className="overflow-x-auto p-0 border-white/60 bg-white/40 shadow-sm">
             <table className="min-w-[600px] w-full border-collapse text-left">
               <thead>
-                <tr className="border-b border-zinc-900 bg-zinc-950/60 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                <tr className="border-b border-black/5 bg-white/50 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
                   <th className="px-6 py-3.5">Invoice Date</th>
                   <th className="px-6 py-3.5">Amount</th>
                   <th className="px-6 py-3.5">Status</th>
@@ -374,22 +374,22 @@ export default function BillingPage() {
                   <th className="px-6 py-3.5 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-900 bg-zinc-950/20 text-xs">
+              <tbody className="divide-y divide-black/5 bg-transparent text-xs">
                 {history.map((invoice) => (
-                  <tr key={invoice.id} className="hover:bg-zinc-900/20 transition">
-                    <td className="px-6 py-3.5 text-zinc-300 font-semibold">{invoice.date}</td>
-                    <td className="px-6 py-3.5 text-zinc-300 font-mono font-medium">{invoice.amount}</td>
+                  <tr key={invoice.id} className="hover:bg-white/50 transition">
+                    <td className="px-6 py-3.5 text-on-surface font-semibold">{invoice.date}</td>
+                    <td className="px-6 py-3.5 text-on-surface font-mono font-medium">{invoice.amount}</td>
                     <td className="px-6 py-3.5">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-semibold text-emerald-400 border border-emerald-500/15">
-                        <span className="h-1 w-1 rounded-full bg-emerald-400" />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-semibold text-emerald-600 border border-emerald-500/20">
+                        <span className="h-1 w-1 rounded-full bg-emerald-500" />
                         {invoice.status}
                       </span>
                     </td>
-                    <td className="px-6 py-3.5 text-zinc-500 font-mono">{invoice.invoice}</td>
+                    <td className="px-6 py-3.5 text-on-surface-variant/70 font-mono">{invoice.invoice}</td>
                     <td className="px-6 py-3.5 text-right">
                       <button
                         onClick={() => alert(`Success: Initiated invoice receipt download`)}
-                        className="inline-flex items-center gap-1 text-[10px] font-semibold text-zinc-400 hover:text-violet-400 transition"
+                        className="inline-flex items-center gap-1 text-[10px] font-semibold text-on-surface-variant hover:text-primary transition"
                       >
                         <Download className="h-3 w-3" />
                         Receipt

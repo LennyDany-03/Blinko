@@ -1,4 +1,4 @@
-import { Eye, MousePointerClick, TrendingUp, Users, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Eye, MousePointerClick, TrendingUp, Users, Link2, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import DashboardCard from "./DashboardCard";
 
 const iconMap = {
@@ -6,6 +6,7 @@ const iconMap = {
   MousePointerClick,
   TrendingUp,
   Users,
+  Link2,
 };
 
 export default function StatsCard({ label, value, change, isPositive, timeframe, iconName }) {
@@ -14,25 +15,25 @@ export default function StatsCard({ label, value, change, isPositive, timeframe,
   return (
     <DashboardCard hoverEffect className="relative overflow-hidden">
       {/* Background glow highlight */}
-      <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-violet-500/10 blur-2xl" />
+      <div className="absolute right-0 top-0 -mr-6 -mt-6 h-24 w-24 rounded-full bg-primary/5 blur-2xl" />
 
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-zinc-400">{label}</span>
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-2 text-violet-400">
+        <span className="text-sm font-semibold text-on-surface-variant/80">{label}</span>
+        <div className="rounded-xl border border-black/5 bg-white/50 p-2.5 text-primary shadow-sm">
           <IconComponent className="h-4 w-4" aria-hidden="true" />
         </div>
       </div>
 
       <div className="mt-4 flex items-baseline gap-2">
-        <span className="text-3xl font-semibold tracking-tight text-white">
+        <span className="text-3xl font-bold tracking-tight text-on-surface font-display-xl">
           {value}
         </span>
         <span
           className={[
-            "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-semibold",
+            "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold border",
             isPositive
-              ? "bg-emerald-500/10 text-emerald-400"
-              : "bg-rose-500/10 text-rose-400",
+              ? "bg-emerald-55/70 border-emerald-100 text-emerald-700"
+              : "bg-rose-55/70 border-rose-100 text-rose-700",
           ].join(" ")}
         >
           {isPositive ? (
@@ -43,7 +44,7 @@ export default function StatsCard({ label, value, change, isPositive, timeframe,
           {change}
         </span>
       </div>
-      <p className="mt-1 text-xs text-zinc-500">{timeframe}</p>
+      <p className="mt-1.5 text-xs text-on-surface-variant/60">{timeframe}</p>
     </DashboardCard>
   );
 }

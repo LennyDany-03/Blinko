@@ -11,19 +11,19 @@ export default function DashboardCard({
     <CardElement
       onClick={onClick}
       className={[
-        "relative overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-950 p-6 text-left transition-all duration-300",
+        "relative overflow-hidden rounded-2xl border border-white/60 bg-white/40 p-6 text-left transition-all duration-300 backdrop-blur-md shadow-sm",
         hoverEffect
-          ? "hover:-translate-y-1 hover:border-zinc-700 hover:bg-zinc-900/40 hover:shadow-xl hover:shadow-violet-950/10"
+          ? "hover:-translate-y-1 hover:border-white/85 hover:bg-white/60 hover:shadow-md hover:shadow-primary/5"
           : "",
         gradientBorder
-          ? "before:absolute before:inset-0 before:p-[1px] before:bg-gradient-to-r before:from-violet-500/30 before:to-fuchsia-500/30 before:rounded-xl before:-z-10"
+          ? "before:absolute before:inset-0 before:p-[1px] before:bg-gradient-to-r before:from-primary/20 before:to-secondary/20 before:rounded-2xl before:-z-10"
           : "",
-        onClick ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-500/50" : "",
+        onClick ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40" : "",
         className,
       ].join(" ")}
     >
       {/* Subtle background gradient for extra depth */}
-      <div className="absolute -left-16 -top-16 h-32 w-32 rounded-full bg-violet-600/5 opacity-[0.03] blur-3xl pointer-events-none" />
+      <div className="absolute -left-16 -top-16 h-32 w-32 rounded-full bg-primary/5 opacity-[0.05] blur-3xl pointer-events-none" />
       <div className="relative z-10 w-full">{children}</div>
     </CardElement>
   );

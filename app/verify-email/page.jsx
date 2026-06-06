@@ -75,51 +75,51 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="relative z-10 w-full max-w-md rounded-lg border border-white/10 bg-[#111111]/75 p-6 shadow-2xl shadow-violet-950/20 backdrop-blur-xl sm:p-8">
+    <div className="relative z-10 w-full max-w-md rounded-[32px] border border-white/60 bg-white/45 p-6 shadow-[0_8px_32px_rgba(159,65,34,0.04)] backdrop-blur-2xl sm:p-8 animate-scale-in">
       <div className="flex flex-col items-center text-center">
         <div className="mb-4">
           <BlinkoLogo />
         </div>
         
         {/* Pulsating Mail Icon Container */}
-        <div className="relative my-6 flex h-16 w-16 items-center justify-center rounded-full bg-violet-500/10 text-violet-400">
-          <div className="absolute inset-0 animate-ping rounded-full bg-violet-500/5 opacity-75 animate-duration-1000" style={{ animationDuration: '2s' }} />
+        <div className="relative my-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className="absolute inset-0 animate-ping rounded-full bg-primary/5 opacity-75" style={{ animationDuration: '2s' }} />
           <Mail className="h-8 w-8" />
         </div>
 
-        <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
           Check your email
         </h1>
-        <p className="mt-3 text-sm text-zinc-400">
+        <p className="mt-3 text-sm text-on-surface-variant/80">
           We sent a verification link to your email address:
         </p>
         
         {email ? (
-          <div className="mt-2 rounded-md bg-white/[0.03] px-3 py-1.5 font-mono text-xs text-violet-300 border border-white/5 break-all max-w-full">
+          <div className="mt-2 rounded-xl bg-white/50 px-3.5 py-2 font-mono text-xs text-primary border border-black/5 break-all max-w-full">
             {email}
           </div>
         ) : (
-          <div className="mt-2 text-xs text-zinc-500 italic">
+          <div className="mt-2 text-xs text-on-surface-variant/50 italic">
             your registered email address
           </div>
         )}
 
-        <p className="mt-4 text-xs text-zinc-400 leading-relaxed">
+        <p className="mt-4 text-xs text-on-surface-variant/70 leading-relaxed">
           Please confirm your email address using the link in that mail, then return here to sign in to access your dashboard.
         </p>
       </div>
 
       {/* Message Notifications */}
       {message.text && (
-        <div className={`mt-6 flex items-start gap-2.5 rounded-lg border p-3 text-xs animate-in fade-in duration-200 ${
+        <div className={`mt-6 flex items-start gap-2.5 rounded-2xl border p-3.5 text-xs animate-in fade-in duration-200 ${
           message.type === "success" 
-            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400" 
-            : "border-rose-500/20 bg-rose-500/10 text-rose-400"
+            ? "border-emerald-200 bg-emerald-50 text-emerald-700" 
+            : "border-rose-200 bg-rose-50 text-rose-700"
         }`}>
           {message.type === "success" ? (
-            <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+            <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-emerald-600" />
           ) : (
-            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-rose-600" />
           )}
           <span>{message.text}</span>
         </div>
@@ -128,7 +128,7 @@ function VerifyEmailContent() {
       <div className="mt-8 space-y-4">
         {/* Main action: Sign In */}
         <Link href="/login" className="block w-full">
-          <Button className="w-full h-11 text-sm font-bold" icon={ArrowRight}>
+          <Button variant="luminous" className="w-full h-11 text-sm font-bold shadow-md shadow-primary/10" icon={ArrowRight}>
             Go to Login
           </Button>
         </Link>
@@ -139,21 +139,21 @@ function VerifyEmailContent() {
             type="button"
             onClick={handleResend}
             disabled={loading || cooldown > 0}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.02] text-xs font-semibold text-zinc-300 transition duration-200 hover:border-white/25 hover:bg-white/[0.05] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-full border border-white/60 bg-white/45 text-xs font-semibold text-on-surface hover:bg-white/60 hover:border-white/80 transition shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-violet-400" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
                 Resending link...
               </>
             ) : cooldown > 0 ? (
               <>
-                <RefreshCw className="h-3.5 w-3.5 animate-spin text-zinc-500 duration-1000" />
+                <RefreshCw className="h-3.5 w-3.5 animate-spin text-on-surface-variant/50 duration-1000" />
                 Resend in {cooldown}s
               </>
             ) : (
               <>
-                <RefreshCw className="h-3.5 w-3.5 text-zinc-400" />
+                <RefreshCw className="h-3.5 w-3.5 text-on-surface-variant/65" />
                 Didn&apos;t receive email? Resend
               </>
             )}
@@ -161,11 +161,11 @@ function VerifyEmailContent() {
         )}
       </div>
 
-      <p className="mt-6 text-center text-xs text-zinc-500">
+      <p className="mt-6 text-center text-xs text-on-surface-variant/60">
         Wrong email?{" "}
         <Link
           href="/signup"
-          className="font-semibold text-violet-400 transition hover:text-violet-300"
+          className="font-semibold text-primary hover:text-primary-container transition duration-200"
         >
           Sign up with another email
         </Link>
@@ -176,12 +176,12 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4 py-12 text-white select-none">
-      <div className="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_50%_0%,rgba(124,58,237,0.2),transparent_35%)]" />
+    <main className="flex min-h-screen items-center justify-center bg-transparent px-4 py-12 text-on-surface select-none relative">
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(159,65,34,0.06),transparent_45%)]" />
       <Suspense fallback={
-        <div className="relative z-10 w-full max-w-md rounded-lg border border-white/10 bg-[#111111]/75 p-12 shadow-2xl shadow-violet-950/20 backdrop-blur-xl flex flex-col items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
-          <span className="mt-4 text-sm text-zinc-400">Loading page info...</span>
+        <div className="relative z-10 w-full max-w-md rounded-[32px] border border-white/60 bg-white/45 p-12 shadow-[0_8px_32px_rgba(159,65,34,0.04)] backdrop-blur-2xl flex flex-col items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="mt-4 text-sm text-on-surface-variant/70">Loading page info...</span>
         </div>
       }>
         <VerifyEmailContent />

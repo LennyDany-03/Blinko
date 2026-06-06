@@ -126,23 +126,23 @@ export default function TreeBuilder() {
         .maybeSingle();
 
       if (profileRow) {
-        setDisplayName(profileRow.display_name || "");
+        setDisplayName(profileRow.display_name || user?.user_metadata?.full_name || user?.user_metadata?.name || "");
         setBio(profileRow.bio || "");
         setLocation(profileRow.location || "");
         setWebsite(profileRow.website || "");
-        setAvatarUrl(profileRow.avatar_url || "");
+        setAvatarUrl(profileRow.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "");
         setSelectedThemeId(profileRow.theme_id);
         setAccentColor(profileRow.accent_color || "#7c3aed");
         setFontStyle(profileRow.font_style || "font-sans");
         setButtonStyle(profileRow.button_style || "rounded-md");
         setBackgroundType(profileRow.background_type || "bg-zinc-950");
       } else {
-        // Clear forms if profile is missing
-        setDisplayName("");
+        // Clear forms if profile is missing, fallback to oauth values
+        setDisplayName(user?.user_metadata?.full_name || user?.user_metadata?.name || "");
         setBio("");
         setLocation("");
         setWebsite("");
-        setAvatarUrl("");
+        setAvatarUrl(user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "");
       }
 
       // 2. Load links
@@ -578,8 +578,8 @@ export default function TreeBuilder() {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <div className="text-center space-y-4">
-          <Loader2 className="h-10 w-10 animate-spin text-violet-500 mx-auto" />
-          <p className="text-sm text-zinc-400">Loading Blinko Tree workspace...</p>
+          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
+          <p className="text-sm text-on-surface-variant">Loading Blinko Tree workspace...</p>
         </div>
       </div>
     );
@@ -594,22 +594,22 @@ export default function TreeBuilder() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
       
       {/* Dynamic Stepper Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-zinc-900 pb-5 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-black/5 pb-5 gap-4">
         <div>
           <div className="relative" style={{ display: "inline-block" }}>
             <button
               onClick={() => setSwitcherOpen(!switcherOpen)}
-              className="flex items-center gap-2 rounded-lg bg-zinc-900 border border-zinc-850 px-4 py-2 text-sm font-extrabold text-white hover:bg-zinc-800 hover:text-white transition"
+              className="flex items-center gap-2 rounded-lg bg-white/50 border border-black/10 px-4 py-2 text-sm font-extrabold text-on-surface hover:bg-white/80 hover:text-on-surface transition"
             >
-              <GitBranch className="h-4 w-4 text-violet-400" />
+              <GitBranch className="h-4 w-4 text-primary" />
               @{activeTree?.slug || "handle"}
-              <ChevronDown className="h-3 w-3 text-zinc-550" />
+              <ChevronDown className="h-3 w-3 text-on-surface-variant/80" />
             </button>
 
             {/* Tree Switcher Dropdown */}
             {switcherOpen && (
-              <div className="absolute left-0 mt-2 w-56 rounded-xl border border-zinc-900 bg-zinc-950 p-1.5 shadow-2xl shadow-black z-50 animate-in fade-in duration-200">
-                <p className="text-[10px] font-bold text-zinc-550 uppercase tracking-widest px-3 py-1.5 border-b border-zinc-900 mb-1">
+              <div className="absolute left-0 mt-2 w-56 rounded-xl border border-black/10 bg-white/95 p-1.5 shadow-xl backdrop-blur-md z-50 animate-in fade-in duration-200">
+                <p className="text-[10px] font-bold text-on-surface-variant/70 uppercase tracking-widest px-3 py-1.5 border-b border-black/5 mb-1">
                   Switch Active Tree
                 </p>
                 <div className="max-h-36 overflow-y-auto no-scrollbar space-y-0.5">
@@ -619,8 +619,8 @@ export default function TreeBuilder() {
                       onClick={() => handleSwitchTree(tree)}
                       className={`w-full flex items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold text-left transition ${
                         tree.id === activeTree?.id
-                          ? "bg-violet-600/15 border border-violet-500/10 text-violet-300 font-bold"
-                          : "text-zinc-400 hover:bg-zinc-900 hover:text-white border border-transparent"
+                          ? "bg-primary/10 border border-primary/15 text-primary font-bold"
+                          : "text-on-surface-variant hover:bg-black/5 hover:text-on-surface border border-transparent"
                       }`}
                     >
                       <span className="truncate">@{tree.slug}</span>
@@ -628,19 +628,19 @@ export default function TreeBuilder() {
                     </button>
                   ))}
                 </div>
-                <div className="border-t border-zinc-900 my-1.5" />
+                <div className="border-t border-black/5 my-1.5" />
                 <button
                   onClick={handleCreateNewTree}
-                  className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-extrabold text-violet-400 hover:bg-violet-650/15 hover:text-violet-300 transition text-left cursor-pointer"
+                  className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-extrabold text-primary hover:bg-primary/10 hover:text-primary transition text-left cursor-pointer"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Create New Tree
-                  {!isPro && trees.length >= 2 && <Lock className="h-3 w-3 text-zinc-500" />}
+                  {!isPro && trees.length >= 2 && <Lock className="h-3 w-3 text-on-surface-variant/50" />}
                 </button>
               </div>
             )}
           </div>
-          <p className="text-xs text-zinc-500 mt-2 font-medium">Build, customize theme styles, and manage links for this public bio tree.</p>
+          <p className="text-xs text-on-surface-variant/85 mt-2 font-medium">Build, customize theme styles, and manage links for this public bio tree.</p>
         </div>
 
         {/* Global Action Controls */}
@@ -649,7 +649,7 @@ export default function TreeBuilder() {
             href={`/${activeTree?.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-850 bg-zinc-900 px-3.5 py-1.5 text-xs font-semibold text-zinc-300 hover:text-white transition"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/50 px-3.5 py-1.5 text-xs font-semibold text-on-surface hover:bg-white/80 hover:text-on-surface transition"
           >
             <Eye className="h-3.5 w-3.5" />
             View Public Page
@@ -657,7 +657,7 @@ export default function TreeBuilder() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-violet-500 transition cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-bold text-white hover:bg-primary/90 transition cursor-pointer disabled:opacity-50"
           >
             {saving ? (
               <>
@@ -676,7 +676,7 @@ export default function TreeBuilder() {
 
       {/* Toast */}
       {showToast && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-zinc-950 px-4 py-3 text-sm text-emerald-400 shadow-xl shadow-black/50 animate-in fade-in slide-in-from-bottom-4">
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-lg border border-emerald-250 bg-white px-4 py-3 text-sm text-emerald-700 shadow-lg animate-in fade-in slide-in-from-bottom-4">
           <CheckCircle2 className="h-4 w-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
@@ -689,7 +689,7 @@ export default function TreeBuilder() {
         <div className="lg:col-span-3 space-y-6">
           
           {/* Tab buttons switcher */}
-          <div className="flex border-b border-zinc-900 pb-px gap-4 overflow-x-auto no-scrollbar">
+          <div className="flex border-b border-black/5 pb-px gap-4 overflow-x-auto no-scrollbar">
             {[
               { id: "profile", label: "Profile", icon: User },
               { id: "links", label: "Links", icon: Link2 },
@@ -704,8 +704,8 @@ export default function TreeBuilder() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 pb-3 text-sm font-semibold transition border-b-2 -mb-px cursor-pointer shrink-0 ${
                     activeTab === tab.id 
-                      ? "border-violet-500 text-violet-400"
-                      : "border-transparent text-zinc-400 hover:text-zinc-200"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
                   <TabIcon className="h-4 w-4" />
@@ -718,77 +718,85 @@ export default function TreeBuilder() {
           {/* TAB 1: Profile customization info */}
           {activeTab === "profile" && (
             <DashboardCard className="space-y-5">
-              <h3 className="text-base font-semibold text-white">Profile Customizations</h3>
+              <h3 className="text-base font-semibold text-on-surface">Profile Customizations</h3>
               
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-2xl font-bold text-white shadow-lg relative border border-zinc-850">
-                  {displayName ? displayName.charAt(0).toUpperCase() : "?"}
-                </div>
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="h-16 w-16 rounded-full object-cover shadow-md border border-black/5"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-primary-container text-2xl font-bold text-white shadow-lg relative border border-white/60">
+                    {displayName ? displayName.charAt(0).toUpperCase() : "?"}
+                  </div>
+                )}
                 <div className="flex-1 space-y-1.5">
-                  <label className="block text-xs font-semibold text-zinc-500">Avatar Image URL</label>
+                  <label className="block text-xs font-semibold text-on-surface-variant">Avatar Image URL</label>
                   <input
                     type="url"
                     value={avatarUrl}
                     onChange={(e) => setAvatarUrl(e.target.value)}
                     placeholder="https://images.unsplash.com/... or picture link"
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3 py-1.5 text-xs text-white outline-none focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3 py-1.5 text-xs text-on-surface outline-none focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Display Name</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Display Name</label>
                   <input
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-white outline-none transition focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Username (Slug Handle)</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Username (Slug Handle)</label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-3 text-xs font-mono text-zinc-650">blinko.site/</span>
+                    <span className="absolute left-3 text-xs font-mono text-on-surface-variant/60">blinko.site/</span>
                     <input
                       type="text"
                       value={treeSlug}
                       onChange={(e) => setTreeSlug(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
-                      className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 py-2 pl-[80px] pr-3.5 text-xs text-zinc-200 outline-none focus:border-violet-500/50"
+                      className="w-full rounded-lg border border-black/10 bg-white/45 py-2 pl-[80px] pr-3.5 text-xs text-on-surface outline-none focus:border-primary/50 focus:ring-primary/15"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-400 mb-1.5">Biography Description</label>
+                <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Biography Description</label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   rows="3"
-                  className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-white outline-none transition focus:border-violet-500/50 resize-none"
+                  className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/15 resize-none"
                 />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Location</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Location</label>
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-white outline-none transition focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Website</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Website</label>
                   <input
                     type="url"
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="https://"
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-white outline-none transition focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none transition focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
               </div>
@@ -798,14 +806,14 @@ export default function TreeBuilder() {
           {/* TAB 2: Links setup & visibility options */}
           {activeTab === "links" && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="flex justify-between items-center bg-zinc-950 p-4 border border-zinc-900 rounded-xl">
+              <div className="flex justify-between items-center bg-white/50 p-4 border border-black/5 rounded-xl">
                 <div>
-                  <h3 className="text-sm font-semibold text-white">Manage Links</h3>
-                  <p className="text-xs text-zinc-550 mt-0.5">Customize redirect buttons on your profile page.</p>
+                  <h3 className="text-sm font-semibold text-on-surface">Manage Links</h3>
+                  <p className="text-xs text-on-surface-variant/70 mt-0.5">Customize redirect buttons on your profile page.</p>
                 </div>
                 <button
                   onClick={() => setIsAddingLink(!isAddingLink)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-violet-600 hover:bg-violet-500 text-white transition cursor-pointer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-primary hover:bg-primary/95 text-white transition cursor-pointer"
                 >
                   <Plus className="h-3.5 w-3.5" /> Add Link
                 </button>
@@ -813,13 +821,13 @@ export default function TreeBuilder() {
 
               {/* Add New Link Drawer */}
               {isAddingLink && (
-                <DashboardCard className="border-zinc-900 bg-zinc-950/80 animate-in slide-in-from-top-4 duration-200 space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-violet-400">Configure New Link</h4>
+                <DashboardCard className="border-black/5 bg-white/60 animate-in slide-in-from-top-4 duration-200 space-y-4">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-primary">Configure New Link</h4>
                   
                   <form onSubmit={handleAddLink} className="space-y-4">
                     <div>
-                      <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Link Preset Template</label>
-                      <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto no-scrollbar border border-zinc-900 rounded-lg p-2 bg-black/20">
+                      <label className="block text-xs text-on-surface-variant mb-1.5 font-medium">Link Preset Template</label>
+                      <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto no-scrollbar border border-black/5 rounded-lg p-2 bg-black/5">
                         {LINK_TYPES.map(type => (
                           <button
                             key={type.type}
@@ -827,8 +835,8 @@ export default function TreeBuilder() {
                             onClick={() => handleLinkTypeChange(type)}
                             className={`px-2 py-1 rounded text-[10px] font-semibold transition border ${
                               selectedLinkType.type === type.type
-                                ? "bg-violet-600/15 border-violet-500/30 text-violet-300"
-                                : "border-transparent text-zinc-400 hover:bg-zinc-900"
+                                ? "bg-primary/10 border-primary/20 text-primary"
+                                : "border-transparent text-on-surface-variant hover:bg-black/5"
                             }`}
                           >
                             {type.type}
@@ -839,34 +847,34 @@ export default function TreeBuilder() {
 
                     <div className="grid gap-3 sm:grid-cols-3">
                       <div>
-                        <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Title</label>
+                        <label className="block text-xs text-on-surface-variant mb-1.5 font-medium">Title</label>
                         <input
                           type="text"
                           value={newLinkTitle}
                           onChange={(e) => setNewLinkTitle(e.target.value)}
                           required
-                          className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3 py-1.5 text-xs text-zinc-200 outline-none focus:border-violet-500/50"
+                          className="w-full rounded-lg border border-black/10 bg-white/45 px-3 py-1.5 text-xs text-on-surface outline-none focus:border-primary/50 focus:ring-primary/15"
                         />
                       </div>
                       <div className="sm:col-span-2">
-                        <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Destination URL</label>
+                        <label className="block text-xs text-on-surface-variant mb-1.5 font-medium">Destination URL</label>
                         <input
                           type="url"
                           value={newLinkUrl}
                           onChange={(e) => setNewLinkUrl(e.target.value)}
                           required
-                          className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3 py-1.5 text-xs text-zinc-200 outline-none focus:border-violet-500/50"
+                          className="w-full rounded-lg border border-black/10 bg-white/45 px-3 py-1.5 text-xs text-on-surface outline-none focus:border-primary/50 focus:ring-primary/15"
                         />
                       </div>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-4 items-end bg-black/10 p-3 rounded-lg border border-zinc-900">
+                    <div className="grid gap-3 sm:grid-cols-4 items-end bg-black/5 p-3 rounded-lg border border-black/5">
                       <div>
-                        <label className="block text-xs text-zinc-400 mb-1 font-medium">Shape</label>
+                        <label className="block text-xs text-on-surface-variant mb-1 font-medium">Shape</label>
                         <select
                           value={newLinkButtonStyle}
                           onChange={(e) => setNewLinkButtonStyle(e.target.value)}
-                          className="w-full rounded-lg border border-zinc-900 bg-zinc-900/45 px-2 py-1 text-xs text-zinc-300 outline-none"
+                          className="w-full rounded-lg border border-black/10 bg-white/45 px-2 py-1 text-xs text-on-surface outline-none"
                         >
                           <option value="rounded-none">Sharp</option>
                           <option value="rounded-md">Soft</option>
@@ -882,7 +890,7 @@ export default function TreeBuilder() {
                           onChange={(e) => setNewLinkFeatured(e.target.checked)}
                           className="h-3.5 w-3.5"
                         />
-                        <label htmlFor="featured_check_new" className="text-xs text-zinc-400 font-medium">Featured</label>
+                        <label htmlFor="featured_check_new" className="text-xs text-on-surface-variant font-medium">Featured</label>
                       </div>
 
                       <div className="sm:col-span-2 flex justify-end">
@@ -897,7 +905,7 @@ export default function TreeBuilder() {
 
               {/* Links List items */}
               {links.length === 0 ? (
-                <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-8 text-center text-zinc-550 text-xs italic">
+                <div className="rounded-xl border border-black/5 bg-white/40 p-8 text-center text-on-surface-variant/80 text-xs italic">
                   No links created for this tree yet. Click &quot;Add Link&quot; above to setup button actions.
                 </div>
               ) : (
@@ -909,7 +917,7 @@ export default function TreeBuilder() {
                     return (
                       <div
                         key={link.id}
-                        className="rounded-xl border border-zinc-900 bg-zinc-950 p-4 space-y-3 hover:border-violet-500/20 transition group"
+                        className="rounded-xl border border-black/5 bg-white/40 p-4 space-y-3 hover:border-primary/20 transition group"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 min-w-0">
@@ -918,14 +926,14 @@ export default function TreeBuilder() {
                               <button
                                 onClick={() => handleLinkReorder(index, "up")}
                                 disabled={index === 0}
-                                className="p-0.5 rounded bg-zinc-900 text-zinc-500 hover:text-white disabled:opacity-30 transition"
+                                className="p-0.5 rounded bg-black/5 text-on-surface-variant/70 hover:bg-black/10 hover:text-on-surface disabled:opacity-30 transition"
                               >
                                 <ArrowUp className="h-3 w-3" />
                               </button>
                               <button
                                 onClick={() => handleLinkReorder(index, "down")}
                                 disabled={index === links.length - 1}
-                                className="p-0.5 rounded bg-zinc-900 text-zinc-500 hover:text-white disabled:opacity-30 transition"
+                                className="p-0.5 rounded bg-black/5 text-on-surface-variant/70 hover:bg-black/10 hover:text-on-surface disabled:opacity-30 transition"
                               >
                                 <ArrowDown className="h-3 w-3" />
                               </button>
@@ -937,36 +945,36 @@ export default function TreeBuilder() {
                                   type="text"
                                   value={editLinkTitle}
                                   onChange={(e) => setEditLinkTitle(e.target.value)}
-                                  className="rounded border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-white"
+                                  className="rounded border border-black/10 bg-white/45 px-2 py-1 text-xs text-on-surface"
                                 />
                                 <input
                                   type="url"
                                   value={editLinkUrl}
                                   onChange={(e) => setEditLinkUrl(e.target.value)}
-                                  className="rounded border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-white"
+                                  className="rounded border border-black/10 bg-white/45 px-2 py-1 text-xs text-on-surface"
                                 />
                               </div>
                             ) : (
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2">
-                                  <span className="rounded bg-zinc-900 p-1 text-violet-400 border border-zinc-850">
+                                  <span className="rounded bg-white/60 p-1 text-primary border border-black/5">
                                     <LinkIconComponent className="h-3.5 w-3.5" style={{ color: accentColor }} />
                                   </span>
-                                  <span className="text-xs font-bold text-white truncate max-w-[150px]">{link.title}</span>
+                                  <span className="text-xs font-bold text-on-surface truncate max-w-[150px]">{link.title}</span>
                                   {link.featured && (
-                                    <span className="text-[9px] font-bold text-violet-400 bg-violet-500/10 px-1 rounded border border-violet-500/15">
+                                    <span className="text-[9px] font-bold text-primary bg-primary/10 px-1 rounded border border-primary/15">
                                       Featured
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-[10px] text-zinc-500 truncate max-w-[220px] mt-1 pl-7">{link.url}</p>
+                                <p className="text-[10px] text-on-surface-variant/70 truncate max-w-[220px] mt-1 pl-7">{link.url}</p>
                               </div>
                             )}
                           </div>
 
                           <div className="flex items-center gap-3 shrink-0">
                             {/* Click stats count */}
-                            <span className="text-[10px] font-mono text-zinc-500 pr-1 select-none flex items-center gap-1">
+                            <span className="text-[10px] font-mono text-on-surface-variant/70 pr-1 select-none flex items-center gap-1">
                               <BarChart3 className="h-3 w-3" />
                               {link.click_count || 0} clicks
                             </span>
@@ -976,8 +984,8 @@ export default function TreeBuilder() {
                               onClick={() => handleToggleLinkActive(link)}
                               className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold border transition ${
                                 link.active
-                                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
-                                  : "bg-zinc-800 border-zinc-800 text-zinc-500 hover:bg-zinc-800/80"
+                                  ? "bg-emerald-55/70 border-emerald-100 text-emerald-700 hover:bg-emerald-55/90"
+                                  : "bg-black/5 border-transparent text-on-surface-variant/80 hover:bg-black/10"
                               }`}
                             >
                               {link.active ? "Active" : "Hidden"}
@@ -988,14 +996,14 @@ export default function TreeBuilder() {
                               <div className="flex gap-1">
                                 <button
                                   onClick={() => handleSaveEditLink(link.id)}
-                                  className="rounded p-1 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                                  className="rounded p-1 bg-emerald-55/70 text-emerald-700 hover:bg-emerald-55/95"
                                   disabled={saving}
                                 >
                                   <Check className="h-3 w-3" />
                                 </button>
                                 <button
                                   onClick={() => setEditingLinkId(null)}
-                                  className="rounded p-1 bg-zinc-900 text-zinc-400 hover:text-white"
+                                  className="rounded p-1 bg-black/5 text-on-surface-variant hover:text-on-surface"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -1004,14 +1012,14 @@ export default function TreeBuilder() {
                               <div className="flex gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                                 <button
                                   onClick={() => handleStartEditLink(link)}
-                                  className="rounded p-1 hover:bg-zinc-900 text-zinc-450 hover:text-white"
+                                  className="rounded p-1 hover:bg-black/5 text-on-surface-variant hover:text-on-surface"
                                   title="Edit"
                                 >
                                   <Edit2 className="h-3 w-3" />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteLink(link.id)}
-                                  className="rounded p-1 hover:bg-rose-500/10 text-zinc-450 hover:text-rose-400"
+                                  className="rounded p-1 hover:bg-rose-50/10 text-on-surface-variant hover:text-rose-600"
                                   title="Delete"
                                 >
                                   <Trash2 className="h-3 w-3" />
@@ -1032,7 +1040,7 @@ export default function TreeBuilder() {
           {activeTab === "design" && (
             <div className="space-y-6">
               <DashboardCard>
-                <h3 className="text-base font-semibold text-white mb-4">Choose a Theme</h3>
+                <h3 className="text-base font-semibold text-on-surface mb-4">Choose a Theme</h3>
                 <div className="grid gap-4 grid-cols-2 sm:grid-cols-3">
                   {themesList.map((theme) => {
                     const isSelected = selectedThemeId === theme.id;
@@ -1045,39 +1053,39 @@ export default function TreeBuilder() {
                         onClick={() => handleSelectThemeLocal(theme)}
                         className={`group flex flex-col gap-2 rounded-xl border p-3.5 text-left transition duration-300 ${
                           isSelected 
-                            ? "border-violet-500 bg-violet-650/5 ring-1 ring-violet-500/30"
-                            : "border-zinc-900 bg-zinc-950 hover:border-zinc-850 hover:bg-zinc-900/40"
+                            ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                            : "border-black/10 bg-white/40 hover:border-black/20 hover:bg-white/60"
                         }`}
                       >
                         {/* Theme Miniature Preview Block */}
                         <div
-                          className="aspect-video w-full rounded-lg flex flex-col justify-between p-2 border border-zinc-800 relative"
+                          className="aspect-video w-full rounded-lg flex flex-col justify-between p-2 border border-black/10 relative"
                           style={{ backgroundColor: theme.config?.previewBg }}
                         >
                           <div className="flex items-center gap-1">
                             <div className="h-2 w-2 rounded-full" style={{ backgroundColor: theme.config?.accentColor }} />
-                            <div className="h-1 w-6 rounded bg-zinc-700/60" />
+                            <div className="h-1 w-6 rounded bg-black/15" />
                           </div>
                           
                           {isPremium && !isPro && (
-                            <span className="absolute top-2 right-2 rounded bg-black/60 border border-zinc-800 p-0.5 text-zinc-400">
+                            <span className="absolute top-2 right-2 rounded bg-black/40 border border-white/20 p-0.5 text-white">
                               <Lock className="h-2.5 w-2.5" />
                             </span>
                           )}
 
                           <div className="space-y-1">
-                            <div className="h-1.5 w-full rounded bg-zinc-700/60" />
-                            <div className="h-1.5 w-2/3 rounded bg-zinc-700/60" />
+                            <div className="h-1.5 w-full rounded bg-black/15" />
+                            <div className="h-1.5 w-2/3 rounded bg-black/15" />
                           </div>
                         </div>
                         
                         <div className="flex items-center justify-between mt-1">
-                          <span className="text-xs font-semibold text-zinc-300 group-hover:text-white transition flex items-center gap-1">
+                          <span className="text-xs font-semibold text-on-surface-variant group-hover:text-on-surface transition flex items-center gap-1">
                             {theme.name}
-                            {isPremium && <span className="text-[8px] font-bold text-violet-400 tracking-wider">PRO</span>}
+                            {isPremium && <span className="text-[8px] font-bold text-primary tracking-wider">PRO</span>}
                           </span>
                           {isSelected && (
-                            <span className="rounded bg-violet-500/10 p-0.5 text-violet-400 border border-violet-500/20">
+                            <span className="rounded bg-primary/10 p-0.5 text-primary border border-primary/20">
                               <Check className="h-3 w-3" />
                             </span>
                           )}
@@ -1090,8 +1098,8 @@ export default function TreeBuilder() {
 
               {/* Accent Color picker */}
               <DashboardCard>
-                <h3 className="text-base font-semibold text-white mb-1">Accent Color</h3>
-                <p className="text-xs text-zinc-550 mb-4">Select custom highlight coloring for links and tags.</p>
+                <h3 className="text-base font-semibold text-on-surface mb-1">Accent Color</h3>
+                <p className="text-xs text-on-surface-variant/75 mb-4">Select custom highlight coloring for links and tags.</p>
                 <div className="flex flex-wrap gap-2.5">
                   {colors.map((color) => {
                     const isSelected = accentColor.toLowerCase() === color.toLowerCase();
@@ -1101,8 +1109,8 @@ export default function TreeBuilder() {
                         type="button"
                         onClick={() => setAccentColor(color)}
                         style={{ backgroundColor: color }}
-                        className={`relative flex h-8 w-8 items-center justify-center rounded-full border border-zinc-950 shadow transition hover:scale-110 focus:outline-none ${
-                          isSelected ? "ring-2 ring-violet-500 ring-offset-2 ring-offset-zinc-950" : ""
+                        className={`relative flex h-8 w-8 items-center justify-center rounded-full border border-black/10 shadow transition hover:scale-110 focus:outline-none ${
+                          isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-white" : ""
                         }`}
                       />
                     );
@@ -1112,7 +1120,7 @@ export default function TreeBuilder() {
 
               {/* Typography Font picker */}
               <DashboardCard>
-                <h3 className="text-base font-semibold text-white mb-4">Typography Fonts</h3>
+                <h3 className="text-base font-semibold text-on-surface mb-4">Typography Fonts</h3>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {fonts.map((font) => {
                     const isSelected = fontStyle === font.id;
@@ -1123,8 +1131,8 @@ export default function TreeBuilder() {
                         onClick={() => setFontStyle(font.id)}
                         className={`rounded-lg border p-3 text-center text-xs font-semibold transition ${
                           isSelected
-                            ? "border-violet-500 bg-violet-950/15 text-violet-300"
-                            : "border-zinc-900 bg-zinc-950 text-zinc-400 hover:bg-zinc-900/60 hover:text-white"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-black/10 bg-white/40 text-on-surface-variant hover:bg-white/60 hover:text-on-surface"
                         } ${font.id}`}
                       >
                         {font.name}
@@ -1136,7 +1144,7 @@ export default function TreeBuilder() {
 
               {/* Button Shape customization */}
               <DashboardCard>
-                <h3 className="text-base font-semibold text-white mb-4">Button Shape</h3>
+                <h3 className="text-base font-semibold text-on-surface mb-4">Button Shape</h3>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {buttonStyles.map((style) => {
                     const isSelected = buttonStyle === style.id;
@@ -1147,12 +1155,12 @@ export default function TreeBuilder() {
                         onClick={() => setButtonStyle(style.id)}
                         className={`rounded-lg border p-3 text-center text-xs font-semibold transition flex flex-col items-center gap-2 ${
                           isSelected
-                            ? "border-violet-500 bg-violet-950/15 text-violet-300"
-                            : "border-zinc-900 bg-zinc-950 text-zinc-400 hover:bg-zinc-900/60"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-black/10 bg-white/40 text-on-surface-variant hover:bg-white/60"
                         }`}
                       >
                         <span>{style.name}</span>
-                        <span className={`h-5 w-16 border border-zinc-800 bg-zinc-900 block ${style.id}`} />
+                        <span className={`h-5 w-16 border border-black/10 bg-black/5 block ${style.id}`} />
                       </button>
                     );
                   })}
@@ -1164,12 +1172,12 @@ export default function TreeBuilder() {
           {/* TAB 4: Social connections list */}
           {activeTab === "socials" && (
             <DashboardCard className="space-y-4">
-              <h3 className="text-base font-semibold text-white">Social Integrations</h3>
-              <p className="text-xs text-zinc-550 mb-2">Connect social channels URLs to display them directly above links.</p>
+              <h3 className="text-base font-semibold text-on-surface">Social Integrations</h3>
+              <p className="text-xs text-on-surface-variant/75 mb-2">Connect social channels URLs to display them directly above links.</p>
               
               {Object.keys(socials).map((platform) => (
                 <div key={platform}>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1.5 capitalize">
+                  <label className="block text-xs font-semibold text-on-surface-variant mb-1.5 capitalize">
                     {platform} URL
                   </label>
                   <input
@@ -1177,7 +1185,7 @@ export default function TreeBuilder() {
                     placeholder={`https://${platform}.com/username`}
                     value={socials[platform]}
                     onChange={(e) => setSocials(prev => ({ ...prev, [platform]: e.target.value }))}
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-white outline-none focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
               ))}
@@ -1188,28 +1196,28 @@ export default function TreeBuilder() {
           {activeTab === "settings" && (
             <div className="space-y-6">
               <DashboardCard className="space-y-4">
-                <h3 className="text-base font-semibold text-white">Tree Metadata Settings</h3>
+                <h3 className="text-base font-semibold text-on-surface">Tree Metadata Settings</h3>
                 
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Tree Name (Internal reference)</label>
+                  <label className="block text-xs font-medium text-on-surface-variant mb-1.5">Tree Name (Internal reference)</label>
                   <input
                     type="text"
                     value={treeName}
                     onChange={(e) => setTreeName(e.target.value)}
                     required
                     placeholder="e.g. My Developer page"
-                    className="w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-white outline-none focus:border-violet-500/50"
+                    className="w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs text-on-surface outline-none focus:border-primary/50 focus:ring-primary/15"
                   />
                 </div>
 
                 {/* Custom Domains - Locked feature */}
                 <div onClick={() => !isPro && setShowUpgradeModal(true)}>
                   <div className="flex justify-between items-center mb-1.5">
-                    <label className="block text-xs font-medium text-zinc-400 flex items-center gap-1.5">
+                    <label className="block text-xs font-medium text-on-surface-variant flex items-center gap-1.5">
                       Custom Domain
-                      {!isPro && <Lock className="h-3 w-3 text-zinc-500" />}
+                      {!isPro && <Lock className="h-3 w-3 text-on-surface-variant/50" />}
                     </label>
-                    {!isPro && <span className="text-[9px] font-bold text-violet-400 tracking-wider">PRO ONLY</span>}
+                    {!isPro && <span className="text-[9px] font-bold text-primary tracking-wider">PRO ONLY</span>}
                   </div>
                   <input
                     type="text"
@@ -1217,24 +1225,24 @@ export default function TreeBuilder() {
                     onChange={(e) => isPro && setCustomDomain(e.target.value)}
                     disabled={!isPro}
                     placeholder={isPro ? "e.g. yourname.com" : "🔒 yourname.com (Upgrade to customize)"}
-                    className={`w-full rounded-lg border border-zinc-900 bg-zinc-900/40 px-3.5 py-2 text-xs text-white outline-none focus:border-violet-500/50 ${
-                      !isPro ? "cursor-pointer select-none opacity-60 text-zinc-500" : ""
+                    className={`w-full rounded-lg border border-black/10 bg-white/45 px-3.5 py-2 text-xs outline-none ${
+                      !isPro ? "cursor-not-allowed select-none opacity-60 text-on-surface-variant/50 bg-black/5 border-black/5" : "text-on-surface focus:border-primary/50 focus:ring-primary/15"
                     }`}
                   />
                 </div>
               </DashboardCard>
 
               {/* Danger Zone */}
-              <DashboardCard className="border-rose-500/10 bg-rose-500/[0.02] p-5 space-y-4">
-                <h3 className="text-sm font-semibold text-rose-400">Danger Zone</h3>
-                <p className="text-xs text-zinc-550 leading-relaxed">
+              <DashboardCard className="border-rose-200 bg-rose-55/40 p-5 space-y-4">
+                <h3 className="text-sm font-semibold text-rose-700">Danger Zone</h3>
+                <p className="text-xs text-rose-600 leading-relaxed">
                   Deleting this Blinko Tree will permanently remove it from the platform along with all customized links and visitor analytics logs. 
                   This action is irreversible.
                 </p>
                 <button
                   type="button"
                   onClick={handleDeleteTree}
-                  className="rounded-lg bg-rose-600/15 border border-rose-500/25 px-4 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                  className="rounded-lg bg-rose-700 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-800 transition cursor-pointer"
                 >
                   Delete Blinko Tree
                 </button>
@@ -1347,23 +1355,23 @@ export default function TreeBuilder() {
 
       {/* FREEMIUM UPGRADE MODAL POPUP */}
       {showUpgradeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm px-4 select-none">
-          <div className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-[#111111]/95 p-6 shadow-2xl text-center animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md px-4 select-none animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-2xl border border-white/60 bg-white/85 p-6 shadow-2xl text-center animate-in zoom-in-95 duration-200 backdrop-blur-md">
             {/* Close Button */}
             <button
               onClick={() => setShowUpgradeModal(false)}
-              className="absolute top-4 right-4 text-zinc-500 hover:text-white transition"
+              className="absolute top-4 right-4 text-on-surface-variant/70 hover:text-on-surface transition cursor-pointer"
               aria-label="Close modal"
             >
               <X className="h-5 w-5" />
             </button>
 
             {/* Modal Header */}
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-violet-650/15 text-violet-400 mb-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
               <Sparkles className="h-6 w-6 animate-pulse" />
             </div>
-            <h3 className="text-xl font-extrabold text-white">🚀 Unlock Unlimited Blinko Trees</h3>
-            <p className="text-xs text-zinc-400 mt-2 max-w-sm mx-auto leading-relaxed">
+            <h3 className="text-xl font-extrabold text-on-surface">🚀 Unlock Unlimited Blinko Trees</h3>
+            <p className="text-xs text-on-surface-variant/85 mt-2 max-w-sm mx-auto leading-relaxed">
               You&apos;ve reached a locked feature or the free plan limit of 2 Blinko Trees. Upgrade to Pro to customize limitlessly.
             </p>
 
@@ -1378,11 +1386,11 @@ export default function TreeBuilder() {
                 { title: "Priority Support", desc: "Faster support response." },
                 { title: "AI Optimization Tools", desc: "AI Bio Generator, AI profile enhancers, and suggestion tools." }
               ].map((benefit, idx) => (
-                <div key={idx} className="flex gap-2.5 rounded-lg border border-zinc-900 bg-zinc-950 p-2.5 text-xs">
-                  <CheckCircle className="h-4.5 w-4.5 text-emerald-400 shrink-0 mt-0.5" />
+                <div key={idx} className="flex gap-2.5 rounded-lg border border-black/5 bg-white/40 p-2.5 text-xs">
+                  <CheckCircle className="h-4.5 w-4.5 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-semibold text-white">{benefit.title}</h4>
-                    <p className="text-[10px] text-zinc-500 mt-0.5">{benefit.desc}</p>
+                    <h4 className="font-semibold text-on-surface">{benefit.title}</h4>
+                    <p className="text-[10px] text-on-surface-variant/70 mt-0.5">{benefit.desc}</p>
                   </div>
                 </div>
               ))}
@@ -1395,13 +1403,13 @@ export default function TreeBuilder() {
                   setShowUpgradeModal(false);
                   router.push("/dashboard/billing");
                 }}
-                className="w-full flex h-11 items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-500 text-xs font-bold text-white hover:from-violet-500 hover:to-fuchsia-400 transition cursor-pointer"
+                className="w-full flex h-11 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white hover:bg-primary/95 transition cursor-pointer"
               >
                 Upgrade to Pro
               </button>
               <button
                 onClick={() => setShowUpgradeModal(false)}
-                className="w-full text-zinc-500 hover:text-zinc-350 text-xs font-semibold py-2 transition"
+                className="w-full text-on-surface-variant/70 hover:text-on-surface text-xs font-semibold py-2 transition cursor-pointer"
               >
                 Not Right Now
               </button>

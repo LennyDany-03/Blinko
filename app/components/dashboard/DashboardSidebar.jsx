@@ -42,7 +42,7 @@ export default function DashboardSidebar({ className = "", isMobile = false, onC
     >
       {/* Sidebar Header */}
       <div className="flex items-center justify-between px-2">
-        <BlinkoLogo href="/dashboard" />
+        <BlinkoLogo href="/dashboard" dark={true} />
         {isMobile && onClose && (
           <button
             onClick={onClose}

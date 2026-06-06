@@ -1,32 +1,43 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 
-export default function BlinkoLogo({ href = "/", compact = false, className = "" }) {
+export default function BlinkoLogo({ href = "/", compact = false, className = "", dark = false }) {
+  const hasTextColor = /\btext-/.test(className);
+  const logoColorClass = [
+    hasTextColor ? "" : (dark ? "text-[#26fedc]" : "text-primary"),
+    "flex items-center gap-2 font-display-xl tracking-tighter select-none transition-colors",
+    className
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   const content = (
-    <>
-      <span className="flex h-9 w-9 items-center justify-center rounded-md bg-gradient-to-br from-violet-500 via-fuchsia-500 to-indigo-500 text-white shadow-lg shadow-violet-950/30">
-        <Sparkles className="h-4 w-4" aria-hidden="true" />
-      </span>
-      {!compact ? (
-        <span className="text-lg font-semibold tracking-tight text-white">
+    <div className={logoColorClass}>
+      <svg className="h-7 w-7 shrink-0" fill="none" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="15" stroke="currentColor" strokeWidth="2"></circle>
+        <path
+          d="M11 9h5.5a3.5 3.5 0 0 1 0 7h-5.5h5.5a3.5 3.5 0 0 1 0 7h-5.5V9z"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2.5"
+        ></path>
+      </svg>
+      {!compact && (
+        <span className="font-bold text-headline-md leading-none">
           Blinko
         </span>
-      ) : null}
-    </>
+      )}
+    </div>
   );
 
   if (!href) {
-    return (
-      <div className={["flex items-center gap-2", className].join(" ")}>
-        {content}
-      </div>
-    );
+    return content;
   }
 
   return (
     <Link
       href={href}
-      className={["flex items-center gap-2", className].join(" ")}
+      className="scale-95 active:scale-90 transition-transform inline-block"
       aria-label="Blinko home"
     >
       {content}
