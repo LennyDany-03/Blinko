@@ -491,13 +491,14 @@ export default function OnboardingSetup() {
   });
 
   // Render Theme configuration variables for simulator view
-  const isLightBg = backgroundType === "bg-[#fff9ee]" || backgroundType === "bg-surface" || backgroundType === "bg-background";
+  const isLightBg = backgroundType === "bg-[#fff9ee]" || backgroundType === "bg-surface" || backgroundType === "bg-background" || backgroundType.includes("pink-200");
   const cardBgClass = isLightBg 
-    ? "bg-black/5 border-black/10 text-zinc-900" 
-    : (selectedTheme?.config?.previewCard || "bg-zinc-900 border-zinc-800 text-zinc-300");
+    ? "bg-black/5 border-black/10 text-zinc-900 shadow-sm" 
+    : (selectedTheme?.config?.previewCard || "bg-zinc-900/60 border-zinc-800/85 text-zinc-355 backdrop-blur-md shadow-sm");
   const bgClass = backgroundType;
   const fontFamilyClass = fontStyle;
   const btnShapeClass = buttonStyle;
+
 
   return (
     <div className="min-h-screen bg-transparent text-on-background flex flex-col justify-between relative grain pb-12">
@@ -1086,97 +1087,174 @@ export default function OnboardingSetup() {
         {/* Right column: Sticky live mockup preview simulator */}
         {step < 6 && (
           <div className="lg:col-span-2 flex justify-center lg:justify-start lg:sticky lg:top-24 h-fit ml-40">
-            <div className="relative w-full max-w-[310px] aspect-[9/18] rounded-[36px] border-[8px] border-zinc-900 bg-zinc-950 p-4 shadow-2xl shadow-violet-950/20 ring-1 ring-zinc-800 flex flex-col justify-between overflow-hidden">
-              
-              {/* Top notch */}
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 h-4 w-24 rounded-full bg-zinc-900 z-10 flex items-center justify-between px-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
-                <span className="w-10 h-1 rounded-full bg-zinc-800" />
+            {/* Ambient Dynamic Backglow Container */}
+            <div className="relative w-full max-w-[310px] group">
+              {/* Floating Live Simulator Badge */}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1.5 bg-white/85 backdrop-blur-md border border-white/60 shadow-sm rounded-full text-[10px] font-bold text-on-surface-variant/95 tracking-wide select-none z-30">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+                LIVE PREVIEW
               </div>
 
-              {/* Live screen display elements */}
+              {/* Physical Hardware Buttons Simulation */}
+              {/* Silent/Ring switch */}
+              <div className="absolute top-14 -left-[2px] w-[3px] h-4 bg-zinc-800 border-l border-y border-zinc-700/80 rounded-l-xs z-0" />
+              {/* Volume Up */}
+              <div className="absolute top-22 -left-[2px] w-[3px] h-8 bg-zinc-800 border-l border-y border-zinc-700/80 rounded-l-xs z-0" />
+              {/* Volume Down */}
+              <div className="absolute top-32 -left-[2px] w-[3px] h-8 bg-zinc-800 border-l border-y border-zinc-700/80 rounded-l-xs z-0" />
+              {/* Power button */}
+              <div className="absolute top-26 -right-[2px] w-[3px] h-12 bg-zinc-800 border-r border-y border-zinc-700/80 rounded-r-xs z-0" />
+
+              {/* Dynamic shadow wrapper representing ambient glow */}
               <div 
-                className={`h-full p-4 flex flex-col justify-between pt-6 transition-colors duration-500 overflow-y-auto no-scrollbar ${bgClass} ${fontFamilyClass}`}
-                style={{ backgroundColor: previewBg }}
+                className="relative w-full aspect-[9/18] rounded-[44px] border-[10px] border-zinc-950 bg-zinc-950 p-[3px] ring-1 ring-zinc-800/85 flex flex-col justify-between overflow-hidden transition-all duration-500 z-10"
+                style={{ 
+                  boxShadow: `0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 35px ${accentColor}1c`
+                }}
               >
-                <div className="w-full flex flex-col items-center text-center">
-                  
-                  {/* User avatar mockup */}
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={displayName}
-                      className="h-16 w-16 rounded-full object-cover shadow-md mb-3 mt-4"
-                    />
-                  ) : (
-                    <div className="h-16 w-16 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 shadow-md shadow-violet-500/20 flex items-center justify-center text-lg font-bold text-white mb-3 mt-4">
-                      {displayName ? displayName.charAt(0).toUpperCase() : "?"}
-                    </div>
-                  )}
-
-                  {/* Display Name */}
-                  <h4 className={`text-sm font-bold leading-tight ${isLightBg ? "text-zinc-900" : "text-zinc-100"}`}>
-                    {displayName || "Display Name"}
-                  </h4>
-                  <p className="text-[10px] font-mono mt-0.5" style={{ color: accentColor }}>
-                    blinko.site/{resolvedSlug || "slug"}
-                  </p>
-
-                  {/* Bio */}
-                  {bio && (
-                    <p className={`text-[10px] leading-relaxed max-w-[220px] mt-2.5 p-2.5 border transition duration-300 ${cardBgClass}`}>
-                      {bio}
-                    </p>
-                  )}
-
-                  {/* Details row */}
-                  <div className="mt-3 flex flex-wrap justify-center gap-1.5 max-w-[240px]">
-                    {location && (
-                      <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[8px] border ${
-                        isLightBg ? "bg-black/5 text-zinc-650 border-black/10" : "bg-black/40 text-zinc-400 border-zinc-900"
-                      }`}>
-                        <MapPin className="h-2 w-2" />
-                        {location}
-                      </span>
-                    )}
-                    {website && (
-                      <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[8px] border ${
-                        isLightBg ? "bg-black/5 text-zinc-650 border-black/10" : "bg-black/40 text-zinc-400 border-zinc-900"
-                      }`}>
-                        <Globe className="h-2 w-2" />
-                        Website
-                      </span>
-                    )}
+                {/* Dynamic Island pill notch */}
+                <div className="absolute top-2.5 left-1/2 -translate-x-1/2 h-5 w-24 rounded-full bg-black border border-white/5 z-20 flex items-center justify-between px-2.5 shadow-md">
+                  {/* Camera lens highlight */}
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#070b19] border border-white/5 relative flex items-center justify-center">
+                    <span className="absolute w-[3px] h-[3px] rounded-full bg-cyan-400/40 blur-[0.5px]" />
                   </div>
-
-                  {/* Prepopulated links list */}
-                  <div className="mt-6 w-full space-y-2 px-1">
-                    {links.filter(l => l.active).map((link) => {
-                      const LinkIcon = iconMap[link.icon] || Link2;
-                      return (
-                        <div 
-                          key={link.id}
-                          className={`w-full flex items-center justify-between p-2.5 text-[10px] font-medium border ${btnShapeClass} ${cardBgClass} ${isLightBg ? "text-zinc-900" : "text-zinc-100"}`}
-                        >
-                          <span className="flex items-center gap-1.5 truncate pr-2">
-                            <LinkIcon className="h-3.5 w-3.5" style={{ color: accentColor }} />
-                            {link.title || "Link Title"}
-                          </span>
-                          <span className="text-[8px]" style={{ color: accentColor }}>→</span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  {/* Subtle sensor window */}
+                  <div className="w-8 h-1 rounded-full bg-zinc-900/40" />
                 </div>
 
-                {/* simulator footer branding */}
-                <div className="mt-8 mb-2 flex items-center justify-center gap-1 opacity-70">
-                  <span className={`text-[8px] ${isLightBg ? "text-zinc-500" : "text-zinc-400"}`}>powered by</span>
-                  <span className={`text-[8px] font-bold tracking-wider px-1 py-0.5 rounded border ${
-                    isLightBg ? "text-zinc-900 bg-black/5 border-black/10" : "text-white bg-black/40 border-zinc-800"
+                {/* Simulated Screen Body */}
+                <div 
+                  className={`h-full flex flex-col justify-between transition-colors duration-500 overflow-hidden rounded-[38px] ${bgClass} ${fontFamilyClass}`}
+                  style={{ backgroundColor: previewBg }}
+                >
+                  {/* Top Status Bar */}
+                  <div className={`h-8 pt-3 px-6 flex items-center justify-between text-[9px] font-bold z-15 w-full select-none ${
+                    isLightBg ? "text-zinc-800" : "text-zinc-200"
                   }`}>
-                    BLINKO
-                  </span>
+                    {/* Time */}
+                    <span>9:41</span>
+
+                    {/* Status Icons */}
+                    <div className="flex items-center gap-1.5">
+                      {/* Signal Strength */}
+                      <div className="flex items-end gap-[1.5px] h-1.5">
+                        <span className={`w-[1.5px] h-[3px] rounded-2xs ${isLightBg ? "bg-zinc-800" : "bg-white"}`}></span>
+                        <span className={`w-[1.5px] h-[4.5px] rounded-2xs ${isLightBg ? "bg-zinc-800" : "bg-white"}`}></span>
+                        <span className={`w-[1.5px] h-[6px] rounded-2xs ${isLightBg ? "bg-zinc-800" : "bg-white"}`}></span>
+                        <span className={`w-[1.5px] h-[7.5px] rounded-2xs opacity-40 ${isLightBg ? "bg-zinc-800" : "bg-white"}`}></span>
+                      </div>
+
+                      {/* Wifi symbol */}
+                      <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <path d="M12 20h.01M8.5 16.5a5 5 0 017 0M5 13a10 10 0 0114 0M1.5 9.5a15 15 0 0121 0" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+
+                      {/* Battery outline + fill */}
+                      <div className="flex items-center gap-[0.5px]">
+                        <div className={`w-[15px] h-2 rounded-[3px] border p-[0.7px] flex ${isLightBg ? "border-zinc-800" : "border-white/80"}`}>
+                          <div className={`h-full w-4/5 rounded-[1px] ${isLightBg ? "bg-zinc-800" : "bg-white"}`}></div>
+                        </div>
+                        <div className={`w-[1px] h-1 rounded-r-xs ${isLightBg ? "bg-zinc-800" : "bg-white/80"}`}></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Scrollable Viewport Section */}
+                  <div className="flex-1 overflow-y-auto no-scrollbar px-4 pt-2 pb-1 flex flex-col items-center">
+                    {/* User Avatar with outer ring */}
+                    <div 
+                      className="relative p-1 rounded-full border border-dashed transition-all duration-300 mb-3 mt-1 scale-95" 
+                      style={{ borderColor: `${accentColor}40` }}
+                    >
+                      <div className="p-0.5 rounded-full border transition-all duration-300" style={{ borderColor: accentColor }}>
+                        {avatarUrl ? (
+                          <img
+                            src={avatarUrl}
+                            alt={displayName}
+                            className="h-14 w-14 rounded-full object-cover shadow-sm"
+                          />
+                        ) : (
+                          <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 shadow-md shadow-violet-500/20 flex items-center justify-center text-base font-bold text-white">
+                            {displayName ? displayName.charAt(0).toUpperCase() : "?"}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Display Name with verified badge */}
+                    <h4 className={`text-sm font-bold leading-none flex items-center gap-1 mt-0.5 ${isLightBg ? "text-zinc-900" : "text-zinc-100"}`}>
+                      {displayName || "Display Name"}
+                      <svg className="w-3.5 h-3.5 text-violet-500 fill-current inline-block flex-shrink-0" viewBox="0 0 24 24">
+                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                      </svg>
+                    </h4>
+                    <p className="text-[9px] font-mono mt-1" style={{ color: accentColor }}>
+                      blinko.site/{resolvedSlug || "slug"}
+                    </p>
+
+                    {/* Bio Paragraph */}
+                    {bio && (
+                      <p className={`text-[10px] leading-relaxed max-w-[210px] mt-3 p-2.5 border rounded-xl shadow-xs transition-all duration-300 ${cardBgClass}`}>
+                        {bio}
+                      </p>
+                    )}
+
+                    {/* Badges details (Location, website) */}
+                    <div className="mt-3 flex flex-wrap justify-center gap-1.5 max-w-[220px]">
+                      {location && (
+                        <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[8px] border transition-colors duration-300 ${
+                          isLightBg ? "bg-black/5 text-zinc-700 border-black/10" : "bg-white/5 text-zinc-300 border-white/10"
+                        }`}>
+                          <MapPin className="h-2 w-2" />
+                          {location}
+                        </span>
+                      )}
+                      {website && (
+                        <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[8px] border transition-colors duration-300 ${
+                          isLightBg ? "bg-black/5 text-zinc-700 border-black/10" : "bg-white/5 text-zinc-300 border-white/10"
+                        }`}>
+                          <Globe className="h-2 w-2" />
+                          Website
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Prepopulated links list */}
+                    <div className="mt-5 w-full space-y-2 px-1">
+                      {links.filter(l => l.active).map((link) => {
+                        const LinkIcon = iconMap[link.icon] || Link2;
+                        return (
+                          <div 
+                            key={link.id}
+                            className={`w-full flex items-center justify-between p-2.5 text-[10px] font-semibold border shadow-xs hover:translate-y-[-1px] transition-all duration-300 ${btnShapeClass} ${cardBgClass} ${
+                              isLightBg ? "text-zinc-900 border-black/5" : "text-zinc-100 border-white/5"
+                            }`}
+                          >
+                            <span className="flex items-center gap-2 truncate pr-2">
+                              <LinkIcon className="h-3.5 w-3.5" style={{ color: accentColor }} />
+                              {link.title || "Link Title"}
+                            </span>
+                            <span className="text-[8px]" style={{ color: accentColor }}>→</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Simulator footer branding & iOS Home Indicator */}
+                  <div className="pt-4 pb-2 flex flex-col items-center gap-2 w-full mt-auto">
+                    <div className="flex items-center justify-center gap-1 opacity-70">
+                      <span className={`text-[8px] ${isLightBg ? "text-zinc-500" : "text-zinc-400"}`}>powered by</span>
+                      <span className={`text-[8px] font-bold tracking-wider px-1 py-0.5 rounded border ${
+                        isLightBg ? "text-zinc-900 bg-black/5 border-black/10" : "text-white bg-black/40 border-zinc-800"
+                      }`}>
+                        BLINKO
+                      </span>
+                    </div>
+
+                    {/* Home Indicator bar */}
+                    <div className={`w-20 h-1 rounded-full ${isLightBg ? "bg-zinc-800/20" : "bg-white/20"}`} />
+                  </div>
                 </div>
               </div>
             </div>
