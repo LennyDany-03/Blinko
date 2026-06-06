@@ -204,19 +204,38 @@ export default function OnboardingSetup() {
   const [publishing, setPublishing] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
 
+  // Fine-tune Theme Customization States
+  const [accentColor, setAccentColor] = useState("#7C3AED");
+  const [buttonStyle, setButtonStyle] = useState("rounded-md");
+  const [fontStyle, setFontStyle] = useState("font-sans");
+  const [backgroundType, setBackgroundType] = useState("bg-zinc-950");
+  const [previewBg, setPreviewBg] = useState("#09090b");
+
   // Fetch Themes on startup
   useEffect(() => {
     const fetchThemes = async () => {
       const { data } = await supabase.from("themes").select("*");
       if (data && data.length > 0) {
         setThemesList(data);
-        // Default select Dark Pro
-        const darkPro = data.find(t => t.name === "Dark Pro") || data[0];
-        setSelectedTheme(darkPro);
+        // Default select first theme (Glass Aurora)
+        setSelectedTheme(data[0]);
       }
     };
     fetchThemes();
   }, []);
+
+  // Sync selected theme configuration to custom override states
+  useEffect(() => {
+    if (selectedTheme) {
+      setAccentColor(selectedTheme.config?.accentColor || "#7C3AED");
+      setButtonStyle(selectedTheme.config?.buttonStyle || "rounded-md");
+      setFontStyle(selectedTheme.config?.fontFamily || "font-sans");
+      setBackgroundType(selectedTheme.config?.bgClass || "bg-zinc-950");
+      
+      const isGrad = selectedTheme.config?.bgClass?.includes("bg-gradient") || selectedTheme.config?.bgClass?.includes("from-");
+      setPreviewBg(isGrad ? "transparent" : (selectedTheme.config?.previewBg || "#09090b"));
+    }
+  }, [selectedTheme]);
 
   // Pre-fill fields from profile or Google metadata on mount / auth change
   useEffect(() => {
@@ -399,10 +418,10 @@ export default function OnboardingSetup() {
         location: location.trim() || null,
         website: website.trim() || null,
         theme_id: selectedTheme?.id || null,
-        accent_color: selectedTheme?.config?.accentColor || "#7C3AED",
-        button_style: selectedTheme?.config?.buttonStyle || "rounded-md",
-        font_style: selectedTheme?.config?.fontFamily || "font-sans",
-        background_type: selectedTheme?.config?.bgClass || "bg-zinc-950",
+        accent_color: accentColor,
+        button_style: buttonStyle,
+        font_style: fontStyle,
+        background_type: backgroundType,
         avatar_url: avatarUrl.trim() || null,
       };
 
@@ -472,24 +491,16 @@ export default function OnboardingSetup() {
   });
 
   // Render Theme configuration variables for simulator view
-  const previewBg = selectedTheme?.config?.previewBg || "#0A0A0A";
-  const bgClass = selectedTheme?.config?.bgClass || "bg-[#0A0A0A]";
-  const accentColor = selectedTheme?.config?.accentColor || "#7C3AED";
-  const fontFamilyClass = selectedTheme?.config?.fontFamily || "font-sans";
-  const btnShapeClass = selectedTheme?.config?.buttonStyle || "rounded-md";
-  const cardBgClass = selectedTheme?.config?.previewCard || "bg-zinc-900 border-zinc-800 text-zinc-300";
+  const isLightBg = backgroundType === "bg-[#fff9ee]" || backgroundType === "bg-surface" || backgroundType === "bg-background";
+  const cardBgClass = isLightBg 
+    ? "bg-black/5 border-black/10 text-zinc-900" 
+    : (selectedTheme?.config?.previewCard || "bg-zinc-900 border-zinc-800 text-zinc-300");
+  const bgClass = backgroundType;
+  const fontFamilyClass = fontStyle;
+  const btnShapeClass = buttonStyle;
 
   return (
     <div className="min-h-screen bg-transparent text-on-background flex flex-col justify-between relative grain pb-12">
-      {/* Header Bar */}
-      <header className="border-b border-black/5 bg-white/45 backdrop-blur-xl px-6 py-4 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <BlinkoLogo href="#" />
-          <span className="h-4 w-px bg-black/10" />
-          <span className="text-xs font-semibold text-on-surface-variant">Tree Setup Wizard</span>
-        </div>
-      </header>
-
       {/* Main content body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8 grid gap-8 lg:grid-cols-5 items-start">
         
@@ -500,11 +511,11 @@ export default function OnboardingSetup() {
           {step === 1 && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-violet-400 animate-pulse" />
+                <h1 className="text-2xl font-bold tracking-tight text-on-surface flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary animate-pulse" />
                   Choose a Template
                 </h1>
-                <p className="text-sm text-zinc-400 mt-1">Select a starting structure matching your occupation or style.</p>
+                <p className="text-sm text-on-surface-variant mt-1">Select a starting structure matching your occupation or style.</p>
               </div>
 
               {/* Filters & Search */}
@@ -715,12 +726,13 @@ export default function OnboardingSetup() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-on-surface">Choose a Theme</h1>
-                <p className="text-sm text-on-surface-variant mt-1">Select the starting visual colors, button borders, and font style.</p>
+                <p className="text-sm text-on-surface-variant mt-1">Select visual presets below, then fully customize elements using the controllers.</p>
               </div>
 
-              <div className="grid gap-4 grid-cols-2 sm:grid-cols-3">
+              <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
                 {themesList.map((theme) => {
                   const isSelected = selectedTheme?.id === theme.id;
+                  const isGrad = theme.config?.bgClass?.includes("bg-gradient") || theme.config?.bgClass?.includes("from-");
                   return (
                     <button
                       key={theme.id}
@@ -734,25 +746,28 @@ export default function OnboardingSetup() {
                     >
                       {/* Theme Miniature Preview Block */}
                       <div
-                        className="aspect-video w-full rounded-lg flex flex-col justify-between p-2 border border-black/5"
-                        style={{ backgroundColor: theme.config?.previewBg }}
+                        className="aspect-video w-full rounded-lg flex flex-col justify-between p-2 border border-black/5 relative overflow-hidden"
                       >
+                        <div 
+                          className={`absolute inset-0 -z-10 ${theme.config?.bgClass}`}
+                          style={isGrad ? {} : { backgroundColor: theme.config?.previewBg }}
+                        />
                         <div className="flex items-center gap-1">
-                          <div className="h-2 w-2 rounded-full" style={{ backgroundColor: theme.config?.accentColor }} />
+                          <div className="h-2 w-2 rounded-full shadow-sm" style={{ backgroundColor: theme.config?.accentColor }} />
                           <div className="h-1 w-6 rounded bg-black/10" />
                         </div>
                         <div className="space-y-1">
-                          <div className="h-1.5 w-full rounded bg-black/10" />
-                          <div className="h-1.5 w-2/3 rounded bg-black/10" />
+                          <div className="h-1.5 w-full rounded bg-black/15" />
+                          <div className="h-1.5 w-2/3 rounded bg-black/15" />
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs font-semibold text-on-surface-variant group-hover:text-primary transition">
+                        <span className="text-[11px] font-bold text-on-surface-variant group-hover:text-primary transition truncate pr-1">
                           {theme.name}
                         </span>
                         {isSelected && (
-                          <span className="rounded bg-primary/10 p-0.5 text-primary border border-primary/20">
+                          <span className="rounded-full bg-primary p-0.5 text-white">
                             <Check className="h-3 w-3" />
                           </span>
                         )}
@@ -760,6 +775,153 @@ export default function OnboardingSetup() {
                     </button>
                   );
                 })}
+              </div>
+
+              {/* Customization Widgets Panel */}
+              <div className="rounded-xl border border-white/60 bg-white/45 shadow-sm backdrop-blur-md p-5 space-y-6">
+                <div className="flex items-center gap-2 border-b border-black/5 pb-2.5">
+                  <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                  <h2 className="text-sm font-bold text-on-surface">Fine-tune Your Design</h2>
+                </div>
+
+                {/* Accent Color Section */}
+                <div className="space-y-2.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant">Accent Color</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {[
+                      { hex: "#f472b6", name: "Pink Burst" },
+                      { hex: "#fbbf24", name: "Amber Glow" },
+                      { hex: "#38bdf8", name: "Cyan Spark" },
+                      { hex: "#9f4122", name: "Rust" },
+                      { hex: "#34d399", name: "Emerald Dream" },
+                      { hex: "#4f46e5", name: "Royal Violet" },
+                      { hex: "#a855f7", name: "Purple Spark" },
+                      { hex: "#d4af37", name: "Gold Leaf" },
+                      { hex: "#ffffff", name: "Solid White" }
+                    ].map(col => (
+                      <button
+                        key={col.hex}
+                        type="button"
+                        title={col.name}
+                        onClick={() => setAccentColor(col.hex)}
+                        className={`h-7 w-7 rounded-full border transition cursor-pointer relative flex items-center justify-center ${
+                          accentColor === col.hex 
+                            ? "border-primary ring-2 ring-primary/20 scale-110" 
+                            : "border-black/15 hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: col.hex }}
+                      >
+                        {accentColor === col.hex && (
+                          <Check className={`h-3.5 w-3.5 ${col.hex === "#ffffff" ? "text-black" : "text-white"}`} />
+                        )}
+                      </button>
+                    ))}
+                    
+                    {/* Custom Color Input */}
+                    <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-black/10">
+                      <input
+                        type="color"
+                        value={accentColor}
+                        onChange={(e) => setAccentColor(e.target.value)}
+                        className="h-7 w-7 rounded border border-black/10 cursor-pointer bg-transparent"
+                      />
+                      <span className="text-[10px] text-on-surface-variant font-mono">{accentColor}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Button Style (Border Shapes) */}
+                <div className="space-y-2.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant">Button Shape</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { id: "rounded-none", label: "Sharp" },
+                      { id: "rounded-md", label: "Rounded" },
+                      { id: "rounded-xl", label: "Curvy" },
+                      { id: "rounded-full", label: "Pill" }
+                    ].map(btn => (
+                      <button
+                        key={btn.id}
+                        type="button"
+                        onClick={() => setButtonStyle(btn.id)}
+                        className={`py-2 rounded-lg border text-xs font-semibold transition cursor-pointer ${
+                          buttonStyle === btn.id
+                            ? "bg-primary/15 border-primary/40 text-primary"
+                            : "bg-white/20 border-black/5 text-on-surface-variant hover:bg-white/50"
+                        }`}
+                      >
+                        {btn.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Typography (Fonts) */}
+                <div className="space-y-2.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant">Typography Style</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: "font-sans", label: "Modern Sans" },
+                      { id: "font-serif", label: "Classic Serif" },
+                      { id: "font-mono", label: "Clean Mono" }
+                    ].map(fnt => (
+                      <button
+                        key={fnt.id}
+                        type="button"
+                        onClick={() => setFontStyle(fnt.id)}
+                        className={`py-2 rounded-lg border text-xs font-semibold transition cursor-pointer ${fnt.id} ${
+                          fontStyle === fnt.id
+                            ? "bg-primary/15 border-primary/40 text-primary"
+                            : "bg-white/20 border-black/5 text-on-surface-variant hover:bg-white/50"
+                        }`}
+                      >
+                        {fnt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Background Presets Selector */}
+                <div className="space-y-2.5">
+                  <label className="block text-xs font-semibold text-on-surface-variant">Background Styles & Animations</label>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {[
+                      { id: "bg-zinc-950", label: "Minimal Dark", color: "#09090b" },
+                      { id: "bg-[#0B031E]", label: "Midnight Deep", color: "#0b031e" },
+                      { id: "bg-[#fff9ee]", label: "Cozy Sand", color: "#fff9ee" },
+                      { id: "bg-gradient-to-tr from-indigo-900 via-purple-900 to-pink-800 animate-gradient", label: "Glass Aurora 🌀", color: "#312e81", isGradient: true },
+                      { id: "bg-gradient-to-br from-orange-600 via-rose-600 to-indigo-900 animate-gradient", label: "Sunset Drift 🌅", color: "#ea580c", isGradient: true },
+                      { id: "bg-gradient-to-tr from-emerald-900 via-teal-900 to-slate-950 animate-gradient", label: "Emerald Dream 🌲", color: "#064e3b", isGradient: true },
+                      { id: "bg-gradient-to-br from-pink-200 via-purple-200 to-indigo-200 animate-gradient", label: "Pastel Velvet 🌸", color: "#fbcfe8", isGradient: true },
+                      { id: "bg-gradient-to-tr from-slate-950 via-purple-950 to-indigo-950 animate-gradient", label: "Cosmic Glow ✨", color: "#1e1b4b", isGradient: true }
+                    ].map(bg => (
+                      <button
+                        key={bg.id}
+                        type="button"
+                        onClick={() => {
+                          setBackgroundType(bg.id);
+                          setPreviewBg(bg.isGradient ? "transparent" : bg.color);
+                        }}
+                        className={`group relative aspect-[16/9] w-full rounded-lg border text-left p-2 transition cursor-pointer overflow-hidden ${
+                          backgroundType === bg.id
+                            ? "border-primary ring-1 ring-primary/30"
+                            : "border-black/10 bg-white/20 hover:bg-white/40"
+                        }`}
+                      >
+                        {/* Live background container inside button */}
+                        <div 
+                          className={`absolute inset-0 -z-10 ${bg.id}`}
+                          style={bg.isGradient ? {} : { backgroundColor: bg.color }}
+                        />
+                        <span className={`text-[10px] font-bold tracking-tight absolute bottom-1.5 left-2 ${
+                          bg.id === "bg-[#fff9ee]" || bg.id.includes("from-pink-200") ? "text-zinc-900" : "text-white"
+                        }`}>
+                          {bg.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -923,7 +1085,7 @@ export default function OnboardingSetup() {
 
         {/* Right column: Sticky live mockup preview simulator */}
         {step < 6 && (
-          <div className="lg:col-span-2 flex justify-center lg:justify-start lg:sticky lg:top-24 h-fit">
+          <div className="lg:col-span-2 flex justify-center lg:justify-start lg:sticky lg:top-24 h-fit ml-40">
             <div className="relative w-full max-w-[310px] aspect-[9/18] rounded-[36px] border-[8px] border-zinc-900 bg-zinc-950 p-4 shadow-2xl shadow-violet-950/20 ring-1 ring-zinc-800 flex flex-col justify-between overflow-hidden">
               
               {/* Top notch */}
@@ -953,7 +1115,7 @@ export default function OnboardingSetup() {
                   )}
 
                   {/* Display Name */}
-                  <h4 className="text-sm font-bold text-zinc-100 leading-tight">
+                  <h4 className={`text-sm font-bold leading-tight ${isLightBg ? "text-zinc-900" : "text-zinc-100"}`}>
                     {displayName || "Display Name"}
                   </h4>
                   <p className="text-[10px] font-mono mt-0.5" style={{ color: accentColor }}>
@@ -970,13 +1132,17 @@ export default function OnboardingSetup() {
                   {/* Details row */}
                   <div className="mt-3 flex flex-wrap justify-center gap-1.5 max-w-[240px]">
                     {location && (
-                      <span className="inline-flex items-center gap-0.5 rounded-full bg-black/40 px-2 py-0.5 text-[8px] text-zinc-400 border border-zinc-900">
+                      <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[8px] border ${
+                        isLightBg ? "bg-black/5 text-zinc-650 border-black/10" : "bg-black/40 text-zinc-400 border-zinc-900"
+                      }`}>
                         <MapPin className="h-2 w-2" />
                         {location}
                       </span>
                     )}
                     {website && (
-                      <span className="inline-flex items-center gap-0.5 rounded-full bg-black/40 px-2 py-0.5 text-[8px] text-zinc-400 border border-zinc-900">
+                      <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[8px] border ${
+                        isLightBg ? "bg-black/5 text-zinc-650 border-black/10" : "bg-black/40 text-zinc-400 border-zinc-900"
+                      }`}>
                         <Globe className="h-2 w-2" />
                         Website
                       </span>
@@ -990,7 +1156,7 @@ export default function OnboardingSetup() {
                       return (
                         <div 
                           key={link.id}
-                          className={`w-full flex items-center justify-between p-2.5 text-[10px] text-zinc-155 font-medium border ${btnShapeClass} ${cardBgClass}`}
+                          className={`w-full flex items-center justify-between p-2.5 text-[10px] font-medium border ${btnShapeClass} ${cardBgClass} ${isLightBg ? "text-zinc-900" : "text-zinc-100"}`}
                         >
                           <span className="flex items-center gap-1.5 truncate pr-2">
                             <LinkIcon className="h-3.5 w-3.5" style={{ color: accentColor }} />
@@ -1004,9 +1170,11 @@ export default function OnboardingSetup() {
                 </div>
 
                 {/* simulator footer branding */}
-                <div className="mt-8 mb-2 flex items-center justify-center gap-1 opacity-45">
-                  <span className="text-[8px] text-zinc-650">powered by</span>
-                  <span className="text-[8px] font-bold text-white tracking-wider bg-black/40 px-1 py-0.5 rounded border border-zinc-900">
+                <div className="mt-8 mb-2 flex items-center justify-center gap-1 opacity-70">
+                  <span className={`text-[8px] ${isLightBg ? "text-zinc-500" : "text-zinc-400"}`}>powered by</span>
+                  <span className={`text-[8px] font-bold tracking-wider px-1 py-0.5 rounded border ${
+                    isLightBg ? "text-zinc-900 bg-black/5 border-black/10" : "text-white bg-black/40 border-zinc-800"
+                  }`}>
                     BLINKO
                   </span>
                 </div>
