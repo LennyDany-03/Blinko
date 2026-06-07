@@ -132,10 +132,6 @@ export default function ThemeCustomizer({
   // Apply a DB theme (legacy)
   const handleSelectDbTheme = (theme) => {
     const isPremiumTheme = ["Glassmorphism", "Gradient Neon", "Cyberpunk"].includes(theme.name);
-    if (isPremiumTheme && !isPro) {
-      setShowUpgradeModal(true);
-      return;
-    }
     if (onChangeTheme) onChangeTheme(theme);
     setAccentColor(theme.config?.accentColor || "#7C3AED");
     setButtonStyle(theme.config?.buttonStyle || "rounded-md");
@@ -144,6 +140,9 @@ export default function ThemeCustomizer({
     if (setPreviewBg) {
       const isGrad = theme.config?.bgClass?.includes("bg-gradient") || theme.config?.bgClass?.includes("from-");
       setPreviewBg(isGrad ? "transparent" : (theme.config?.previewBg || "#09090b"));
+    }
+    if (isPremiumTheme && !isPro) {
+      setShowUpgradeModal(theme.name);
     }
   };
 
@@ -299,7 +298,7 @@ export default function ThemeCustomizer({
             <HorizontalCarousel
               items={proThemeTab === "dark" ? PRO_BUILT_IN_THEMES : PRO_LIGHT_THEMES}
               renderItem={(theme) => {
-                const isSelected = isPro &&
+                const isSelected = 
                   accentColor === theme.config.accentColor && 
                   fontStyle === theme.config.fontFamily &&
                   (animatedBackground === theme.config.background || (!animatedBackground && theme.config.background === "none"));
@@ -309,11 +308,10 @@ export default function ThemeCustomizer({
                     key={theme.id}
                     type="button"
                     onClick={() => {
-                      if (!isPro) {
-                        setShowUpgradeModal(true);
-                        return;
-                      }
                       handleApplyBuiltInTheme(theme);
+                      if (!isPro) {
+                        setShowUpgradeModal(theme.name);
+                      }
                     }}
                     className={`group relative flex flex-col w-[150px] rounded-lg border overflow-hidden transition-all duration-300 cursor-pointer text-left ${
                       isSelected
@@ -487,13 +485,12 @@ export default function ThemeCustomizer({
                     key={bg.id}
                     type="button"
                     onClick={() => {
-                      if (!isPro) {
-                        setShowUpgradeModal(true);
-                        return;
-                      }
                       if (setAnimatedBackground) setAnimatedBackground(bg.id);
                       setBackgroundType("animated");
                       if (setPreviewBg) setPreviewBg("transparent");
+                      if (!isPro) {
+                        setShowUpgradeModal(bg.label);
+                      }
                     }}
                     className={`group relative aspect-[16/10] w-[140px] rounded-lg border overflow-hidden transition-all duration-200 cursor-pointer text-left ${
                       isSelected

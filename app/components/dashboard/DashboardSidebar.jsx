@@ -193,8 +193,10 @@ export default function DashboardSidebar() {
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className={[
-            "w-full flex items-center rounded-2xl border border-black/5 bg-white/50 text-on-surface-variant hover:bg-white transition-all duration-300 font-medium scale-98 active:scale-95 cursor-pointer shadow-xs overflow-hidden",
-            compact ? "justify-center p-2" : "p-2 pr-3 justify-start"
+            "w-full flex items-center rounded-2xl border transition-all duration-300 font-medium scale-98 active:scale-95 cursor-pointer",
+            compact 
+              ? "bg-transparent border-transparent shadow-none justify-center p-0" 
+              : "bg-white/50 border-black/5 shadow-xs p-2 pr-3 justify-start"
           ].join(" ")}
           title={compact ? resolvedDisplayName : undefined}
         >
@@ -211,7 +213,7 @@ export default function DashboardSidebar() {
           )}
           <div
             className={[
-              "flex-1 min-w-0 text-left transition-all duration-300 flex items-center justify-between",
+              "flex-1 min-w-0 text-left transition-all duration-300 flex items-center justify-between overflow-hidden",
               compact ? "max-w-0 opacity-0 pointer-events-none ml-0" : "max-w-[160px] opacity-100 ml-3"
             ].join(" ")}
           >
