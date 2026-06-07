@@ -1748,7 +1748,7 @@ export default function TreeBuilder() {
         onClose={() => setShowUpgradeModal(false)}
         onUpgrade={() => {
           setShowUpgradeModal(false);
-          router.push("/dashboard/billing");
+          router.push("/billing/checkout");
         }}
         previewProps={{
           accentColor,

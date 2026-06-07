@@ -660,7 +660,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-b from-[#9f4122]/15 to-[#ff8a65]/10 -z-10"></div>
                 <div className="absolute top-4 right-4 bg-white/60 backdrop-blur-md border border-white/80 text-on-surface shadow-sm text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Popular</div>
                 <h3 className="font-headline-md text-[30px] text-on-surface mb-2">Pro Protocol</h3>
-                <div className="font-display-xl text-[56px] text-on-surface mb-6">$5<span className="font-body-md text-body-md text-on-surface-variant">/mo</span></div>
+                <div className="font-display-xl text-[56px] text-on-surface mb-6">₹299<span className="font-body-md text-body-md text-on-surface-variant">/mo</span></div>
                 
                 <ul className="space-y-4 mb-8 flex-1 font-body-md text-body-md text-on-surface-variant">
                   <li className="flex items-center gap-3"><Check className="text-primary w-4 h-4" /> Unlimited Identities</li>

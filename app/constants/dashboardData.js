@@ -213,7 +213,7 @@ export const MOCK_PLANS = {
     },
     {
       name: "Pro",
-      price: "$5",
+      price: "₹299",
       period: "month",
       description: "For professionals and content creators growing their brand.",
       features: [

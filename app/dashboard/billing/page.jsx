@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  CheckCircle2, Sparkles, CreditCard, Check, TrendingUp, Lock,
-  ArrowUpRight, Shield, Download, Loader2
+  CreditCard, Check, Download, Loader2
 } from "lucide-react";
 import SectionHeader from "../../components/dashboard/SectionHeader";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import Button from "../../components/Button";
+import Footer from "@/components/layout/Footer";
+import BillingSubscriptionNotice from "@/components/billing/BillingSubscriptionNotice";
+import { PRO_PLAN } from "@/lib/billing/constants";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -16,13 +18,12 @@ export default function BillingPage() {
   const { user } = useAuth();
   const router = useRouter();
 
-  // Loading & Upgrading state
+  // Loading state
   const [loading, setLoading] = useState(true);
-  const [upgraded, setUpgraded] = useState(false);
-  const [upgrading, setUpgrading] = useState(false);
 
   // Stats & subscription state
   const [planName, setPlanName] = useState("Free");
+  const [subscription, setSubscription] = useState(null);
   const [usage, setUsage] = useState({
     pagesCount: 0,
     viewsCount: 0,
@@ -81,19 +82,20 @@ export default function BillingPage() {
           .eq("user_id", user.id)
           .maybeSingle();
 
+        setSubscription(sub);
+
         if (sub && sub.status === "active") {
           setPlanName("Pro");
         } else {
           setPlanName("Free");
         }
 
-        // Generate Invoice history
         if (sub && sub.status === "active") {
           setHistory([
             {
               id: "inv-initial",
               date: new Date(sub.created_at || Date.now()).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-              amount: "$5.00",
+              amount: PRO_PLAN.priceDisplay,
               status: "Paid",
               invoice: "INV-2026-001",
             }
@@ -112,42 +114,24 @@ export default function BillingPage() {
     fetchBillingData();
   }, [user]);
 
-  // Simulate upgrade to Pro in DB
-  const handleUpgrade = async () => {
-    setUpgrading(true);
-    try {
-      // Insert active record in subscriptions to verify Pro status
-      const payload = {
-        user_id: user.id,
-        status: "active",
-        plan_id: "pro_monthly",
-        created_at: new Date().toISOString()
-      };
-
-      const { error } = await supabase
-        .from("subscriptions")
-        .upsert(payload, { onConflict: "user_id" });
-
-      if (error) throw error;
-
-      setPlanName("Pro");
-      setUpgraded(true);
-      setHistory([
-        {
-          id: `inv-${Date.now()}`,
-          date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-          amount: "$5.00",
-          status: "Paid",
-          invoice: "INV-2026-002",
-        }
-      ]);
-      setTimeout(() => setUpgraded(false), 3000);
-    } catch (err) {
-      console.error("Upgrade Subscription Error:", err);
-    } finally {
-      setUpgrading(false);
-    }
+  const handleUpgrade = () => {
+    router.push("/billing/checkout");
   };
+
+  const formatRenewalDate = (dateString) => {
+    if (!dateString) return "—";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const subscriptionId =
+    subscription?.razorpay_payment_id ||
+    subscription?.razorpay_order_id ||
+    subscription?.razorpay_subscription_id ||
+    null;
 
   if (loading) {
     return (
@@ -181,14 +165,6 @@ export default function BillingPage() {
         title="Billing & Subscription"
         description="Manage your subscription plans, track resource usage, and download invoices."
       />
-
-      {/* Premium Upgrade Toast */}
-      {upgraded && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-xl border border-primary/20 bg-white px-4 py-3 text-sm text-primary shadow-2xl animate-in fade-in slide-in-from-bottom-4">
-          <Sparkles className="h-4 w-4 animate-bounce" />
-          <span>Congratulations! You are now subscribed to Blinko Pro. 🎉</span>
-        </div>
-      )}
 
       {/* Grid: Plan & Usage Overview */}
       <div className="grid gap-6 md:grid-cols-5">
@@ -257,15 +233,47 @@ export default function BillingPage() {
                 ? "You have unlocked complete access to advanced themes, domain bindings, and AI creators."
                 : "Ideal for basic link sharing. Upgrade to remove branding and unlock SEO controls."}
             </p>
+
+            {planName === "Pro" && (
+              <dl className="mt-5 space-y-2 rounded-xl border border-black/5 bg-white/40 p-3 text-xs">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-on-surface-variant">Status</dt>
+                  <dd className="font-semibold text-emerald-600">Active</dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-on-surface-variant">Next Renewal</dt>
+                  <dd className="font-semibold text-on-surface">
+                    {formatRenewalDate(subscription?.current_period_end)}
+                  </dd>
+                </div>
+                {subscriptionId && (
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-on-surface-variant">Subscription ID</dt>
+                    <dd className="font-mono text-[10px] font-semibold text-on-surface truncate max-w-[140px]" title={subscriptionId}>
+                      {subscriptionId.length > 12
+                        ? `${subscriptionId.slice(0, 6)}…${subscriptionId.slice(-4)}`
+                        : subscriptionId}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            )}
           </div>
 
           <div className="mt-8">
             {planName === "Free" ? (
-              <Button variant="luminous" className="w-full text-xs font-bold" onClick={handleUpgrade} disabled={upgrading}>
-                {upgrading ? "Processing..." : "Upgrade to Pro ($5/mo)"}
-              </Button>
+              <>
+                <Button variant="luminous" className="w-full text-xs font-bold" onClick={handleUpgrade}>
+                  Upgrade to Pro ({PRO_PLAN.priceMo})
+                </Button>
+                <BillingSubscriptionNotice />
+              </>
             ) : (
-              <Button variant="secondary" className="w-full text-xs font-bold text-on-surface-variant" disabled>
+              <Button
+                variant="secondary"
+                className="w-full text-xs font-bold text-on-surface-variant"
+                onClick={() => router.push("/contact")}
+              >
                 Manage Subscription
               </Button>
             )}
@@ -323,7 +331,7 @@ export default function BillingPage() {
               </div>
               <p className="text-xs text-on-surface-variant mt-1.5">Unlocks complete styling customization and analytics views.</p>
               <div className="mt-5 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-on-surface">$5</span>
+                <span className="text-3xl font-extrabold text-on-surface">{PRO_PLAN.priceShort}</span>
                 <span className="text-xs text-on-surface-variant">/monthly</span>
               </div>
               <ul className="mt-6 space-y-3">
@@ -353,10 +361,9 @@ export default function BillingPage() {
               ) : (
                 <button
                   onClick={handleUpgrade}
-                  disabled={upgrading}
                   className="w-full rounded-lg bg-primary py-2.5 text-xs font-bold text-white hover:bg-primary/95 transition cursor-pointer text-center shadow-sm"
                 >
-                  {upgrading ? "Processing..." : "Upgrade to Pro"}
+                  Upgrade to Pro
                 </button>
               )}
             </div>
@@ -411,6 +418,8 @@ export default function BillingPage() {
           </DashboardCard>
         </div>
       )}
+
+      <Footer className="mt-8 -mx-4 sm:-mx-6 lg:-mx-8" />
     </div>
   );
 }

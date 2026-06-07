@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { getSupabaseUserClient } from "../../../../lib/supabase";
+import { PRO_PLAN } from "../../../../lib/billing/constants";
 
 export async function POST(request) {
   try {
@@ -37,8 +38,8 @@ export async function POST(request) {
         data: {
           id: `order_mock_${Date.now()}`,
           entity: "order",
-          amount: 500,
-          currency: "USD",
+          amount: PRO_PLAN.priceCents,
+          currency: PRO_PLAN.currency,
           status: "created",
           receipt: `receipt_mock_${Date.now()}`,
           notes: {
@@ -57,8 +58,8 @@ export async function POST(request) {
 
     // Create payment session order
     const orderOptions = {
-      amount: 500, // $5.00 represented as 500 cents
-      currency: "USD",
+      amount: PRO_PLAN.priceCents,
+      currency: PRO_PLAN.currency,
       receipt: `receipt_${user.id.substring(0, 8)}_${Date.now()}`,
       notes: {
         user_id: user.id,

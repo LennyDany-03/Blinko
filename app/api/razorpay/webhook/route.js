@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { getSupabaseService } from "../../../../lib/supabase";
+import { activateProSubscription } from "../../../../lib/billing/subscription";
 
 export async function POST(request) {
   try {
@@ -43,20 +44,13 @@ export async function POST(request) {
 
       if (userId) {
         const adminSupabase = getSupabaseService();
-        
-        // Upsert new subscription log record
-        const subscriptionPayload = {
-          user_id: userId,
-          plan: plan,
-          status: "active",
-          razorpay_customer_id: paymentEntity.customer_id || null,
-          razorpay_subscription_id: paymentEntity.order_id || null,
-          current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 Days expiration
-        };
 
-        const { error } = await adminSupabase
-          .from("subscriptions")
-          .upsert(subscriptionPayload, { onConflict: "user_id" });
+        const { error } = await activateProSubscription(adminSupabase, {
+          userId,
+          orderId: paymentEntity.order_id || `order_webhook_${Date.now()}`,
+          paymentId: paymentEntity.id || `pay_webhook_${Date.now()}`,
+          customerId: paymentEntity.customer_id || null,
+        });
 
         if (error) {
           console.error("Error updating subscription table in webhook:", error.message);

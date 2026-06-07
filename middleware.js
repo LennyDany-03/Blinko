@@ -3,9 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 
 export async function middleware(request) {
   const url = new URL(request.url);
-  const isDashboard = url.pathname.startsWith("/dashboard");
+  const isProtected =
+    url.pathname.startsWith("/dashboard") || url.pathname.startsWith("/billing");
 
-  if (isDashboard) {
+  if (isProtected) {
     const accessToken = request.cookies.get("blinko-session-access-token")?.value;
 
     if (!accessToken) {
@@ -50,5 +51,5 @@ export async function middleware(request) {
 
 // Optimization: Apply middleware only to protected dashboard subpaths
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/billing/:path*"],
 };

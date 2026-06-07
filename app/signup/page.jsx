@@ -245,7 +245,7 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-transparent px-4 py-12 text-on-surface select-none relative">
+    <main className="flex flex-1 items-center justify-center bg-transparent px-4 py-12 text-on-surface select-none relative">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(159,65,34,0.06),transparent_45%)]" />
       <section className="relative z-10 w-full max-w-lg rounded-[32px] border border-white/60 bg-white/45 p-6 shadow-[0_8px_32px_rgba(159,65,34,0.04)] backdrop-blur-2xl sm:p-8 animate-scale-in">
         <div className="flex flex-col items-center text-center">
