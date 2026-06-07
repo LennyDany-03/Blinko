@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { supabase } from "../../../../lib/supabase";
 import { useAuth } from "../../../../context/AuthContext";
+import ThemeCustomizer from "../../../components/theme/ThemeCustomizer";
 import BlinkoLogo from "../../../components/BlinkoLogo";
 import Button from "../../../components/Button";
 
@@ -203,6 +204,8 @@ export default function OnboardingSetup() {
   const [slugAvailable, setSlugAvailable] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
+  const [isPro, setIsPro] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Fine-tune Theme Customization States
   const [accentColor, setAccentColor] = useState("#7C3AED");
@@ -237,7 +240,6 @@ export default function OnboardingSetup() {
     }
   }, [selectedTheme]);
 
-  // Pre-fill fields from profile or Google metadata on mount / auth change
   useEffect(() => {
     if (user) {
       if (!displayName) {
@@ -246,6 +248,25 @@ export default function OnboardingSetup() {
       if (!avatarUrl) {
         setAvatarUrl(user.user_metadata?.avatar_url || user.user_metadata?.picture || "");
       }
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      const fetchSubscription = async () => {
+        try {
+          const { data: sub } = await supabase
+            .from("subscriptions")
+            .select("*")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          
+          setIsPro(sub?.status === "active");
+        } catch (err) {
+          console.error("Subscription Load Error:", err);
+        }
+      };
+      fetchSubscription();
     }
   }, [user]);
 
@@ -730,200 +751,22 @@ export default function OnboardingSetup() {
                 <p className="text-sm text-on-surface-variant mt-1">Select visual presets below, then fully customize elements using the controllers.</p>
               </div>
 
-              <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
-                {themesList.map((theme) => {
-                  const isSelected = selectedTheme?.id === theme.id;
-                  const isGrad = theme.config?.bgClass?.includes("bg-gradient") || theme.config?.bgClass?.includes("from-");
-                  return (
-                    <button
-                      key={theme.id}
-                      type="button"
-                      onClick={() => setSelectedTheme(theme)}
-                      className={`group flex flex-col gap-2 rounded-xl border p-3.5 text-left transition duration-300 cursor-pointer ${
-                        isSelected 
-                          ? "border-primary bg-white/60 ring-1 ring-primary/30"
-                          : "border-black/10 bg-white/35 hover:border-primary/35 hover:bg-white/50"
-                      }`}
-                    >
-                      {/* Theme Miniature Preview Block */}
-                      <div
-                        className="aspect-video w-full rounded-lg flex flex-col justify-between p-2 border border-black/5 relative overflow-hidden"
-                      >
-                        <div 
-                          className={`absolute inset-0 -z-10 ${theme.config?.bgClass}`}
-                          style={isGrad ? {} : { backgroundColor: theme.config?.previewBg }}
-                        />
-                        <div className="flex items-center gap-1">
-                          <div className="h-2 w-2 rounded-full shadow-sm" style={{ backgroundColor: theme.config?.accentColor }} />
-                          <div className="h-1 w-6 rounded bg-black/10" />
-                        </div>
-                        <div className="space-y-1">
-                          <div className="h-1.5 w-full rounded bg-black/15" />
-                          <div className="h-1.5 w-2/3 rounded bg-black/15" />
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-[11px] font-bold text-on-surface-variant group-hover:text-primary transition truncate pr-1">
-                          {theme.name}
-                        </span>
-                        {isSelected && (
-                          <span className="rounded-full bg-primary p-0.5 text-white">
-                            <Check className="h-3 w-3" />
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Customization Widgets Panel */}
-              <div className="rounded-xl border border-white/60 bg-white/45 shadow-sm backdrop-blur-md p-5 space-y-6">
-                <div className="flex items-center gap-2 border-b border-black/5 pb-2.5">
-                  <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                  <h2 className="text-sm font-bold text-on-surface">Fine-tune Your Design</h2>
-                </div>
-
-                {/* Accent Color Section */}
-                <div className="space-y-2.5">
-                  <label className="block text-xs font-semibold text-on-surface-variant">Accent Color</label>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {[
-                      { hex: "#f472b6", name: "Pink Burst" },
-                      { hex: "#fbbf24", name: "Amber Glow" },
-                      { hex: "#38bdf8", name: "Cyan Spark" },
-                      { hex: "#9f4122", name: "Rust" },
-                      { hex: "#34d399", name: "Emerald Dream" },
-                      { hex: "#4f46e5", name: "Royal Violet" },
-                      { hex: "#a855f7", name: "Purple Spark" },
-                      { hex: "#d4af37", name: "Gold Leaf" },
-                      { hex: "#ffffff", name: "Solid White" }
-                    ].map(col => (
-                      <button
-                        key={col.hex}
-                        type="button"
-                        title={col.name}
-                        onClick={() => setAccentColor(col.hex)}
-                        className={`h-7 w-7 rounded-full border transition cursor-pointer relative flex items-center justify-center ${
-                          accentColor === col.hex 
-                            ? "border-primary ring-2 ring-primary/20 scale-110" 
-                            : "border-black/15 hover:scale-105"
-                        }`}
-                        style={{ backgroundColor: col.hex }}
-                      >
-                        {accentColor === col.hex && (
-                          <Check className={`h-3.5 w-3.5 ${col.hex === "#ffffff" ? "text-black" : "text-white"}`} />
-                        )}
-                      </button>
-                    ))}
-                    
-                    {/* Custom Color Input */}
-                    <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-black/10">
-                      <input
-                        type="color"
-                        value={accentColor}
-                        onChange={(e) => setAccentColor(e.target.value)}
-                        className="h-7 w-7 rounded border border-black/10 cursor-pointer bg-transparent"
-                      />
-                      <span className="text-[10px] text-on-surface-variant font-mono">{accentColor}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Button Style (Border Shapes) */}
-                <div className="space-y-2.5">
-                  <label className="block text-xs font-semibold text-on-surface-variant">Button Shape</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[
-                      { id: "rounded-none", label: "Sharp" },
-                      { id: "rounded-md", label: "Rounded" },
-                      { id: "rounded-xl", label: "Curvy" },
-                      { id: "rounded-full", label: "Pill" }
-                    ].map(btn => (
-                      <button
-                        key={btn.id}
-                        type="button"
-                        onClick={() => setButtonStyle(btn.id)}
-                        className={`py-2 rounded-lg border text-xs font-semibold transition cursor-pointer ${
-                          buttonStyle === btn.id
-                            ? "bg-primary/15 border-primary/40 text-primary"
-                            : "bg-white/20 border-black/5 text-on-surface-variant hover:bg-white/50"
-                        }`}
-                      >
-                        {btn.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Typography (Fonts) */}
-                <div className="space-y-2.5">
-                  <label className="block text-xs font-semibold text-on-surface-variant">Typography Style</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { id: "font-sans", label: "Modern Sans" },
-                      { id: "font-serif", label: "Classic Serif" },
-                      { id: "font-mono", label: "Clean Mono" }
-                    ].map(fnt => (
-                      <button
-                        key={fnt.id}
-                        type="button"
-                        onClick={() => setFontStyle(fnt.id)}
-                        className={`py-2 rounded-lg border text-xs font-semibold transition cursor-pointer ${fnt.id} ${
-                          fontStyle === fnt.id
-                            ? "bg-primary/15 border-primary/40 text-primary"
-                            : "bg-white/20 border-black/5 text-on-surface-variant hover:bg-white/50"
-                        }`}
-                      >
-                        {fnt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Background Presets Selector */}
-                <div className="space-y-2.5">
-                  <label className="block text-xs font-semibold text-on-surface-variant">Background Styles & Animations</label>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {[
-                      { id: "bg-zinc-950", label: "Minimal Dark", color: "#09090b" },
-                      { id: "bg-[#0B031E]", label: "Midnight Deep", color: "#0b031e" },
-                      { id: "bg-[#fff9ee]", label: "Cozy Sand", color: "#fff9ee" },
-                      { id: "bg-gradient-to-tr from-indigo-900 via-purple-900 to-pink-800 animate-gradient", label: "Glass Aurora 🌀", color: "#312e81", isGradient: true },
-                      { id: "bg-gradient-to-br from-orange-600 via-rose-600 to-indigo-900 animate-gradient", label: "Sunset Drift 🌅", color: "#ea580c", isGradient: true },
-                      { id: "bg-gradient-to-tr from-emerald-900 via-teal-900 to-slate-950 animate-gradient", label: "Emerald Dream 🌲", color: "#064e3b", isGradient: true },
-                      { id: "bg-gradient-to-br from-pink-200 via-purple-200 to-indigo-200 animate-gradient", label: "Pastel Velvet 🌸", color: "#fbcfe8", isGradient: true },
-                      { id: "bg-gradient-to-tr from-slate-950 via-purple-950 to-indigo-950 animate-gradient", label: "Cosmic Glow ✨", color: "#1e1b4b", isGradient: true }
-                    ].map(bg => (
-                      <button
-                        key={bg.id}
-                        type="button"
-                        onClick={() => {
-                          setBackgroundType(bg.id);
-                          setPreviewBg(bg.isGradient ? "transparent" : bg.color);
-                        }}
-                        className={`group relative aspect-[16/9] w-full rounded-lg border text-left p-2 transition cursor-pointer overflow-hidden ${
-                          backgroundType === bg.id
-                            ? "border-primary ring-1 ring-primary/30"
-                            : "border-black/10 bg-white/20 hover:bg-white/40"
-                        }`}
-                      >
-                        {/* Live background container inside button */}
-                        <div 
-                          className={`absolute inset-0 -z-10 ${bg.id}`}
-                          style={bg.isGradient ? {} : { backgroundColor: bg.color }}
-                        />
-                        <span className={`text-[10px] font-bold tracking-tight absolute bottom-1.5 left-2 ${
-                          bg.id === "bg-[#fff9ee]" || bg.id.includes("from-pink-200") ? "text-zinc-900" : "text-white"
-                        }`}>
-                          {bg.label}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <ThemeCustomizer
+                themesList={themesList}
+                selectedThemeId={selectedTheme?.id}
+                onChangeTheme={(theme) => setSelectedTheme(theme)}
+                accentColor={accentColor}
+                setAccentColor={setAccentColor}
+                buttonStyle={buttonStyle}
+                setButtonStyle={setButtonStyle}
+                fontStyle={fontStyle}
+                setFontStyle={setFontStyle}
+                backgroundType={backgroundType}
+                setBackgroundType={setBackgroundType}
+                setPreviewBg={setPreviewBg}
+                isPro={isPro}
+                setShowUpgradeModal={setShowUpgradeModal}
+              />
             </div>
           )}
 
@@ -1261,6 +1104,69 @@ export default function OnboardingSetup() {
           </div>
         )}
       </main>
+
+      {/* FREEMIUM UPGRADE MODAL */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 select-none">
+          <div className="relative w-full max-w-lg rounded-2xl border border-white/60 bg-white/80 backdrop-blur-2xl p-6 shadow-2xl text-center animate-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowUpgradeModal(false)}
+              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition cursor-pointer"
+              aria-label="Close modal"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
+              <Sparkles className="h-6 w-6 animate-pulse" />
+            </div>
+            <h3 className="text-xl font-extrabold text-on-surface">🚀 Unlock Unlimited Blinko Trees</h3>
+            <p className="text-xs text-on-surface-variant mt-2 max-w-sm mx-auto leading-relaxed">
+              Upgrade to Pro to create unlimited trees, unlock advanced premium themes, and track custom domain names.
+            </p>
+
+            {/* Benefits list */}
+            <div className="mt-6 grid gap-2.5 text-left max-h-52 overflow-y-auto pr-1">
+              {[
+                { title: "Unlimited Blinko Trees", desc: "Create as many public pages as you want." },
+                { title: "Advanced Analytics", desc: "Track Views, Clicks, CTR, Top Links, Traffic Sources, Device stats." },
+                { title: "Premium Themes", desc: "Access all premium designs (Neon, Cyberpunk, Glassmorphism)." },
+                { title: "Custom Domains", desc: "Use yourname.com instead of blinko.site/username." },
+                { title: "Remove Blinko Branding", desc: "Remove all platform watermarks." }
+              ].map((benefit, idx) => (
+                <div key={idx} className="flex gap-2.5 rounded-lg border border-black/5 bg-white/50 p-2.5 text-xs">
+                  <CheckCircle2 className="h-4.5 w-4.5 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold text-on-surface">{benefit.title}</h4>
+                    <p className="text-[10px] text-on-surface-variant mt-0.5">{benefit.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Modal actions buttons */}
+            <div className="mt-8 flex flex-col gap-2.5">
+              <button
+                onClick={() => {
+                  setShowUpgradeModal(false);
+                  router.push("/dashboard/billing");
+                }}
+                className="w-full flex h-11 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white hover:bg-primary/95 transition cursor-pointer shadow-sm"
+              >
+                Upgrade to Pro
+              </button>
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="w-full text-on-surface-variant hover:text-primary text-xs font-semibold py-2 transition cursor-pointer"
+              >
+                Not Right Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

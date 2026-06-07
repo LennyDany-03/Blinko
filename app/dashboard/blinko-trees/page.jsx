@@ -23,6 +23,8 @@ export default function BlinkoTreesDashboard() {
   const [isPro, setIsPro] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [deleteConfirmTree, setDeleteConfirmTree] = useState(null);
+  const [showDeleteErrorModal, setShowDeleteErrorModal] = useState(false);
 
   const loadTreesData = async () => {
     try {
@@ -93,15 +95,15 @@ export default function BlinkoTreesDashboard() {
     router.push("/dashboard/blinko-tree/setup");
   };
 
-  const handleDeleteTree = async (tree) => {
+  const handleDeleteTree = (tree) => {
     if (trees.length <= 1) {
-      alert("You must keep at least one Blinko Tree page active.");
+      setShowDeleteErrorModal(true);
       return;
     }
-    
-    const confirmMsg = `Are you sure you want to permanently delete the Blinko Tree "${tree.name}" (blinko.site/${tree.slug})? All links, customizations, and visitor analytics logs will be lost forever.`;
-    if (!confirm(confirmMsg)) return;
+    setDeleteConfirmTree(tree);
+  };
 
+  const executeDeleteTree = async (tree) => {
     setDeletingId(tree.id);
     try {
       const { error } = await supabase
@@ -332,6 +334,89 @@ export default function BlinkoTreesDashboard() {
                 className="w-full text-on-surface-variant hover:text-primary text-xs font-semibold py-2 transition cursor-pointer"
               >
                 Not Right Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* LAST TREE DELETE WARNING MODAL */}
+      {showDeleteErrorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 select-none">
+          <div className="relative w-full max-w-md rounded-2xl border border-white/60 bg-white/80 backdrop-blur-2xl p-6 shadow-2xl text-center animate-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowDeleteErrorModal(false)}
+              className="absolute top-4 right-4 text-on-surface-variant hover:text-rose-500 transition cursor-pointer"
+              aria-label="Close modal"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10 text-rose-600 mb-4">
+              <AlertCircle className="h-6 w-6 animate-bounce" />
+            </div>
+            <h3 className="text-lg font-extrabold text-on-surface">Delete Not Allowed</h3>
+            <p className="text-xs text-on-surface-variant mt-2 max-w-xs mx-auto leading-relaxed">
+              You must keep at least one Blinko Tree page active. You cannot delete your only page.
+            </p>
+
+            {/* Modal actions buttons */}
+            <div className="mt-6">
+              <button
+                onClick={() => setShowDeleteErrorModal(false)}
+                className="w-full flex h-10 items-center justify-center rounded-lg bg-zinc-800 text-xs font-bold text-white hover:bg-zinc-700 transition cursor-pointer shadow-sm"
+              >
+                Okay, I understand
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteConfirmTree && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 select-none">
+          <div className="relative w-full max-w-md rounded-2xl border border-white/60 bg-white/80 backdrop-blur-2xl p-6 shadow-2xl text-center animate-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button
+              onClick={() => setDeleteConfirmTree(null)}
+              className="absolute top-4 right-4 text-on-surface-variant hover:text-rose-500 transition cursor-pointer"
+              aria-label="Close modal"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10 text-rose-600 mb-4">
+              <Trash2 className="h-6 w-6 animate-pulse" />
+            </div>
+            <h3 className="text-lg font-extrabold text-on-surface">Delete Blinko Tree?</h3>
+            <p className="text-xs text-on-surface-variant mt-2 max-w-xs mx-auto leading-relaxed">
+              Are you sure you want to permanently delete the Blinko Tree <strong className="text-zinc-800 font-bold">"{deleteConfirmTree.name}"</strong> (blinko.site/{deleteConfirmTree.slug})?
+            </p>
+            <p className="text-[10px] text-rose-500 font-bold bg-rose-500/5 border border-rose-500/10 rounded-lg p-2.5 mt-3 text-left">
+              ⚠️ Warning: All links, customizations, and visitor analytics logs will be lost forever. This action is irreversible.
+            </p>
+
+            {/* Modal actions buttons */}
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setDeleteConfirmTree(null)}
+                className="flex-1 flex h-10 items-center justify-center rounded-lg border border-black/10 bg-white hover:bg-zinc-50 text-xs font-bold text-on-surface-variant transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  const targetTree = deleteConfirmTree;
+                  setDeleteConfirmTree(null);
+                  await executeDeleteTree(targetTree);
+                }}
+                className="flex-1 flex h-10 items-center justify-center rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white transition cursor-pointer shadow-sm"
+              >
+                Delete Forever
               </button>
             </div>
           </div>

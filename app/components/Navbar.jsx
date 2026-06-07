@@ -16,6 +16,8 @@ const navItems = [
 export default function Navbar() {
   const { user, profile, signOut } = useAuth();
   const router = useRouter();
+  const resolvedAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || profile?.avatar_url;
+  const resolvedDisplayName = user?.user_metadata?.full_name || profile?.display_name || user?.email?.split("@")[0] || "User";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -55,7 +57,7 @@ export default function Navbar() {
       className="fixed top-6 left-1/2 w-[95%] max-w-7xl z-50 transition-transform duration-300 ease-out"
       style={{ transform: `translate(-50%, ${visible ? '0px' : '-120px'})` }}
     >
-      <nav className="rounded-full border border-white/60 bg-white/35 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] flex justify-between items-center py-3 px-6 transition-all duration-300">
+      <nav className="rounded-full border border-black/5 bg-white shadow-[0_8px_32px_rgba(0,0,0,0.06)] flex justify-between items-center py-3 px-6 transition-all duration-300">
         <Link
           className="font-display-xl text-headline-md tracking-tighter text-primary flex items-center gap-2 scale-95 active:scale-90 transition-transform"
           href="/"
@@ -91,30 +93,30 @@ export default function Navbar() {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 rounded-full border border-white/60 bg-white/45 p-1.5 pr-3 text-on-surface-variant hover:bg-white/60 focus:outline-none transition-colors duration-300 font-medium scale-95 active:scale-90 cursor-pointer shadow-sm"
+                className="flex items-center gap-2 rounded-full border border-black/5 bg-white p-1.5 pr-3 text-on-surface-variant hover:bg-zinc-55 focus:outline-none transition-colors duration-300 font-medium scale-95 active:scale-90 cursor-pointer shadow-sm"
               >
-                {profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture ? (
+                {resolvedAvatarUrl ? (
                   <img
-                    src={profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture}
-                    alt={profile?.display_name || user?.email}
+                    src={resolvedAvatarUrl}
+                    alt={resolvedDisplayName}
                     className="h-7 w-7 rounded-full object-cover"
                   />
                 ) : (
                   <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-primary to-primary-container text-xs font-semibold text-white flex items-center justify-center">
-                    {profile?.display_name ? profile.display_name.charAt(0).toUpperCase() : (user?.email ? user.email.charAt(0).toUpperCase() : "?")}
+                    {resolvedDisplayName.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <span className="hidden text-xs font-medium text-on-surface md:inline max-w-[120px] truncate">
-                  {profile?.display_name || user?.email?.split("@")[0] || "User"}
+                  {resolvedDisplayName}
                 </span>
                 <ChevronDown className="h-3 w-3 text-on-surface-variant" />
               </button>
 
               {/* Dropdown Menu */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-3 w-52 rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl p-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.08)] animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 mt-3 w-52 rounded-2xl border border-black/10 bg-white p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.12)] z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="px-3 py-2 text-xs border-b border-black/5 mb-1">
-                    <p className="font-bold text-on-surface truncate">{profile?.display_name || user?.display_name || user?.email?.split("@")[0] || "User"}</p>
+                    <p className="font-bold text-on-surface truncate">{resolvedDisplayName}</p>
                     <p className="text-on-surface-variant mt-0.5 truncate text-[11px]">{user?.email || ""}</p>
                   </div>
                   
@@ -198,7 +200,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {mobileOpen && (
-        <div className="mt-3 w-full rounded-3xl border border-white/60 bg-white/85 backdrop-blur-xl shadow-lg p-6 md:hidden animate-in fade-in slide-in-from-top-4 duration-350">
+        <div className="mt-3 w-full rounded-3xl border border-black/10 bg-white shadow-lg p-6 md:hidden animate-in fade-in slide-in-from-top-4 duration-350">
           <div className="flex flex-col gap-4">
             {navItems.map((item) => (
               <Link
