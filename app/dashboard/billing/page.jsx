@@ -161,18 +161,18 @@ export default function BillingPage() {
   }
 
   // Calculate percentage usage
-  const pagesLimit = planName === "Pro" ? "unlimited" : 1;
+  const pagesLimit = planName === "Pro" ? "unlimited" : 2;
   const viewsLimit = planName === "Pro" ? "unlimited" : 5000;
-  const linksLimit = planName === "Pro" ? "unlimited" : 5;
+  const linksLimit = planName === "Pro" ? "unlimited" : 2;
 
-  const pagesPercent = planName === "Pro" ? 100 : Math.min(100, (usage.pagesCount / 1) * 100);
+  const pagesPercent = planName === "Pro" ? 100 : Math.min(100, (usage.pagesCount / 2) * 100);
   const viewsPercent = planName === "Pro" ? 100 : Math.min(100, (usage.viewsCount / 5000) * 100);
-  const linksPercent = planName === "Pro" ? 100 : Math.min(100, (usage.linksCount / 5) * 100);
+  const linksPercent = planName === "Pro" ? 100 : Math.min(100, (usage.linksCount / 2) * 100);
 
   const metrics = [
-    { name: "Pages Created", current: usage.pagesCount, limit: planName === "Pro" ? "∞" : "1", percent: pagesPercent },
+    { name: "Pages Created", current: usage.pagesCount, limit: planName === "Pro" ? "∞" : "2", percent: pagesPercent },
     { name: "Monthly Views", current: usage.viewsCount, limit: planName === "Pro" ? "∞" : "5,000", percent: viewsPercent },
-    { name: "Links Used", current: usage.linksCount, limit: planName === "Pro" ? "∞" : "5", percent: linksPercent },
+    { name: "Links Used", current: usage.linksCount, limit: planName === "Pro" ? "∞" : "2", percent: linksPercent },
   ];
 
   return (
@@ -289,7 +289,11 @@ export default function BillingPage() {
               <ul className="mt-6 space-y-3">
                 <li className="flex gap-2 text-xs text-on-surface-variant">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>Up to 5 live links</span>
+                  <span>Up to 2 Blinko Trees (Pages)</span>
+                </li>
+                <li className="flex gap-2 text-xs text-on-surface-variant">
+                  <Check className="h-4 w-4 text-primary shrink-0" />
+                  <span>Up to 2 live links per tree</span>
                 </li>
                 <li className="flex gap-2 text-xs text-on-surface-variant">
                   <Check className="h-4 w-4 text-primary shrink-0" />
@@ -325,7 +329,7 @@ export default function BillingPage() {
               <ul className="mt-6 space-y-3">
                 <li className="flex gap-2 text-xs text-on-surface-variant">
                   <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>Unlimited Link additions</span>
+                  <span>Unlimited Blinko Trees & Links</span>
                 </li>
                 <li className="flex gap-2 text-xs text-on-surface-variant">
                   <Check className="h-4 w-4 text-primary shrink-0" />
@@ -334,6 +338,10 @@ export default function BillingPage() {
                 <li className="flex gap-2 text-xs text-on-surface-variant">
                   <Check className="h-4 w-4 text-primary shrink-0" />
                   <span>Full click CTR dashboard analytics</span>
+                </li>
+                <li className="flex gap-2 text-xs text-on-surface-variant">
+                  <Check className="h-4 w-4 text-primary shrink-0" />
+                  <span>Custom domain support</span>
                 </li>
               </ul>
             </div>

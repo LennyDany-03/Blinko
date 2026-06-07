@@ -17,7 +17,7 @@ import ThemeCustomizer from "../../../components/theme/ThemeCustomizer";
 import BlinkoLogo from "../../../components/BlinkoLogo";
 import Button from "../../../components/Button";
 import AnimatedBackground from "../../../components/theme/AnimatedBackground";
-import { LINK_STYLE_PRESETS, BIO_CARD_STYLES } from "../../../components/theme/themePresets";
+import { LINK_STYLE_PRESETS, BIO_CARD_STYLES, BUILT_IN_THEMES } from "../../../components/theme/themePresets";
 
 // Custom icons mapping
 const iconMap = {
@@ -86,7 +86,8 @@ const TEMPLATES = [
       { title: "Watch my Latest Video", url: "https://youtube.com", icon: "Play" },
       { title: "Follow me on Instagram", url: "https://instagram.com", icon: "Link2" },
       { title: "TikTok Videos", url: "https://tiktok.com", icon: "Play" },
-    ]
+    ],
+    defaultThemeId: "creator-hub"
   },
   {
     id: "developer",
@@ -103,7 +104,8 @@ const TEMPLATES = [
       { title: "LinkedIn Professional", url: "https://linkedin.com", icon: "Link2" },
       { title: "Download Resume", url: "https://google.com", icon: "FileText" },
       { title: "Personal Portfolio", url: "https://google.com", icon: "Globe" },
-    ]
+    ],
+    defaultThemeId: "developer-os"
   },
   {
     id: "student",
@@ -119,7 +121,8 @@ const TEMPLATES = [
       { title: "LinkedIn Profile", url: "https://linkedin.com", icon: "Link2" },
       { title: "My Research Projects", url: "https://google.com", icon: "BookOpen" },
       { title: "My Resume", url: "https://google.com", icon: "FileText" },
-    ]
+    ],
+    defaultThemeId: "student-pro"
   },
   {
     id: "startup",
@@ -135,7 +138,8 @@ const TEMPLATES = [
       { title: "Visit Company Website", url: "https://google.com", icon: "Building" },
       { title: "View Pitch Deck", url: "https://google.com", icon: "FileText" },
       { title: "Contact Us", url: "mailto:info@startup.com", icon: "Link2" },
-    ]
+    ],
+    defaultThemeId: "startup-founder"
   },
   {
     id: "freelancer",
@@ -151,7 +155,8 @@ const TEMPLATES = [
       { title: "My Freelance Services", url: "https://google.com", icon: "Briefcase" },
       { title: "View Portfolio Gallery", url: "https://google.com", icon: "Globe" },
       { title: "Work Testimonials", url: "https://google.com", icon: "BookOpen" },
-    ]
+    ],
+    defaultThemeId: "apple-glass"
   },
   {
     id: "musician",
@@ -167,7 +172,8 @@ const TEMPLATES = [
       { title: "Listen on Spotify", url: "https://spotify.com", icon: "Music" },
       { title: "Latest Music Video", url: "https://youtube.com", icon: "Play" },
       { title: "Upcoming Gig Tickets", url: "https://google.com", icon: "Link2" },
-    ]
+    ],
+    defaultThemeId: "music-artist"
   },
   {
     id: "photographer",
@@ -183,7 +189,8 @@ const TEMPLATES = [
       { title: "View Gallery", url: "https://unsplash.com", icon: "Camera" },
       { title: "Instagram Profile", url: "https://instagram.com", icon: "Link2" },
       { title: "Book a Shoot", url: "https://calendly.com", icon: "Briefcase" },
-    ]
+    ],
+    defaultThemeId: "apple-glass"
   },
   {
     id: "agency",
@@ -199,7 +206,8 @@ const TEMPLATES = [
       { title: "Our Core Services", url: "https://google.com", icon: "Building" },
       { title: "Client Case Studies", url: "https://google.com", icon: "BookOpen" },
       { title: "Work with Us", url: "https://google.com", icon: "Briefcase" },
-    ]
+    ],
+    defaultThemeId: "startup-founder"
   },
   {
     id: "ecommerce",
@@ -215,7 +223,8 @@ const TEMPLATES = [
       { title: "Shop New Products", url: "https://shopify.com", icon: "ShoppingBag" },
       { title: "Exclusive Offers", url: "https://google.com", icon: "Link2" },
       { title: "Customer Support", url: "https://google.com", icon: "Briefcase" },
-    ]
+    ],
+    defaultThemeId: "luxury-black"
   },
   {
     id: "custom",
@@ -227,7 +236,8 @@ const TEMPLATES = [
     defaultBio: "Welcome to my link-in-bio page!",
     defaultLocation: "",
     defaultWebsite: "",
-    defaultLinks: []
+    defaultLinks: [],
+    defaultThemeId: "apple-glass"
   }
 ];
 
@@ -290,20 +300,20 @@ export default function OnboardingSetup() {
   const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Fine-tune Theme Customization States - Default to Apple Glass as initial theme
-  const [accentColor, setAccentColor] = useState("#007AFF");
-  const [buttonStyle, setButtonStyle] = useState("rounded-xl");
-  const [fontStyle, setFontStyle] = useState("font-sans");
+  // Fine-tune Theme Customization States - Default to Developer OS (GitHub Grid) to match Developer template selection
+  const [accentColor, setAccentColor] = useState("#00ff88");
+  const [buttonStyle, setButtonStyle] = useState("rounded-none");
+  const [fontStyle, setFontStyle] = useState("font-mono");
   const [backgroundType, setBackgroundType] = useState("animated");
   const [previewBg, setPreviewBg] = useState("transparent");
-  const [linkStyle, setLinkStyle] = useState("glass");
-  const [animationStrength, setAnimationStrength] = useState(0.5);
-  const [blurAmount, setBlurAmount] = useState(24);
-  const [shadowIntensity, setShadowIntensity] = useState(0.3);
-  const [cardTransparency, setCardTransparency] = useState(60);
-  const [animatedBackground, setAnimatedBackground] = useState("glass-bubbles");
+  const [linkStyle, setLinkStyle] = useState("neon");
+  const [animationStrength, setAnimationStrength] = useState(0.4);
+  const [blurAmount, setBlurAmount] = useState(0);
+  const [shadowIntensity, setShadowIntensity] = useState(0.5);
+  const [cardTransparency, setCardTransparency] = useState(20);
+  const [animatedBackground, setAnimatedBackground] = useState("developer-grid");
   const [titleColor, setTitleColor] = useState("accent");
-  const [bioCardStyle, setBioCardStyle] = useState("glass");
+  const [bioCardStyle, setBioCardStyle] = useState("neon");
 
   // Fetch Themes on startup
   useEffect(() => {
@@ -367,6 +377,34 @@ export default function OnboardingSetup() {
       active: true,
       featured: false
     })));
+
+    // Automatically apply matching theme config
+    const matchingTheme = BUILT_IN_THEMES.find(t => t.id === template.defaultThemeId);
+    if (matchingTheme) {
+      setSelectedTheme(matchingTheme);
+      setAccentColor(matchingTheme.config.accentColor);
+      setFontStyle(matchingTheme.config.fontFamily);
+      setButtonStyle(matchingTheme.config.buttonStyle);
+      if (matchingTheme.config.linkStyle) setLinkStyle(matchingTheme.config.linkStyle);
+      if (matchingTheme.config.animationStrength !== undefined) setAnimationStrength(matchingTheme.config.animationStrength);
+      if (matchingTheme.config.blur !== undefined) setBlurAmount(matchingTheme.config.blur);
+      if (matchingTheme.config.shadowIntensity !== undefined) setShadowIntensity(matchingTheme.config.shadowIntensity);
+      if (matchingTheme.config.cardTransparency !== undefined) setCardTransparency(matchingTheme.config.cardTransparency);
+      setTitleColor(matchingTheme.config.titleColor || "accent");
+      setBioCardStyle(
+        matchingTheme.config.bioCardStyle || 
+        (matchingTheme.config.linkStyle === "neon" ? "neon" : matchingTheme.config.linkStyle === "glass" ? "glass" : matchingTheme.config.linkStyle === "gradient" ? "gradient" : "transparent")
+      );
+      if (matchingTheme.config.background && matchingTheme.config.background !== "none") {
+        setAnimatedBackground(matchingTheme.config.background);
+        setBackgroundType("animated");
+        setPreviewBg("transparent");
+      } else {
+        setAnimatedBackground("none");
+        setBackgroundType(matchingTheme.config.isLight ? "bg-[#fff9ee]" : "bg-zinc-950");
+        setPreviewBg(matchingTheme.config.isLight ? "#fff9ee" : "#09090b");
+      }
+    }
   };
 
   const uploadAvatarFile = async (file) => {
@@ -706,7 +744,10 @@ export default function OnboardingSetup() {
     backgroundType === "bg-surface" || 
     backgroundType === "bg-background" || 
     backgroundType.includes("pink-200") ||
-    (backgroundType === "animated" && (animatedBackground === "glass-bubbles" || animatedBackground === "gradient-mesh"));
+    (backgroundType === "animated" && (
+      animatedBackground === "glass-bubbles" || 
+      ["sunbeam-rays", "sakura-petals", "cloud-drift", "pastel-waves", "morning-dew", "watercolor-wash", "cotton-candy", "golden-hour", "ocean-breeze", "lavender-mist"].includes(animatedBackground)
+    ));
   const cardBgClass = isLightBg 
     ? "bg-black/5 border-black/10 text-zinc-900 shadow-sm" 
     : (selectedTheme?.config?.previewCard || "bg-zinc-900/60 border-zinc-800/85 text-zinc-355 backdrop-blur-md shadow-sm");
@@ -1490,59 +1531,64 @@ export default function OnboardingSetup() {
 
       {/* FREEMIUM UPGRADE MODAL */}
       {showUpgradeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 select-none">
-          <div className="relative w-full max-w-lg rounded-2xl border border-white/60 bg-white/80 backdrop-blur-2xl p-6 shadow-2xl text-center animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 select-none animate-in fade-in duration-300">
+          <div className="relative w-full max-w-md rounded-[32px] border border-white/60 bg-white/75 p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.15)] text-center animate-in scale-in duration-300 backdrop-blur-2xl">
             {/* Close Button */}
             <button
               onClick={() => setShowUpgradeModal(false)}
-              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition cursor-pointer"
+              className="absolute top-5 right-5 flex h-8 w-8 items-center justify-center rounded-full border border-black/5 bg-white/45 text-on-surface-variant/70 hover:text-on-surface hover:bg-white transition-all duration-200 cursor-pointer shadow-sm"
               aria-label="Close modal"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
 
             {/* Modal Header */}
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
-              <Sparkles className="h-6 w-6 animate-pulse" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary-container/10 text-primary mb-5 relative">
+              <span className="absolute inset-0 rounded-full bg-primary/5 animate-ping opacity-75" />
+              <Sparkles className="h-6 w-6 relative z-10" />
             </div>
-            <h3 className="text-xl font-extrabold text-on-surface">🚀 Unlock Unlimited Blinko Trees</h3>
-            <p className="text-xs text-on-surface-variant mt-2 max-w-sm mx-auto leading-relaxed">
+            <h3 className="text-2xl font-bold tracking-tight text-on-surface font-display-xl">🚀 Unlock Unlimited Blinko Trees</h3>
+            <p className="text-xs text-on-surface-variant/80 mt-2 max-w-sm mx-auto leading-relaxed font-body-md">
               Upgrade to Pro to create unlimited trees, unlock advanced premium themes, and track custom domain names.
             </p>
 
-            {/* Benefits list */}
-            <div className="mt-6 grid gap-2.5 text-left max-h-52 overflow-y-auto pr-1">
-              {[
-                { title: "Unlimited Blinko Trees", desc: "Create as many public pages as you want." },
-                { title: "Advanced Analytics", desc: "Track Views, Clicks, CTR, Top Links, Traffic Sources, Device stats." },
-                { title: "Premium Themes", desc: "Access all premium designs (Neon, Cyberpunk, Glassmorphism)." },
-                { title: "Custom Domains", desc: "Use yourname.com instead of blinko.site/username." },
-                { title: "Remove Blinko Branding", desc: "Remove all platform watermarks." }
-              ].map((benefit, idx) => (
-                <div key={idx} className="flex gap-2.5 rounded-lg border border-black/5 bg-white/50 p-2.5 text-xs">
-                  <CheckCircle2 className="h-4.5 w-4.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-semibold text-on-surface">{benefit.title}</h4>
-                    <p className="text-[10px] text-on-surface-variant mt-0.5">{benefit.desc}</p>
+            {/* Benefits list (Scroll container) */}
+            <div className="relative mt-6">
+              <div className="grid gap-2.5 text-left max-h-56 overflow-y-auto pr-0.5 no-scrollbar">
+                {[
+                  { title: "Unlimited Blinko Trees", desc: "Create as many public pages as you want." },
+                  { title: "Advanced Analytics", desc: "Track Views, Clicks, CTR, Top Links, Traffic Sources, Device stats." },
+                  { title: "Premium Themes", desc: "Access all premium designs (Neon, Cyberpunk, Glassmorphism)." },
+                  { title: "Custom Domains", desc: "Use yourname.com instead of blinko.site/username." },
+                  { title: "Remove Blinko Branding", desc: "Remove all platform watermarks." }
+                ].map((benefit, idx) => (
+                  <div key={idx} className="flex gap-3 rounded-2xl border border-black/5 bg-white/45 p-3.5 text-xs shadow-sm hover:translate-y-[-1px] hover:bg-white/60 hover:border-primary/10 transition-all duration-200">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-on-surface font-body-md">{benefit.title}</h4>
+                      <p className="text-[10px] text-on-surface-variant/80 mt-0.5 font-body-md">{benefit.desc}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             {/* Modal actions buttons */}
-            <div className="mt-8 flex flex-col gap-2.5">
+            <div className="mt-6 flex flex-col gap-2.5">
               <button
                 onClick={() => {
                   setShowUpgradeModal(false);
                   router.push("/dashboard/billing");
                 }}
-                className="w-full flex h-11 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white hover:bg-primary/95 transition cursor-pointer shadow-sm"
+                className="w-full flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-primary to-primary-container text-sm font-bold text-white hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 shadow-md cursor-pointer"
               >
                 Upgrade to Pro
               </button>
               <button
                 onClick={() => setShowUpgradeModal(false)}
-                className="w-full text-on-surface-variant hover:text-primary text-xs font-semibold py-2 transition cursor-pointer"
+                className="w-full text-on-surface-variant/75 hover:text-on-surface text-xs font-semibold py-2 transition-all duration-200 cursor-pointer"
               >
                 Not Right Now
               </button>

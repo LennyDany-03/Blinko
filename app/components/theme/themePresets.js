@@ -190,6 +190,13 @@ export const ANIMATED_BACKGROUNDS = [
     previewGradient: "linear-gradient(135deg, #667eea 0%, #f093fb 50%, #5ee7df 100%)"
   },
   {
+    id: "instagram-mesh",
+    label: "Instagram Mesh",
+    emoji: "📸",
+    description: "Vibrant Instagram gradient",
+    previewGradient: "linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)"
+  },
+  {
     id: "liquid-flow",
     label: "Liquid Flow",
     emoji: "💧",
@@ -362,7 +369,7 @@ export const BUILT_IN_THEMES = [
       accentColor: "#fd1d1d",
       fontFamily: "font-sans",
       buttonStyle: "rounded-full",
-      background: "gradient-mesh",
+      background: "instagram-mesh",
       linkStyle: "gradient",
       animationStrength: 0.6,
       blur: 18,
@@ -461,6 +468,702 @@ export const BUILT_IN_THEMES = [
       shadowIntensity: 0.1,
       cardTransparency: 80,
       isLight: true
+    }
+  }
+];
+
+// ─── PRO Exclusive: 10 Animated Background Definitions ──────
+export const PRO_ANIMATED_BACKGROUNDS = [
+  {
+    id: "cyber-rain",
+    label: "Cyber Rain",
+    emoji: "🌧️",
+    description: "Neon rainfall matrix",
+    previewGradient: "linear-gradient(180deg, #0a0020 0%, #1a0040 50%, #0d001a 100%)",
+    isPro: true
+  },
+  {
+    id: "plasma-vortex",
+    label: "Plasma Vortex",
+    emoji: "🌀",
+    description: "Swirling energy plasma",
+    previewGradient: "linear-gradient(135deg, #1a0030 0%, #3d0066 50%, #0d0020 100%)",
+    isPro: true
+  },
+  {
+    id: "hologram-grid",
+    label: "Hologram Grid",
+    emoji: "🔷",
+    description: "3D holographic wireframe",
+    previewGradient: "linear-gradient(135deg, #000a1a 0%, #001133 50%, #000d26 100%)",
+    isPro: true
+  },
+  {
+    id: "void-nebula",
+    label: "Void Nebula",
+    emoji: "🪐",
+    description: "Deep space cosmic clouds",
+    previewGradient: "linear-gradient(135deg, #05000d 0%, #150025 50%, #0a0015 100%)",
+    isPro: true
+  },
+  {
+    id: "crystal-cave",
+    label: "Crystal Cave",
+    emoji: "💠",
+    description: "Floating crystal formations",
+    previewGradient: "linear-gradient(135deg, #0d1b2a 0%, #1b2838 50%, #0a1628 100%)",
+    isPro: true
+  },
+  {
+    id: "ember-storm",
+    label: "Ember Storm",
+    emoji: "🔥",
+    description: "Rising fire particles",
+    previewGradient: "linear-gradient(180deg, #1a0000 0%, #330a00 50%, #1a0500 100%)",
+    isPro: true
+  },
+  {
+    id: "quantum-field",
+    label: "Quantum Field",
+    emoji: "⚛️",
+    description: "Flickering quantum dots",
+    previewGradient: "linear-gradient(135deg, #000d1a 0%, #001a33 50%, #000a1a 100%)",
+    isPro: true
+  },
+  {
+    id: "prism-aurora",
+    label: "Prism Aurora",
+    emoji: "🌈",
+    description: "Rainbow light refractions",
+    previewGradient: "linear-gradient(135deg, #0a000d 0%, #1a0033 50%, #000d1a 100%)",
+    isPro: true
+  },
+  {
+    id: "digital-rain",
+    label: "Digital Rain",
+    emoji: "🟢",
+    description: "Matrix-style code rain",
+    previewGradient: "linear-gradient(180deg, #000a00 0%, #001a00 50%, #000d00 100%)",
+    isPro: true
+  },
+  {
+    id: "cosmic-web",
+    label: "Cosmic Web",
+    emoji: "🕸️",
+    description: "Interconnected star web",
+    previewGradient: "linear-gradient(135deg, #0a0a14 0%, #14142a 50%, #0a0a1e 100%)",
+    isPro: true
+  }
+];
+
+// ─── PRO Exclusive: 10 Premium Theme Definitions ────────────
+export const PRO_BUILT_IN_THEMES = [
+  {
+    id: "neon-cyberpunk",
+    name: "Neon Cyberpunk",
+    emoji: "⚡",
+    description: "Electric neon, dark cyber city vibes",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #0a0020 0%, #1a0040 50%, #0d001a 100%)",
+      accent: "#00f0ff",
+      textColor: "#00f0ff"
+    },
+    config: {
+      accentColor: "#00f0ff",
+      fontFamily: "font-mono",
+      buttonStyle: "rounded-none",
+      background: "cyber-rain",
+      linkStyle: "neon",
+      animationStrength: 0.8,
+      blur: 6,
+      shadowIntensity: 0.9,
+      cardTransparency: 15,
+      isLight: false,
+      titleColor: "#00f0ff",
+      bioCardStyle: "neon"
+    }
+  },
+  {
+    id: "midnight-amethyst",
+    name: "Midnight Amethyst",
+    emoji: "💎",
+    description: "Deep purple crystal elegance",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #0d001a 0%, #1a0033 50%, #0d001a 100%)",
+      accent: "#bf5af2",
+      textColor: "#e0b0ff"
+    },
+    config: {
+      accentColor: "#bf5af2",
+      fontFamily: "font-serif",
+      buttonStyle: "rounded-20px",
+      background: "void-nebula",
+      linkStyle: "glass",
+      animationStrength: 0.5,
+      blur: 24,
+      shadowIntensity: 0.7,
+      cardTransparency: 25,
+      isLight: false,
+      titleColor: "#e0b0ff",
+      bioCardStyle: "glass"
+    }
+  },
+  {
+    id: "plasma-fusion",
+    name: "Plasma Fusion",
+    emoji: "🌀",
+    description: "Hot plasma energy, vivid gradients",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #1a0030 0%, #3d0066 50%, #0d0020 100%)",
+      accent: "#ff6ec7",
+      textColor: "#ffffff"
+    },
+    config: {
+      accentColor: "#ff6ec7",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-full",
+      background: "plasma-vortex",
+      linkStyle: "gradient",
+      animationStrength: 0.7,
+      blur: 18,
+      shadowIntensity: 0.8,
+      cardTransparency: 20,
+      isLight: false,
+      titleColor: "#ff6ec7",
+      bioCardStyle: "gradient"
+    }
+  },
+  {
+    id: "arctic-frost",
+    name: "Arctic Frost",
+    emoji: "❄️",
+    description: "Icy blue, frozen glass surfaces",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #0a1628 0%, #0d2137 50%, #061a2e 100%)",
+      accent: "#7dd3fc",
+      textColor: "#e0f2fe"
+    },
+    config: {
+      accentColor: "#7dd3fc",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-15px",
+      background: "crystal-cave",
+      linkStyle: "glass",
+      animationStrength: 0.4,
+      blur: 28,
+      shadowIntensity: 0.4,
+      cardTransparency: 35,
+      isLight: false,
+      titleColor: "#e0f2fe",
+      bioCardStyle: "glass"
+    }
+  },
+  {
+    id: "inferno-dark",
+    name: "Inferno Dark",
+    emoji: "🔥",
+    description: "Molten lava, ember particles",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #1a0000 0%, #330a00 50%, #1a0500 100%)",
+      accent: "#ff4500",
+      textColor: "#ffcba4"
+    },
+    config: {
+      accentColor: "#ff4500",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-10px",
+      background: "ember-storm",
+      linkStyle: "floating-3d",
+      animationStrength: 0.7,
+      blur: 10,
+      shadowIntensity: 0.85,
+      cardTransparency: 20,
+      isLight: false,
+      titleColor: "#ffcba4",
+      bioCardStyle: "neon"
+    }
+  },
+  {
+    id: "quantum-void",
+    name: "Quantum Void",
+    emoji: "⚛️",
+    description: "Sci-fi quantum particles, deep void",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #000d1a 0%, #001a33 50%, #000a1a 100%)",
+      accent: "#22d3ee",
+      textColor: "#67e8f9"
+    },
+    config: {
+      accentColor: "#22d3ee",
+      fontFamily: "font-mono",
+      buttonStyle: "rounded-md",
+      background: "quantum-field",
+      linkStyle: "neon",
+      animationStrength: 0.6,
+      blur: 12,
+      shadowIntensity: 0.6,
+      cardTransparency: 18,
+      isLight: false,
+      titleColor: "#67e8f9",
+      bioCardStyle: "neon"
+    }
+  },
+  {
+    id: "holographic",
+    name: "Holographic",
+    emoji: "🔷",
+    description: "3D hologram wireframe, futuristic",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #000a1a 0%, #001133 50%, #000d26 100%)",
+      accent: "#4f8eff",
+      textColor: "#93c5fd"
+    },
+    config: {
+      accentColor: "#4f8eff",
+      fontFamily: "font-mono",
+      buttonStyle: "rounded-none",
+      background: "hologram-grid",
+      linkStyle: "outline",
+      animationStrength: 0.5,
+      blur: 4,
+      shadowIntensity: 0.5,
+      cardTransparency: 12,
+      isLight: false,
+      titleColor: "#93c5fd",
+      bioCardStyle: "transparent"
+    }
+  },
+  {
+    id: "rose-gold-luxe",
+    name: "Rose Gold Luxe",
+    emoji: "🌹",
+    description: "Premium rose gold, soft elegance",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #1a1012 0%, #2a1a1e 50%, #1a1012 100%)",
+      accent: "#f4a4b8",
+      textColor: "#fce4ec"
+    },
+    config: {
+      accentColor: "#f4a4b8",
+      fontFamily: "font-serif",
+      buttonStyle: "rounded-full",
+      background: "prism-aurora",
+      linkStyle: "luxury",
+      animationStrength: 0.3,
+      blur: 20,
+      shadowIntensity: 0.6,
+      cardTransparency: 30,
+      isLight: false,
+      titleColor: "#fce4ec",
+      bioCardStyle: "glass"
+    }
+  },
+  {
+    id: "matrix-code",
+    name: "Matrix Code",
+    emoji: "🟢",
+    description: "The Matrix digital rain, green glow",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(180deg, #000a00 0%, #001a00 50%, #000d00 100%)",
+      accent: "#00ff41",
+      textColor: "#00ff41"
+    },
+    config: {
+      accentColor: "#00ff41",
+      fontFamily: "font-mono",
+      buttonStyle: "rounded-none",
+      background: "digital-rain",
+      linkStyle: "neon",
+      animationStrength: 0.6,
+      blur: 0,
+      shadowIntensity: 0.7,
+      cardTransparency: 10,
+      isLight: false,
+      titleColor: "#00ff41",
+      bioCardStyle: "transparent"
+    }
+  },
+  {
+    id: "cosmic-architect",
+    name: "Cosmic Architect",
+    emoji: "🕸️",
+    description: "Interconnected star constellation web",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #0a0a14 0%, #14142a 50%, #0a0a1e 100%)",
+      accent: "#a78bfa",
+      textColor: "#c4b5fd"
+    },
+    config: {
+      accentColor: "#a78bfa",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-xl",
+      background: "cosmic-web",
+      linkStyle: "soft-shadow",
+      animationStrength: 0.5,
+      blur: 16,
+      shadowIntensity: 0.5,
+      cardTransparency: 25,
+      isLight: false,
+      titleColor: "#c4b5fd",
+      bioCardStyle: "glass"
+    }
+  }
+];
+
+// ─── PRO Exclusive: 10 Light Animated Background Definitions ─
+export const PRO_LIGHT_ANIMATED_BACKGROUNDS = [
+  {
+    id: "sunbeam-rays",
+    label: "Sunbeam Rays",
+    emoji: "☀️",
+    description: "Warm golden light rays",
+    previewGradient: "linear-gradient(135deg, #fff7ed 0%, #fef3c7 50%, #fef9c3 100%)",
+    isPro: true
+  },
+  {
+    id: "sakura-petals",
+    label: "Sakura Petals",
+    emoji: "🌸",
+    description: "Falling cherry blossom petals",
+    previewGradient: "linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #f5d0fe 100%)",
+    isPro: true
+  },
+  {
+    id: "cloud-drift",
+    label: "Cloud Drift",
+    emoji: "☁️",
+    description: "Soft floating cloud layers",
+    previewGradient: "linear-gradient(180deg, #dbeafe 0%, #e0f2fe 50%, #f0f9ff 100%)",
+    isPro: true
+  },
+  {
+    id: "pastel-waves",
+    label: "Pastel Waves",
+    emoji: "🎀",
+    description: "Flowing pastel color waves",
+    previewGradient: "linear-gradient(135deg, #ede9fe 0%, #fce7f3 50%, #dbeafe 100%)",
+    isPro: true
+  },
+  {
+    id: "morning-dew",
+    label: "Morning Dew",
+    emoji: "🌿",
+    description: "Fresh nature-inspired droplets",
+    previewGradient: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #f0fdf4 100%)",
+    isPro: true
+  },
+  {
+    id: "watercolor-wash",
+    label: "Watercolor Wash",
+    emoji: "🎨",
+    description: "Organic watercolor blending",
+    previewGradient: "linear-gradient(135deg, #fef3c7 0%, #fce7f3 50%, #dbeafe 100%)",
+    isPro: true
+  },
+  {
+    id: "cotton-candy",
+    label: "Cotton Candy",
+    emoji: "🍬",
+    description: "Sweet pink & blue gradient",
+    previewGradient: "linear-gradient(135deg, #fbcfe8 0%, #e0e7ff 50%, #c7d2fe 100%)",
+    isPro: true
+  },
+  {
+    id: "golden-hour",
+    label: "Golden Hour",
+    emoji: "🌅",
+    description: "Warm sunset amber glow",
+    previewGradient: "linear-gradient(135deg, #fef3c7 0%, #fed7aa 50%, #fecaca 100%)",
+    isPro: true
+  },
+  {
+    id: "ocean-breeze",
+    label: "Ocean Breeze",
+    emoji: "🌊",
+    description: "Coastal teal ripple waves",
+    previewGradient: "linear-gradient(135deg, #ccfbf1 0%, #a5f3fc 50%, #bae6fd 100%)",
+    isPro: true
+  },
+  {
+    id: "lavender-mist",
+    label: "Lavender Mist",
+    emoji: "💜",
+    description: "Soft purple haze particles",
+    previewGradient: "linear-gradient(135deg, #ede9fe 0%, #e9d5ff 50%, #f3e8ff 100%)",
+    isPro: true
+  }
+];
+
+// ─── PRO Exclusive: 10 Light Theme Definitions ─────────────
+export const PRO_LIGHT_THEMES = [
+  {
+    id: "sunrise-bloom",
+    name: "Sunrise Bloom",
+    emoji: "🌅",
+    description: "Warm amber sunrise with golden rays",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #fff7ed 0%, #fef3c7 50%, #fef9c3 100%)",
+      accent: "#f59e0b",
+      textColor: "#78350f"
+    },
+    config: {
+      accentColor: "#f59e0b",
+      fontFamily: "font-serif",
+      buttonStyle: "rounded-20px",
+      background: "sunbeam-rays",
+      linkStyle: "soft-shadow",
+      animationStrength: 0.4,
+      blur: 20,
+      shadowIntensity: 0.3,
+      cardTransparency: 60,
+      isLight: true,
+      titleColor: "#78350f",
+      bioCardStyle: "glass"
+    }
+  },
+  {
+    id: "sakura-garden",
+    name: "Sakura Garden",
+    emoji: "🌸",
+    description: "Japanese cherry blossom, soft pink",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #f5d0fe 100%)",
+      accent: "#ec4899",
+      textColor: "#831843"
+    },
+    config: {
+      accentColor: "#ec4899",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-full",
+      background: "sakura-petals",
+      linkStyle: "glass",
+      animationStrength: 0.5,
+      blur: 24,
+      shadowIntensity: 0.3,
+      cardTransparency: 55,
+      isLight: true,
+      titleColor: "#831843",
+      bioCardStyle: "glass"
+    }
+  },
+  {
+    id: "sky-canvas",
+    name: "Sky Canvas",
+    emoji: "☁️",
+    description: "Dreamy sky, floating cloud layers",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(180deg, #dbeafe 0%, #e0f2fe 50%, #f0f9ff 100%)",
+      accent: "#3b82f6",
+      textColor: "#1e3a5f"
+    },
+    config: {
+      accentColor: "#3b82f6",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-15px",
+      background: "cloud-drift",
+      linkStyle: "soft-shadow",
+      animationStrength: 0.3,
+      blur: 20,
+      shadowIntensity: 0.25,
+      cardTransparency: 65,
+      isLight: true,
+      titleColor: "#1e3a5f",
+      bioCardStyle: "solid"
+    }
+  },
+  {
+    id: "pastel-dreams",
+    name: "Pastel Dreams",
+    emoji: "🎀",
+    description: "Soft pastel rainbow gradient flow",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #ede9fe 0%, #fce7f3 50%, #dbeafe 100%)",
+      accent: "#8b5cf6",
+      textColor: "#4c1d95"
+    },
+    config: {
+      accentColor: "#8b5cf6",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-full",
+      background: "pastel-waves",
+      linkStyle: "gradient",
+      animationStrength: 0.5,
+      blur: 22,
+      shadowIntensity: 0.35,
+      cardTransparency: 50,
+      isLight: true,
+      titleColor: "#4c1d95",
+      bioCardStyle: "gradient"
+    }
+  },
+  {
+    id: "botanical-fresh",
+    name: "Botanical Fresh",
+    emoji: "🌿",
+    description: "Nature green, morning dew freshness",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #f0fdf4 100%)",
+      accent: "#10b981",
+      textColor: "#064e3b"
+    },
+    config: {
+      accentColor: "#10b981",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-10px",
+      background: "morning-dew",
+      linkStyle: "minimal",
+      animationStrength: 0.4,
+      blur: 16,
+      shadowIntensity: 0.2,
+      cardTransparency: 60,
+      isLight: true,
+      titleColor: "#064e3b",
+      bioCardStyle: "solid"
+    }
+  },
+  {
+    id: "watercolor-studio",
+    name: "Watercolor Studio",
+    emoji: "🎨",
+    description: "Artistic watercolor blending effects",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #fef3c7 0%, #fce7f3 50%, #dbeafe 100%)",
+      accent: "#f43f5e",
+      textColor: "#881337"
+    },
+    config: {
+      accentColor: "#f43f5e",
+      fontFamily: "font-serif",
+      buttonStyle: "rounded-20px",
+      background: "watercolor-wash",
+      linkStyle: "glass",
+      animationStrength: 0.6,
+      blur: 26,
+      shadowIntensity: 0.35,
+      cardTransparency: 45,
+      isLight: true,
+      titleColor: "#881337",
+      bioCardStyle: "glass"
+    }
+  },
+  {
+    id: "candy-pop",
+    name: "Candy Pop",
+    emoji: "🍬",
+    description: "Sweet cotton candy, playful vibes",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #fbcfe8 0%, #e0e7ff 50%, #c7d2fe 100%)",
+      accent: "#d946ef",
+      textColor: "#701a75"
+    },
+    config: {
+      accentColor: "#d946ef",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-full",
+      background: "cotton-candy",
+      linkStyle: "gradient",
+      animationStrength: 0.5,
+      blur: 18,
+      shadowIntensity: 0.4,
+      cardTransparency: 50,
+      isLight: true,
+      titleColor: "#701a75",
+      bioCardStyle: "gradient"
+    }
+  },
+  {
+    id: "golden-editorial",
+    name: "Golden Editorial",
+    emoji: "✨",
+    description: "Luxury magazine, warm golden tones",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #fefce8 0%, #fef3c7 50%, #fde68a 100%)",
+      accent: "#b45309",
+      textColor: "#451a03"
+    },
+    config: {
+      accentColor: "#b45309",
+      fontFamily: "font-serif",
+      buttonStyle: "rounded-none",
+      background: "golden-hour",
+      linkStyle: "luxury",
+      animationStrength: 0.3,
+      blur: 14,
+      shadowIntensity: 0.3,
+      cardTransparency: 55,
+      isLight: true,
+      titleColor: "#451a03",
+      bioCardStyle: "solid"
+    }
+  },
+  {
+    id: "ocean-calm",
+    name: "Ocean Calm",
+    emoji: "🌊",
+    description: "Coastal teal, serene water ripples",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #ccfbf1 0%, #a5f3fc 50%, #bae6fd 100%)",
+      accent: "#0891b2",
+      textColor: "#164e63"
+    },
+    config: {
+      accentColor: "#0891b2",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-15px",
+      background: "ocean-breeze",
+      linkStyle: "glass",
+      animationStrength: 0.4,
+      blur: 22,
+      shadowIntensity: 0.25,
+      cardTransparency: 55,
+      isLight: true,
+      titleColor: "#164e63",
+      bioCardStyle: "glass"
+    }
+  },
+  {
+    id: "lavender-luxe",
+    name: "Lavender Luxe",
+    emoji: "💜",
+    description: "Soft purple haze, elegant mist",
+    isPro: true,
+    preview: {
+      bg: "linear-gradient(135deg, #ede9fe 0%, #e9d5ff 50%, #f3e8ff 100%)",
+      accent: "#7c3aed",
+      textColor: "#4c1d95"
+    },
+    config: {
+      accentColor: "#7c3aed",
+      fontFamily: "font-sans",
+      buttonStyle: "rounded-20px",
+      background: "lavender-mist",
+      linkStyle: "soft-shadow",
+      animationStrength: 0.4,
+      blur: 20,
+      shadowIntensity: 0.3,
+      cardTransparency: 55,
+      isLight: true,
+      titleColor: "#4c1d95",
+      bioCardStyle: "glass"
     }
   }
 ];

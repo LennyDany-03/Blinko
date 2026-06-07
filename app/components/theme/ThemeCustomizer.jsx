@@ -1,12 +1,60 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Sparkles, Lock, ChevronRight, Layers, Paintbrush, Type, RectangleHorizontal, Palette, Sliders, Monitor } from "lucide-react";
+import { useState, useRef } from "react";
+import { Check, Sparkles, Lock, ChevronLeft, ChevronRight, Layers, Paintbrush, Type, RectangleHorizontal, Palette, Sliders, Monitor, Crown, Sun, Moon } from "lucide-react";
 import {
   ACCENT_COLORS, BUTTON_SHAPES, TYPOGRAPHY_STYLES,
   BACKGROUND_PRESETS, LINK_STYLE_PRESETS, ANIMATED_BACKGROUNDS,
-  BUILT_IN_THEMES, TITLE_COLORS, BIO_CARD_STYLES
+  BUILT_IN_THEMES, TITLE_COLORS, BIO_CARD_STYLES,
+  PRO_BUILT_IN_THEMES, PRO_ANIMATED_BACKGROUNDS,
+  PRO_LIGHT_THEMES, PRO_LIGHT_ANIMATED_BACKGROUNDS
 } from "./themePresets";
+
+// A reusable horizontal scrollable list with arrows for navigation
+function HorizontalCarousel({ items, renderItem }) {
+  const scrollRef = useRef(null);
+
+  const handleScroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = direction === "left" ? -280 : 280;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  return (
+    <div className="relative group/carousel w-full">
+      {/* Left scroll arrow */}
+      <button
+        type="button"
+        onClick={() => handleScroll("left")}
+        className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white/90 dark:bg-zinc-800/90 border border-black/10 dark:border-white/15 shadow-md transition-all opacity-0 group-hover/carousel:opacity-100 hidden sm:flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 text-zinc-800 dark:text-zinc-100"
+      >
+        <ChevronLeft className="h-4 w-4 stroke-[3]" />
+      </button>
+
+      {/* Scrollable list */}
+      <div
+        ref={scrollRef}
+        className="flex gap-3 overflow-x-auto pb-3 pt-1.5 pro-theme-scroll scroll-smooth snap-x w-full"
+      >
+        {items.map((item, idx) => (
+          <div key={item.id || idx} className="flex-none snap-start">
+            {renderItem(item)}
+          </div>
+        ))}
+      </div>
+
+      {/* Right scroll arrow */}
+      <button
+        type="button"
+        onClick={() => handleScroll("right")}
+        className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white/90 dark:bg-zinc-800/90 border border-black/10 dark:border-white/15 shadow-md transition-all opacity-0 group-hover/carousel:opacity-100 hidden sm:flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 text-zinc-800 dark:text-zinc-100"
+      >
+        <ChevronRight className="h-4 w-4 stroke-[3]" />
+      </button>
+    </div>
+  );
+}
 
 export default function ThemeCustomizer({
   themesList = [],
@@ -43,6 +91,8 @@ export default function ThemeCustomizer({
 }) {
 
   const [expandedSection, setExpandedSection] = useState("themes");
+  const [proThemeTab, setProThemeTab] = useState("dark");
+  const [proBgTab, setProBgTab] = useState("dark");
 
   // Apply a built-in theme preset
   const handleApplyBuiltInTheme = (theme) => {
@@ -147,7 +197,7 @@ export default function ThemeCustomizer({
         id="themes" 
         icon={Layers} 
         title="Theme Presets" 
-        subtitle="10 professionally designed starting points" 
+        subtitle="30 professionally designed starting points" 
         isOpen={expandedSection === "themes"} 
       />
       {expandedSection === "themes" && (
@@ -164,7 +214,7 @@ export default function ThemeCustomizer({
                   key={theme.id}
                   type="button"
                   onClick={() => handleApplyBuiltInTheme(theme)}
-                  className={`group relative flex flex-col rounded-xl border overflow-hidden transition-all duration-300 cursor-pointer ${
+                  className={`group relative flex flex-col rounded-lg border overflow-hidden transition-all duration-300 cursor-pointer ${
                     isSelected
                       ? "border-primary ring-2 ring-primary/20 shadow-lg shadow-primary/10 scale-[1.02]"
                       : "border-black/10 bg-white/35 hover:border-primary/30 hover:shadow-md hover:scale-[1.01]"
@@ -189,12 +239,7 @@ export default function ThemeCustomizer({
                         <div className="w-10 h-1 rounded-full" style={{ backgroundColor: `${theme.preview.accent}80` }} />
                       </div>
                     </div>
-                    {/* Selected checkmark */}
-                    {isSelected && (
-                      <div className="absolute top-1.5 right-1.5 rounded-full bg-primary p-0.5 shadow-md">
-                        <Check className="h-3 w-3 text-white" />
-                      </div>
-                    )}
+
                   </div>
                   {/* Theme Label */}
                   <div className="p-2.5 bg-white/50">
@@ -211,6 +256,119 @@ export default function ThemeCustomizer({
             })}
           </div>
 
+          {/* ═══════ Pro Exclusive Themes ═══════ */}
+          <div className="pt-4 mt-4 border-t border-black/8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/15 border border-amber-400/20">
+                  <Crown className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
+                  <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Pro Exclusive</span>
+                </div>
+                <span className="text-[10px] text-on-surface-variant/60 font-semibold">20 premium presets</span>
+              </div>
+              
+              {/* Tab Selector */}
+              <div className="flex items-center gap-1 bg-black/5 p-1 rounded-xl self-start sm:self-auto border border-black/5">
+                <button
+                  type="button"
+                  onClick={() => setProThemeTab("dark")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer ${
+                    proThemeTab === "dark"
+                      ? "bg-white text-zinc-800 shadow-sm scale-[1.02] border border-black/5"
+                      : "text-on-surface-variant/70 hover:text-on-surface hover:bg-black/5"
+                  }`}
+                >
+                  <Moon className="h-3 w-3 text-violet-500" />
+                  Dark Presets
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProThemeTab("light")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer ${
+                    proThemeTab === "light"
+                      ? "bg-white text-zinc-800 shadow-sm scale-[1.02] border border-black/5"
+                      : "text-on-surface-variant/70 hover:text-on-surface hover:bg-black/5"
+                  }`}
+                >
+                  <Sun className="h-3 w-3 text-amber-500" />
+                  Light Presets
+                </button>
+              </div>
+            </div>
+
+            <HorizontalCarousel
+              items={proThemeTab === "dark" ? PRO_BUILT_IN_THEMES : PRO_LIGHT_THEMES}
+              renderItem={(theme) => {
+                const isSelected = isPro &&
+                  accentColor === theme.config.accentColor && 
+                  fontStyle === theme.config.fontFamily &&
+                  (animatedBackground === theme.config.background || (!animatedBackground && theme.config.background === "none"));
+
+                return (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => {
+                      if (!isPro) {
+                        setShowUpgradeModal(true);
+                        return;
+                      }
+                      handleApplyBuiltInTheme(theme);
+                    }}
+                    className={`group relative flex flex-col w-[150px] rounded-lg border overflow-hidden transition-all duration-300 cursor-pointer text-left ${
+                      isSelected
+                        ? "border-amber-400 ring-2 ring-amber-400/25 shadow-lg shadow-amber-500/10 scale-[1.01]"
+                        : "border-black/10 bg-white/35 dark:bg-black/10 hover:border-amber-400/30 hover:shadow-md hover:scale-[1.01]"
+                    }`}
+                  >
+                    {/* Theme Preview Bar */}
+                    <div 
+                      className="h-20 w-full relative overflow-hidden"
+                      style={{ background: theme.preview.bg }}
+                    >
+                      {/* Mini UI mockup inside preview */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 p-3">
+                        <div className="w-6 h-6 rounded-full border border-white/40 bg-white/20" />
+                        <div className="w-14 h-1.5 rounded-full bg-white/30" />
+                        <div 
+                          className="w-18 h-4 rounded-md flex items-center justify-center"
+                          style={{ 
+                            backgroundColor: `${theme.preview.accent}30`,
+                            border: `1px solid ${theme.preview.accent}50`
+                          }}
+                        >
+                          <div className="w-10 h-0.5 rounded-full" style={{ backgroundColor: `${theme.preview.accent}80` }} />
+                        </div>
+                      </div>
+                      {/* Pro lock overlay for free users */}
+                      {!isPro && (
+                        <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center">
+                          <div className="p-1.5 rounded-full bg-black/50 border border-amber-500/30">
+                            <Lock className="h-3.5 w-3.5 text-amber-400" />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Pro badge */}
+                      <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-gradient-to-r from-amber-500/80 to-orange-500/80 backdrop-blur-md">
+                        <span className="text-[7px] font-extrabold text-white uppercase tracking-wider">PRO</span>
+                      </div>
+                    </div>
+                    {/* Theme Label */}
+                    <div className="p-2.5 bg-white/50 dark:bg-black/20">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs">{theme.emoji}</span>
+                        <span className={`text-[10px] font-bold truncate ${isSelected ? "text-amber-600 dark:text-amber-400" : "text-on-surface-variant"}`}>
+                          {theme.name}
+                        </span>
+                      </div>
+                      <p className="text-[8px] text-on-surface-variant/70 mt-0.5 truncate">{theme.description}</p>
+                    </div>
+                  </button>
+                );
+              }}
+            />
+          </div>
 
         </div>
       )}
@@ -233,7 +391,7 @@ export default function ThemeCustomizer({
               onClick={() => {
                 if (setAnimatedBackground) setAnimatedBackground("none");
               }}
-              className={`group relative aspect-[16/10] w-full rounded-xl border overflow-hidden transition-all duration-200 cursor-pointer ${
+              className={`group relative aspect-[16/10] w-full rounded-lg border overflow-hidden transition-all duration-200 cursor-pointer ${
                 (!animatedBackground || animatedBackground === "none")
                   ? "border-primary ring-2 ring-primary/20"
                   : "border-black/10 hover:border-primary/30"
@@ -254,7 +412,7 @@ export default function ThemeCustomizer({
                     setBackgroundType("animated");
                     if (setPreviewBg) setPreviewBg("transparent");
                   }}
-                  className={`group relative aspect-[16/10] w-full rounded-xl border overflow-hidden transition-all duration-200 cursor-pointer ${
+                  className={`group relative aspect-[16/10] w-full rounded-lg border overflow-hidden transition-all duration-200 cursor-pointer ${
                     isSelected
                       ? "border-primary ring-2 ring-primary/20 shadow-md"
                       : "border-black/10 hover:border-primary/30 hover:shadow-sm"
@@ -278,6 +436,100 @@ export default function ThemeCustomizer({
                 </button>
               );
             })}
+          </div>
+
+          {/* Pro Animated Backgrounds */}
+          <div className="pt-4 border-t border-black/5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/15 border border-amber-400/20">
+                  <Crown className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
+                  <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Pro</span>
+                </div>
+                <span className="text-[10px] font-bold text-on-surface-variant/70">Exclusive FX</span>
+              </div>
+              
+              {/* Tab Selector */}
+              <div className="flex items-center gap-1 bg-black/5 p-1 rounded-xl self-start sm:self-auto border border-black/5">
+                <button
+                  type="button"
+                  onClick={() => setProBgTab("dark")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer ${
+                    proBgTab === "dark"
+                      ? "bg-white text-zinc-800 shadow-sm scale-[1.02] border border-black/5"
+                      : "text-on-surface-variant/70 hover:text-on-surface hover:bg-black/5"
+                  }`}
+                >
+                  <Moon className="h-3 w-3 text-violet-500" />
+                  Dark FX
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProBgTab("light")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer ${
+                    proBgTab === "light"
+                      ? "bg-white text-zinc-800 shadow-sm scale-[1.02] border border-black/5"
+                      : "text-on-surface-variant/70 hover:text-on-surface hover:bg-black/5"
+                  }`}
+                >
+                  <Sun className="h-3 w-3 text-amber-500" />
+                  Light FX
+                </button>
+              </div>
+            </div>
+
+            <HorizontalCarousel
+              items={proBgTab === "dark" ? PRO_ANIMATED_BACKGROUNDS : PRO_LIGHT_ANIMATED_BACKGROUNDS}
+              renderItem={(bg) => {
+                const isSelected = animatedBackground === bg.id;
+                return (
+                  <button
+                    key={bg.id}
+                    type="button"
+                    onClick={() => {
+                      if (!isPro) {
+                        setShowUpgradeModal(true);
+                        return;
+                      }
+                      if (setAnimatedBackground) setAnimatedBackground(bg.id);
+                      setBackgroundType("animated");
+                      if (setPreviewBg) setPreviewBg("transparent");
+                    }}
+                    className={`group relative aspect-[16/10] w-[140px] rounded-lg border overflow-hidden transition-all duration-200 cursor-pointer text-left ${
+                      isSelected
+                        ? "border-amber-400 ring-2 ring-amber-400/25 shadow-md scale-[1.01]"
+                        : "border-black/10 bg-white/35 dark:bg-black/10 hover:border-amber-400/30 hover:shadow-sm"
+                    }`}
+                  >
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: bg.previewGradient }}
+                    />
+                    {/* Pro lock overlay */}
+                    {!isPro && (
+                      <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center">
+                        <Lock className="h-3.5 w-3.5 text-amber-400/80" />
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-2 pt-6">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs">{bg.emoji}</span>
+                        <span className="text-[9px] font-bold text-white truncate">{bg.label}</span>
+                      </div>
+                    </div>
+                    {/* Pro badge */}
+                    <div className="absolute top-1 left-1 px-1 py-0.5 rounded bg-gradient-to-r from-amber-500/80 to-orange-500/80 backdrop-blur-md">
+                      <span className="text-[6px] font-extrabold text-white uppercase tracking-wider">PRO</span>
+                    </div>
+                    {isSelected && (
+                      <div className="absolute top-1.5 right-1.5 rounded-full bg-amber-500 p-0.5 shadow-md">
+                        <Check className="h-2.5 w-2.5 text-white" />
+                      </div>
+                    )}
+                  </button>
+                );
+              }}
+            />
           </div>
 
           {/* Static backgrounds */}
@@ -333,7 +585,7 @@ export default function ThemeCustomizer({
                   key={style.id}
                   type="button"
                   onClick={() => setLinkStyle && setLinkStyle(style.id)}
-                  className={`group relative rounded-xl border p-3 transition-all duration-200 cursor-pointer text-left ${
+                  className={`group relative rounded-lg border p-3 transition-all duration-200 cursor-pointer text-left ${
                     isSelected
                       ? "border-primary bg-primary/5 ring-1 ring-primary/20"
                       : "border-black/10 bg-white/30 hover:border-primary/25 hover:bg-white/50"
@@ -516,7 +768,7 @@ export default function ThemeCustomizer({
                       key={style.id}
                       type="button"
                       onClick={() => setBioCardStyle(style.id)}
-                      className={`flex flex-col items-center justify-center p-2 rounded-xl border text-center transition cursor-pointer ${
+                      className={`flex flex-col items-center justify-center p-2 rounded-lg border text-center transition cursor-pointer ${
                         isActive
                           ? "bg-primary/15 border-primary/40 text-primary"
                           : "bg-white/20 border-black/5 text-on-surface-variant hover:bg-white/50"

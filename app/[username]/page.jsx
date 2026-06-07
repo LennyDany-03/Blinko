@@ -403,7 +403,10 @@ export default function PublicProfilePage({ params }) {
     bgClass.includes("bg-surface") || 
     bgClass.includes("bg-background") || 
     bgClass.includes("pink-200") ||
-    (bgClass === "animated" && (animatedBg === "glass-bubbles" || animatedBg === "gradient-mesh"));
+    (bgClass === "animated" && (
+      animatedBg === "glass-bubbles" || 
+      ["sunbeam-rays", "sakura-petals", "cloud-drift", "pastel-waves", "morning-dew", "watercolor-wash", "cotton-candy", "golden-hour", "ocean-breeze", "lavender-mist"].includes(animatedBg)
+    ));
   
   // Predefined or fallback cardBg
   const cardBgClass = isLightBg
