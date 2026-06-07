@@ -1467,11 +1467,11 @@ export default function TreeBuilder() {
         </div>
 
         {/* Live Simulator Panel (Right 2 cols) */}
-        <div className="lg:col-span-2 flex flex-col items-center lg:sticky lg:top-24 h-fit">
+        <div className="lg:col-span-2 flex flex-col items-center lg:sticky lg:top-24 h-fit pt-6">
           {/* Ambient Dynamic Backglow Container */}
           <div className="relative w-full max-w-[310px] group">
             {/* Floating Live Simulator Badge */}
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1.5 bg-white/85 backdrop-blur-md border border-white/60 shadow-sm rounded-full text-[10px] font-bold text-on-surface-variant/95 tracking-wide select-none z-30 shadow-black/5">
+            <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1.5 bg-white/85 backdrop-blur-md border border-white/60 shadow-sm rounded-full text-[10px] font-bold text-on-surface-variant/95 tracking-wide select-none z-30 shadow-black/5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
               LIVE PREVIEW
             </div>
