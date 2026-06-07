@@ -50,12 +50,44 @@ export function AuthProvider({ children }) {
       if (existingProfiles && existingProfiles.length > 0) {
         const firstProfile = existingProfiles[0];
         setProfile(firstProfile);
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("blinko_auth_mode");
+        }
         return firstProfile;
       }
 
       // 2. If no profile exists, we do not auto-create one here anymore.
       // In V2, profiles require a tree_id and are created during onboarding setup wizard.
       setProfile(null);
+
+      // Check if they initiated from login but are actually a new user
+      if (typeof window !== "undefined") {
+        const authMode = localStorage.getItem("blinko_auth_mode");
+        if (authMode === "login") {
+          const createdAt = new Date(authUser.created_at).getTime();
+          
+          // If the account was created less than 2 minutes ago relative to now, it is a brand new account.
+          // This avoids issues where last_sign_in_at is null or identical to created_at for older users who haven't signed in recently.
+          const isBrandNewAccount = Math.abs(Date.now() - createdAt) < 120000;
+          
+          if (isBrandNewAccount) {
+            localStorage.removeItem("blinko_auth_mode");
+            // Clear session cookies and log out
+            document.cookie = `blinko-session-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+            document.cookie = `blinko-session-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+            await supabase.auth.signOut();
+            window.location.href = "/login?new_user=true";
+            return null;
+          } else {
+            // It's an existing auth user who hasn't completed onboarding/setup yet.
+            // Let them pass to `/dashboard` so they can complete setup.
+            localStorage.removeItem("blinko_auth_mode");
+          }
+        } else if (authMode === "signup") {
+          localStorage.removeItem("blinko_auth_mode");
+        }
+      }
+
       return null;
     } catch (err) {
       console.error("Failed to run profile existence check:", err);

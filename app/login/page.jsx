@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Globe2, Lock, Mail, Loader2, AlertCircle } from "lucide-react";
@@ -17,6 +17,37 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // New user popup states
+  const [showNewUserPopup, setShowNewUserPopup] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("new_user") === "true") {
+        setShowNewUserPopup(true);
+        
+        const interval = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        
+        return () => clearInterval(interval);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showNewUserPopup && countdown === 0) {
+      router.push("/signup");
+    }
+  }, [countdown, showNewUserPopup, router]);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -55,11 +86,15 @@ export default function LoginPage() {
     setGoogleLoading(true);
     setErrorMsg("");
 
+    if (typeof window !== "undefined") {
+      localStorage.setItem("blinko_auth_mode", "login");
+    }
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
@@ -196,6 +231,53 @@ export default function LoginPage() {
           </Link>
         </p>
       </section>
+
+      {/* New User Redirection Popup Modal */}
+      {showNewUserPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 select-none animate-in fade-in duration-300">
+          <div className="w-full max-w-md rounded-[32px] border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur-2xl text-center sm:p-8 animate-scale-in space-y-6">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-violet-600 animate-bounce">
+              <Loader2 className="h-7 w-7 animate-spin text-primary" />
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold tracking-tight text-on-surface font-display-xl">
+                It seems you are a new user
+              </h2>
+              <p className="text-sm text-on-surface-variant/80 font-body-md leading-relaxed">
+                You do not have a Blinko account associated with this email. Please sign up first to start creating your Blinko Tree.
+              </p>
+            </div>
+
+            <div className="bg-black/5 rounded-2xl p-3 text-xs text-on-surface-variant/70 font-semibold">
+              Redirecting to sign up page in <span className="text-primary font-bold">{countdown}</span> seconds...
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  router.push("/login");
+                  setShowNewUserPopup(false);
+                }}
+                className="flex-1 h-11 rounded-full border border-black/10 bg-white/60 text-sm font-semibold text-on-surface hover:bg-white transition duration-200 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  router.push("/signup");
+                }}
+                className="flex-1 h-11 bg-primary text-white border border-primary/20 shadow-md rounded-full text-sm font-semibold hover:bg-primary/95 transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                Sign Up
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

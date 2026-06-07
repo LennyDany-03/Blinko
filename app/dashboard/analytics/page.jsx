@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, MousePointerClick, TrendingUp, Loader2 } from "lucide-react";
+import { Eye, MousePointerClick, TrendingUp, Loader2, Plus, GitBranch } from "lucide-react";
 import SectionHeader from "../../components/dashboard/SectionHeader";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import StatsCard from "../../components/dashboard/StatsCard";
+import Button from "../../components/Button";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -17,43 +18,51 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState({ views: 0, clicks: 0 });
   const [linksList, setLinksList] = useState([]);
+  const [hasNoTree, setHasNoTree] = useState(false);
 
   useEffect(() => {
     if (!user) return;
 
     const fetchAnalyticsData = async () => {
       try {
-        setLoading(true);
-
         // 1. Fetch user's tree
-        const { data: tree, error: treeError } = await supabase
+        const { data: userTrees, error: treeError } = await supabase
           .from("trees")
           .select("id")
           .eq("user_id", user.id)
-          .maybeSingle();
+          .order("is_active", { ascending: false })
+          .order("created_at", { ascending: true })
+          .limit(1);
 
         if (treeError) throw treeError;
 
+        const tree = userTrees && userTrees.length > 0 ? userTrees[0] : null;
+
         if (!tree) {
-          router.push("/dashboard/blinko-tree/setup");
+          setHasNoTree(true);
+          setLoading(false);
           return;
         }
 
         // 2. Fetch analytics row
-        const { data: analyticsRow, error: analyticsError } = await supabase
+        const { data: analyticsRows, error: analyticsError } = await supabase
           .from("analytics")
           .select("views, clicks")
-          .eq("tree_id", tree.id)
-          .maybeSingle();
+          .eq("tree_id", tree.id);
 
-        if (analyticsError && analyticsError.code !== "PGRST116") throw analyticsError;
+        if (analyticsError) throw analyticsError;
 
-        if (analyticsRow) {
-          setAnalytics({
-            views: analyticsRow.views,
-            clicks: analyticsRow.clicks
-          });
+        let views = 0;
+        let clicks = 0;
+        if (analyticsRows && analyticsRows.length > 0) {
+          views = analyticsRows.reduce((sum, row) => sum + (row.views || 0), 0);
+          clicks = analyticsRows.reduce((sum, row) => sum + (row.clicks || 0), 0);
         }
+
+        setAnalytics({
+          views,
+          clicks
+        });
 
         // 3. Fetch links list sorted by clicks to show performing links
         const { data: linksData } = await supabase
@@ -83,6 +92,36 @@ export default function AnalyticsPage() {
           <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
           <p className="text-sm text-on-surface-variant">Loading analytics performance logs...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (hasNoTree) {
+    return (
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <SectionHeader 
+          title="Analytics Overview" 
+          description="Monitor views, link clicks, CTR performance metrics, and top link statistics."
+        />
+        <DashboardCard className="py-16 max-w-2xl mx-auto border-white/60 bg-white/40 shadow-sm backdrop-blur-md">
+          <div className="flex flex-col items-center justify-center text-center w-full space-y-5">
+            <TrendingUp className="h-14 w-14 text-primary/60 animate-pulse" />
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-on-surface">You don't have generated any Blinko Tree</h3>
+              <p className="text-xs text-on-surface-variant max-w-md leading-relaxed">
+                Create your Blinko Tree to start collecting view counts, link clicks, click-through rates, and traffic referrals.
+              </p>
+            </div>
+            <Button 
+              variant="luminous" 
+              size="md" 
+              icon={Plus} 
+              onClick={() => router.push("/dashboard/blinko-tree/setup")}
+            >
+              Create a Tree
+            </Button>
+          </div>
+        </DashboardCard>
       </div>
     );
   }

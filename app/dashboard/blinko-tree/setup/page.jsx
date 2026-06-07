@@ -7,7 +7,7 @@ import {
   Copy, CheckCircle2, Share2, QrCode, Globe, MapPin, Mail, 
   ExternalLink, FileText, Play, Code, BookOpen, Layers, 
   Building, Briefcase, Music, Camera, ShoppingBag, Eye, Link2, LucideIcon,
-  X, Plus, Trash2, GripVertical
+  X, Plus, Trash2, GripVertical, Upload
 } from "lucide-react";
 import { Github, Linkedin, Instagram, Youtube, Twitter } from "../../../components/dashboard/BrandIcons";
 import Link from "next/link";
@@ -78,6 +78,10 @@ const TEMPLATES = [
     category: "Creative",
     desc: "For YouTubers, Instagram, and TikTok creators.",
     fields: ["display_name", "username", "bio", "location", "website"],
+    defaultDisplayName: "Avery Stone",
+    defaultBio: "Digital creator & YouTuber sharing travel stories and lifestyle vlogs.",
+    defaultLocation: "Los Angeles, CA",
+    defaultWebsite: "https://averystone.com",
     defaultLinks: [
       { title: "Watch my Latest Video", url: "https://youtube.com", icon: "Play" },
       { title: "Follow me on Instagram", url: "https://instagram.com", icon: "Link2" },
@@ -90,6 +94,10 @@ const TEMPLATES = [
     category: "Tech",
     desc: "For software engineers, designers, and developers.",
     fields: ["display_name", "username", "bio", "location", "website"],
+    defaultDisplayName: "Alex Carter",
+    defaultBio: "Software Engineer & Designer building open-source projects.",
+    defaultLocation: "San Francisco, CA",
+    defaultWebsite: "https://alexcarter.dev",
     defaultLinks: [
       { title: "GitHub Repositories", url: "https://github.com", icon: "Code" },
       { title: "LinkedIn Professional", url: "https://linkedin.com", icon: "Link2" },
@@ -103,6 +111,10 @@ const TEMPLATES = [
     category: "Education",
     desc: "For college and high school students.",
     fields: ["display_name", "username", "bio", "location", "website"],
+    defaultDisplayName: "Jordan Lee",
+    defaultBio: "Computer Science student at Stanford. Passionate about AI & UX.",
+    defaultLocation: "Palo Alto, CA",
+    defaultWebsite: "https://jordanlee.me",
     defaultLinks: [
       { title: "LinkedIn Profile", url: "https://linkedin.com", icon: "Link2" },
       { title: "My Research Projects", url: "https://google.com", icon: "BookOpen" },
@@ -115,6 +127,10 @@ const TEMPLATES = [
     category: "Business",
     desc: "For entrepreneurs and company founders.",
     fields: ["display_name", "username", "bio", "location", "website"],
+    defaultDisplayName: "Morgan Taylor",
+    defaultBio: "Founder & CEO of Novatech. Building the future of automation.",
+    defaultLocation: "New York, NY",
+    defaultWebsite: "https://novatech.co",
     defaultLinks: [
       { title: "Visit Company Website", url: "https://google.com", icon: "Building" },
       { title: "View Pitch Deck", url: "https://google.com", icon: "FileText" },
@@ -127,6 +143,10 @@ const TEMPLATES = [
     category: "Business",
     desc: "For freelance writers, developers, and consultants.",
     fields: ["display_name", "username", "bio", "location", "website"],
+    defaultDisplayName: "Taylor Reid",
+    defaultBio: "Freelance UI/UX designer & brand strategist helping startups grow.",
+    defaultLocation: "London, UK",
+    defaultWebsite: "https://taylorreid.design",
     defaultLinks: [
       { title: "My Freelance Services", url: "https://google.com", icon: "Briefcase" },
       { title: "View Portfolio Gallery", url: "https://google.com", icon: "Globe" },
@@ -139,6 +159,10 @@ const TEMPLATES = [
     category: "Creative",
     desc: "For bands, artists, and music creators.",
     fields: ["display_name", "username", "bio", "location", "website"],
+    defaultDisplayName: "Sam Jenkins",
+    defaultBio: "Indie singer-songwriter. New album 'Echoes of Light' out now!",
+    defaultLocation: "Nashville, TN",
+    defaultWebsite: "https://samjenkinsmusic.com",
     defaultLinks: [
       { title: "Listen on Spotify", url: "https://spotify.com", icon: "Music" },
       { title: "Latest Music Video", url: "https://youtube.com", icon: "Play" },
@@ -151,6 +175,10 @@ const TEMPLATES = [
     category: "Creative",
     desc: "For digital artists and photographers.",
     fields: ["display_name", "username", "bio", "location", "website"],
+    defaultDisplayName: "Robin Vance",
+    defaultBio: "Landscape & street photographer capturing moments around the globe.",
+    defaultLocation: "Seattle, WA",
+    defaultWebsite: "https://robinvancephoto.com",
     defaultLinks: [
       { title: "View Gallery", url: "https://unsplash.com", icon: "Camera" },
       { title: "Instagram Profile", url: "https://instagram.com", icon: "Link2" },
@@ -163,6 +191,10 @@ const TEMPLATES = [
     category: "Business",
     desc: "For design, marketing, and developer agencies.",
     fields: ["display_name", "username", "bio", "location", "website"],
+    defaultDisplayName: "Vortex Labs",
+    defaultBio: "Digital agency specializing in web development, design, and SEO.",
+    defaultLocation: "Austin, TX",
+    defaultWebsite: "https://vortexlabs.agency",
     defaultLinks: [
       { title: "Our Core Services", url: "https://google.com", icon: "Building" },
       { title: "Client Case Studies", url: "https://google.com", icon: "BookOpen" },
@@ -175,6 +207,10 @@ const TEMPLATES = [
     category: "Business",
     desc: "For Shopify and online product stores.",
     fields: ["display_name", "username", "bio", "location", "website"],
+    defaultDisplayName: "Aura Essentials",
+    defaultBio: "Handcrafted minimalist home decor and wellness products.",
+    defaultLocation: "Chicago, IL",
+    defaultWebsite: "https://auraessentials.com",
     defaultLinks: [
       { title: "Shop New Products", url: "https://shopify.com", icon: "ShoppingBag" },
       { title: "Exclusive Offers", url: "https://google.com", icon: "Link2" },
@@ -187,6 +223,10 @@ const TEMPLATES = [
     category: "General",
     desc: "Build your canvas layout from scratch.",
     fields: ["display_name", "username", "bio", "location", "website"],
+    defaultDisplayName: "My Blinko Tree",
+    defaultBio: "Welcome to my link-in-bio page!",
+    defaultLocation: "",
+    defaultWebsite: "",
     defaultLinks: []
   }
 ];
@@ -219,11 +259,11 @@ export default function OnboardingSetup() {
 
   // Form inputs state
   const [treeName, setTreeName] = useState(TEMPLATES[1].name);
-  const [displayName, setDisplayName] = useState("");
+  const [displayName, setDisplayName] = useState(TEMPLATES[1].defaultDisplayName);
   const [username, setUsername] = useState("");
-  const [bio, setBio] = useState("");
-  const [location, setLocation] = useState("");
-  const [website, setWebsite] = useState("");
+  const [bio, setBio] = useState(TEMPLATES[1].defaultBio);
+  const [location, setLocation] = useState(TEMPLATES[1].defaultLocation);
+  const [website, setWebsite] = useState(TEMPLATES[1].defaultWebsite);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [links, setLinks] = useState(() => 
     TEMPLATES[1].defaultLinks.map((dl, idx) => ({
@@ -247,6 +287,8 @@ export default function OnboardingSetup() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [showAddLinkModal, setShowAddLinkModal] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Fine-tune Theme Customization States - Default to Apple Glass as initial theme
   const [accentColor, setAccentColor] = useState("#007AFF");
@@ -291,17 +333,6 @@ export default function OnboardingSetup() {
 
   useEffect(() => {
     if (user) {
-      if (!displayName) {
-        setDisplayName(user.user_metadata?.full_name || user.user_metadata?.name || "");
-      }
-      if (!avatarUrl) {
-        setAvatarUrl(user.user_metadata?.avatar_url || user.user_metadata?.picture || "");
-      }
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (user) {
       const fetchSubscription = async () => {
         try {
           const { data: sub } = await supabase
@@ -319,23 +350,14 @@ export default function OnboardingSetup() {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (profile) {
-      Promise.resolve().then(() => {
-        setDisplayName(displayName || profile.display_name || "");
-        setUsername(username || profile.username || "");
-        setBio(bio || profile.bio || "");
-        setLocation(location || profile.location || "");
-        setWebsite(website || profile.website || "");
-        setAvatarUrl(avatarUrl || profile.avatar_url || "");
-      });
-    }
-  }, [profile]);
-
   // Handle template selection changes (populate links)
   const handleSelectTemplate = (template) => {
     setSelectedTemplate(template);
     setTreeName(template.name);
+    setDisplayName(template.defaultDisplayName || "");
+    setBio(template.defaultBio || "");
+    setLocation(template.defaultLocation || "");
+    setWebsite(template.defaultWebsite || "");
     setLinks(template.defaultLinks.map((dl, idx) => ({
       id: `link-${idx}`,
       title: dl.title,
@@ -345,6 +367,65 @@ export default function OnboardingSetup() {
       active: true,
       featured: false
     })));
+  };
+
+  const uploadAvatarFile = async (file) => {
+    if (!user) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File is too large. Max size is 5MB.");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      alert("Only image files are allowed.");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop() || "png";
+      const fileName = `${user.id}/setup-${Date.now()}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      setAvatarUrl(publicUrl);
+    } catch (err) {
+      console.error("Avatar upload failed:", err);
+      alert(`Avatar upload failed: ${err.message || "Unknown error"}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleAvatarDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleAvatarDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleAvatarDrop = async (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await uploadAvatarFile(file);
+    }
   };
 
   // Tree Slug auto-resolution and unique check query
@@ -721,6 +802,60 @@ export default function OnboardingSetup() {
               <div>
                 <h1 className="text-2xl font-bold text-on-surface">Customize Content</h1>
                 <p className="text-sm text-on-surface-variant mt-1">Configure your handle, details, and initial biographical info.</p>
+              </div>
+
+              {/* Upload Profile Pic Box (matching first screenshot) */}
+              <div className="bg-white/40 border border-white/60 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center justify-center gap-4.5 shadow-sm text-center">
+                <div className="relative shrink-0">
+                  <div className="absolute -inset-0.5 rounded-full bg-white opacity-40 blur-sm" />
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={displayName || "Profile Preview"}
+                      className={`relative h-20 w-20 rounded-full object-cover shadow-[0_4px_12px_rgba(0,0,0,0.1)] border-4 border-white transition-all duration-300 hover:scale-105 ${uploading ? 'opacity-50' : ''}`}
+                    />
+                  ) : (
+                    <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-primary-container text-3xl font-bold text-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] border-4 border-white transition-all duration-300 hover:scale-105">
+                      {displayName ? displayName.charAt(0).toUpperCase() : "?"}
+                    </div>
+                  )}
+                  {uploading && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 border-4 border-white">
+                      <Loader2 className="h-6 w-6 text-white animate-spin" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-row items-center gap-3 justify-center w-full">
+                  <label className="flex items-center justify-center gap-1.5 px-5 py-2.5 bg-white border border-black/5 text-zinc-800 font-bold rounded-full text-xs hover:bg-zinc-50 transition cursor-pointer shadow-md select-none">
+                    <Upload className="h-3.5 w-3.5 text-zinc-700" />
+                    Upload Photo
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          await uploadAvatarFile(file);
+                        }
+                      }}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                  </label>
+                  <div 
+                    onDragOver={handleAvatarDragOver}
+                    onDragLeave={handleAvatarDragLeave}
+                    onDrop={handleAvatarDrop}
+                    className={`px-5 py-2.5 rounded-full border-2 border-dashed text-xs font-semibold select-none tracking-wide transition-all ${
+                      isDragging 
+                        ? 'border-primary bg-primary/10 text-primary scale-105' 
+                        : 'border-zinc-300 text-zinc-500 hover:border-zinc-400 hover:bg-black/5'
+                    }`}
+                  >
+                    {isDragging ? "Drop your photo here!" : "or drag & drop here"}
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-5 rounded-xl border border-white/60 bg-white/40 shadow-sm backdrop-blur-md p-5">

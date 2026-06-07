@@ -220,22 +220,23 @@ export default function PublicProfilePage({ params }) {
         }
 
         // Increment Views in analytics
-        const { data: analRow } = await supabase
+        const { data: analRows } = await supabase
           .from("analytics")
           .select("id, views, clicks")
-          .eq("tree_id", treeRow.id)
-          .maybeSingle();
+          .eq("tree_id", treeRow.id);
 
         let currentViews = 0;
         let currentClicks = 0;
 
-        if (analRow) {
-          currentViews = analRow.views + 1;
-          currentClicks = analRow.clicks;
+        if (analRows && analRows.length > 0) {
+          currentViews = analRows.reduce((sum, row) => sum + (row.views || 0), 0) + 1;
+          currentClicks = analRows.reduce((sum, row) => sum + (row.clicks || 0), 0);
+          
+          const firstRow = analRows[0];
           await supabase
             .from("analytics")
-            .update({ views: currentViews })
-            .eq("id", analRow.id);
+            .update({ views: (firstRow.views || 0) + 1 })
+            .eq("id", firstRow.id);
         } else {
           currentViews = 1;
           await supabase
@@ -292,19 +293,26 @@ export default function PublicProfilePage({ params }) {
 
       // 2. Increment clicks count in analytics table
       if (activeTree) {
-        const { data: analRow } = await supabase
+        const { data: analRows } = await supabase
           .from("analytics")
           .select("id, clicks")
-          .eq("tree_id", activeTree.id)
-          .maybeSingle();
+          .eq("tree_id", activeTree.id);
 
-        if (analRow) {
+        if (analRows && analRows.length > 0) {
+          const totalClicks = analRows.reduce((sum, row) => sum + (row.clicks || 0), 0) + 1;
+          
+          const firstRow = analRows[0];
           await supabase
             .from("analytics")
-            .update({ clicks: analRow.clicks + 1 })
-            .eq("id", analRow.id);
+            .update({ clicks: (firstRow.clicks || 0) + 1 })
+            .eq("id", firstRow.id);
           
-          setClicksCount(analRow.clicks + 1);
+          setClicksCount(totalClicks);
+        } else {
+          await supabase
+            .from("analytics")
+            .insert({ tree_id: activeTree.id, views: 0, clicks: 1 });
+          setClicksCount(1);
         }
       }
     } catch (err) {

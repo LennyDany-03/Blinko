@@ -74,16 +74,18 @@ export default function BlinkoTreeBuilder() {
 
     const loadData = async () => {
       try {
-        setLoading(true);
-
-        // 1. Fetch user's tree
-        const { data: tree, error: treeError } = await supabase
+        // 1. Fetch user's active tree
+        const { data: userTrees, error: treeError } = await supabase
           .from("trees")
           .select("*")
           .eq("user_id", user.id)
-          .maybeSingle();
+          .order("is_active", { ascending: false })
+          .order("created_at", { ascending: true })
+          .limit(1);
 
         if (treeError) throw treeError;
+
+        const tree = userTrees && userTrees.length > 0 ? userTrees[0] : null;
 
         if (!tree) {
           // If no tree, redirect to setup wizard

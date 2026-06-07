@@ -44,8 +44,6 @@ export default function UserProfileSettings() {
 
     const loadProfileStats = async () => {
       try {
-        setLoading(true);
-        
         // 1. Fetch user's trees count
         const { data: userTrees, error: treesError } = await supabase
           .from("trees")

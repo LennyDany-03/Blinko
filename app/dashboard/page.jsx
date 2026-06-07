@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, MousePointerClick, TrendingUp, Users, Mail, Download, ArrowRight, UserCheck, Link2, Sparkles, Loader2, GitBranch } from "lucide-react";
+import { Eye, MousePointerClick, TrendingUp, Users, Mail, Download, ArrowRight, UserCheck, Link2, Sparkles, Loader2, GitBranch, Plus } from "lucide-react";
 import Link from "next/link";
 import StatsCard from "../components/dashboard/StatsCard";
 import DashboardCard from "../components/dashboard/DashboardCard";
@@ -23,6 +23,7 @@ export default function DashboardPage() {
     linksCount: 0,
   });
   const [activities, setActivities] = useState([]);
+  const [hasNoTree, setHasNoTree] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -40,28 +41,38 @@ export default function DashboardPage() {
     const fetchDashboardData = async () => {
       try {
         // 1. Fetch the user's active tree
-        const { data: tree, error: treeError } = await supabase
+        const { data: userTrees, error: treeError } = await supabase
           .from("trees")
           .select("id")
           .eq("user_id", user.id)
-          .maybeSingle();
+          .order("is_active", { ascending: false })
+          .order("created_at", { ascending: true })
+          .limit(1);
 
         if (treeError) throw treeError;
 
+        const tree = userTrees && userTrees.length > 0 ? userTrees[0] : null;
+
         if (!tree) {
-          // Redirect to onboarding setup wizard immediately
-          router.push("/dashboard/blinko-tree/setup");
+          setHasNoTree(true);
+          setLoading(false);
           return;
         }
 
         // 2. Fetch analytics
-        const { data: analytics, error: analyticsError } = await supabase
+        const { data: analyticsRows, error: analyticsError } = await supabase
           .from("analytics")
           .select("views, clicks")
-          .eq("tree_id", tree.id)
-          .maybeSingle();
+          .eq("tree_id", tree.id);
 
-        if (analyticsError && analyticsError.code !== "PGRST116") throw analyticsError;
+        if (analyticsError) throw analyticsError;
+
+        let views = 0;
+        let clicks = 0;
+        if (analyticsRows && analyticsRows.length > 0) {
+          views = analyticsRows.reduce((sum, row) => sum + (row.views || 0), 0);
+          clicks = analyticsRows.reduce((sum, row) => sum + (row.clicks || 0), 0);
+        }
 
         // 3. Fetch links count
         const { count: linksCount, error: linksError } = await supabase
@@ -71,8 +82,6 @@ export default function DashboardPage() {
 
         if (linksError) throw linksError;
 
-        const views = analytics?.views || 0;
-        const clicks = analytics?.clicks || 0;
         const ctr = views > 0 ? ((clicks / views) * 100).toFixed(1) + "%" : "0%";
 
         setStats({
@@ -134,6 +143,36 @@ export default function DashboardPage() {
           <Loader2 className="h-10 w-10 animate-spin text-violet-500 mx-auto" />
           <p className="text-sm text-zinc-400">Verifying tree setup status...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (hasNoTree) {
+    return (
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <SectionHeader 
+          title="Dashboard" 
+          description="Overview of your link-in-bio pages and analytics."
+        />
+        <DashboardCard className="py-16 max-w-2xl mx-auto border-white/60 bg-white/40 shadow-sm backdrop-blur-md">
+          <div className="flex flex-col items-center justify-center text-center w-full space-y-5">
+            <GitBranch className="h-14 w-14 text-primary/60 animate-pulse" />
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-on-surface">You don't have generated any Blinko Tree</h3>
+              <p className="text-xs text-on-surface-variant max-w-md leading-relaxed">
+                Create your Blinko Tree to start customizing visual links, social media icons, themes, and tracking real-time click analytics.
+              </p>
+            </div>
+            <Button 
+              variant="luminous" 
+              size="md" 
+              icon={Plus} 
+              onClick={() => router.push("/dashboard/blinko-tree/setup")}
+            >
+              Create a Tree
+            </Button>
+          </div>
+        </DashboardCard>
       </div>
     );
   }

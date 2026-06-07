@@ -28,8 +28,6 @@ export default function BlinkoTreesDashboard() {
 
   const loadTreesData = async () => {
     try {
-      setLoading(true);
-
       // 1. Fetch Subscription status
       const { data: sub } = await supabase
         .from("subscriptions")
@@ -61,10 +59,11 @@ export default function BlinkoTreesDashboard() {
           const analMap = {};
           if (analData) {
             analData.forEach(row => {
-              analMap[row.tree_id] = {
-                views: row.views || 0,
-                clicks: row.clicks || 0
-              };
+              if (!analMap[row.tree_id]) {
+                analMap[row.tree_id] = { views: 0, clicks: 0 };
+              }
+              analMap[row.tree_id].views += row.views || 0;
+              analMap[row.tree_id].clicks += row.clicks || 0;
             });
           }
           setAnalytics(analMap);
@@ -96,10 +95,6 @@ export default function BlinkoTreesDashboard() {
   };
 
   const handleDeleteTree = (tree) => {
-    if (trees.length <= 1) {
-      setShowDeleteErrorModal(true);
-      return;
-    }
     setDeleteConfirmTree(tree);
   };
 
@@ -166,15 +161,17 @@ export default function BlinkoTreesDashboard() {
       </SectionHeader>
 
       {trees.length === 0 ? (
-        <DashboardCard className="py-12 text-center max-w-2xl mx-auto space-y-4">
-          <Globe className="h-12 w-12 text-on-surface-variant/60 mx-auto" />
-          <h3 className="text-lg font-bold text-on-surface">No Blinko Trees found</h3>
-          <p className="text-xs text-on-surface-variant max-w-sm mx-auto leading-relaxed">
-            Create your first public page to display visual links, portfolio projects, digital products, and start tracking views.
-          </p>
-          <Button variant="luminous" size="sm" icon={Plus} onClick={handleCreateNewTree}>
-            Create your first tree
-          </Button>
+        <DashboardCard className="py-12 max-w-2xl mx-auto">
+          <div className="flex flex-col items-center justify-center text-center w-full space-y-4">
+            <Globe className="h-12 w-12 text-on-surface-variant/60" />
+            <h3 className="text-lg font-bold text-on-surface">You don't have generated any Blinko Tree</h3>
+            <p className="text-xs text-on-surface-variant max-w-sm leading-relaxed">
+              Create your first public page to display visual links, portfolio projects, digital products, and start tracking views.
+            </p>
+            <Button variant="luminous" size="sm" icon={Plus} onClick={handleCreateNewTree}>
+              Create your first tree
+            </Button>
+          </div>
         </DashboardCard>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -35,29 +35,30 @@ export default function BillingPage() {
 
     const fetchBillingData = async () => {
       try {
-        setLoading(true);
-
-        // 1. Fetch user's tree
-        const { data: tree } = await supabase
+        // 1. Fetch user's trees
+        const { data: userTrees } = await supabase
           .from("trees")
           .select("id")
           .eq("user_id", user.id)
-          .maybeSingle();
+          .order("is_active", { ascending: false })
+          .order("created_at", { ascending: true });
 
-        const pagesCount = tree ? 1 : 0;
+        const tree = userTrees && userTrees.length > 0 ? userTrees[0] : null;
+        const pagesCount = userTrees ? userTrees.length : 0;
 
         // 2. Fetch views count
         let viewsCount = 0;
         let linksCount = 0;
 
         if (tree) {
-          const { data: analytics } = await supabase
+          const { data: analyticsRows } = await supabase
             .from("analytics")
             .select("views")
-            .eq("tree_id", tree.id)
-            .maybeSingle();
+            .eq("tree_id", tree.id);
 
-          viewsCount = analytics?.views || 0;
+          viewsCount = analyticsRows
+            ? analyticsRows.reduce((sum, row) => sum + (row.views || 0), 0)
+            : 0;
 
           const { count } = await supabase
             .from("links")

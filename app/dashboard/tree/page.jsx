@@ -287,8 +287,6 @@ export default function TreeBuilder() {
 
   const loadInitialData = async () => {
     try {
-      setLoading(true);
-
       // 1. Fetch Subscription status
       const { data: sub } = await supabase
         .from("subscriptions")
@@ -571,10 +569,6 @@ export default function TreeBuilder() {
   };
 
   const handleDeleteTree = async () => {
-    if (trees.length <= 1) {
-      alert("You must keep at least one Blinko Tree page active.");
-      return;
-    }
     if (!confirm(`Are you sure you want to permanently delete the Blinko Tree @${activeTree.slug}? All links, customizations, and analytics views will be lost forever.`)) {
       return;
     }
@@ -590,9 +584,12 @@ export default function TreeBuilder() {
 
       // Select another tree to switch to
       const remaining = trees.filter(t => t.id !== activeTree.id);
-      const switchTarget = remaining[0];
-      
-      await handleSwitchTree(switchTarget);
+      if (remaining.length > 0) {
+        const switchTarget = remaining[0];
+        await handleSwitchTree(switchTarget);
+      } else {
+        router.push("/dashboard/blinko-trees");
+      }
       alert("Blinko Tree deleted successfully.");
     } catch (err) {
       console.error("Delete tree error:", err);

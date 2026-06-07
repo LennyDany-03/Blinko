@@ -47,16 +47,18 @@ export async function POST(request) {
     const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
     // Fetch existing log for today
-    const { data: record, error: fetchError } = await adminSupabase
+    const { data: records, error: fetchError } = await adminSupabase
       .from("analytics")
       .select("id, page_views, link_clicks")
       .eq("user_id", target_user_id)
       .eq("date", today)
-      .maybeSingle();
+      .limit(1);
 
     if (fetchError) {
       return NextResponse.json({ success: false, message: fetchError.message }, { status: 400 });
     }
+
+    const record = records && records.length > 0 ? records[0] : null;
 
     if (record) {
       // Record exists: Increment count

@@ -224,11 +224,15 @@ export default function SignupPage() {
     setGoogleLoading(true);
     setErrorMsg("");
 
+    if (typeof window !== "undefined") {
+      localStorage.setItem("blinko_auth_mode", "signup");
+    }
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
