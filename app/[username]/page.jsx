@@ -4,11 +4,15 @@ import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Check, Eye, MousePointerClick, Link2, Globe, FileText, Mail,
-  MapPin, ArrowUpRight, Play, BookOpen, Sparkles, ChevronRight,
+  MapPin, ArrowUpRight, ArrowRight, Play, BookOpen, Sparkles, ChevronRight,
   Share2, Copy, CheckCircle2, Loader2, MessageSquare, DollarSign,
-  TrendingUp, AlertCircle
+  TrendingUp, AlertCircle,
+  Briefcase, Building, Music, Camera, ShoppingBag, Code
 } from "lucide-react";
+import { Github, Linkedin, Instagram, Youtube, Twitter } from "../components/dashboard/BrandIcons";
 import { supabase } from "../../lib/supabase";
+import AnimatedBackground from "../components/theme/AnimatedBackground";
+import { LINK_STYLE_PRESETS, BIO_CARD_STYLES } from "../components/theme/themePresets";
 
 // Brand icon SVGs defined locally
 const GithubIcon = ({ className = "h-4 w-4" }) => (
@@ -55,6 +59,42 @@ const socialIconMap = {
   twitter: TwitterIcon
 };
 
+const publicIconMap = {
+  Play,
+  FileText,
+  Globe,
+  Code,
+  BookOpen,
+  Building,
+  Briefcase,
+  Music,
+  Camera,
+  ShoppingBag,
+  Link2,
+  Youtube,
+  Instagram,
+  Github,
+  Linkedin,
+  Twitter,
+  Mail
+};
+
+const platformColors = {
+  Youtube: "bg-rose-500/10 border-rose-500/20 text-rose-400",
+  Play: "bg-rose-500/10 border-rose-500/20 text-rose-400",
+  Instagram: "bg-fuchsia-500/10 border-fuchsia-500/20 text-fuchsia-400",
+  Camera: "bg-fuchsia-500/10 border-fuchsia-500/20 text-fuchsia-400",
+  Github: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
+  Code: "bg-cyan-500/10 border-cyan-500/20 text-cyan-400",
+  Linkedin: "bg-blue-500/10 border-blue-500/20 text-blue-400",
+  Briefcase: "bg-purple-500/10 border-purple-500/20 text-purple-400",
+  Globe: "bg-violet-500/10 border-violet-500/20 text-violet-400",
+  Mail: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+  Music: "bg-green-500/10 border-green-500/20 text-green-400",
+  ShoppingBag: "bg-amber-500/10 border-amber-500/20 text-amber-400",
+  Link2: "bg-purple-500/10 border-purple-500/20 text-purple-400"
+};
+
 export default function PublicProfilePage({ params }) {
   const resolvedParams = use(params);
   const rawUsername = resolvedParams?.username || "";
@@ -74,6 +114,17 @@ export default function PublicProfilePage({ params }) {
   const [viewsCount, setViewsCount] = useState(0);
   const [clicksCount, setClicksCount] = useState(0);
   const [theme, setTheme] = useState(null);
+
+  // Theme Studio fields
+  const [linkStyle, setLinkStyle] = useState("minimal");
+  const [animatedBg, setAnimatedBg] = useState("none");
+  const [animStrength, setAnimStrength] = useState(0.6);
+  const [blurAmt, setBlurAmt] = useState(20);
+  const [shadowInt, setShadowInt] = useState(0.5);
+  const [cardTrans, setCardTrans] = useState(40);
+  const [titleColor, setTitleColor] = useState("accent");
+  const [bioCardStyle, setBioCardStyle] = useState("transparent");
+  const [backgroundType, setBackgroundType] = useState("bg-[#0A0A0A]");
 
   // Action feedback states
   const [copyToast, setCopyToast] = useState(false);
@@ -119,6 +170,44 @@ export default function PublicProfilePage({ params }) {
           return;
         }
         setCreatorProfile(profileRow);
+
+        // Load Theme Studio fields by parsing background_type column as a serialized JSON configuration
+        let bgVal = profileRow.background_type || "bg-[#0A0A0A]";
+        let loadedLinkStyle = "minimal";
+        let loadedAnimBg = "none";
+        let loadedAnimStrength = 0.6;
+        let loadedBlurAmt = 20;
+        let loadedShadowInt = 0.5;
+        let loadedCardTrans = 40;
+        let loadedTitleColor = "accent";
+        let loadedBioCardStyle = "transparent";
+
+        try {
+          const parsed = JSON.parse(bgVal);
+          if (parsed && typeof parsed === "object") {
+            bgVal = parsed.bg || "bg-[#0A0A0A]";
+            loadedLinkStyle = parsed.linkStyle || "minimal";
+            loadedAnimBg = parsed.animatedBackground || "none";
+            loadedAnimStrength = parsed.animationStrength ?? 0.6;
+            loadedBlurAmt = parsed.blurAmount ?? 20;
+            loadedShadowInt = parsed.shadowIntensity ?? 0.5;
+            loadedCardTrans = parsed.cardTransparency ?? 40;
+            loadedTitleColor = parsed.titleColor || "accent";
+            loadedBioCardStyle = parsed.bioCardStyle || "transparent";
+          }
+        } catch (e) {
+          // Fallback if background_type is a legacy plain string
+        }
+
+        setBackgroundType(bgVal);
+        setLinkStyle(loadedLinkStyle);
+        setAnimatedBg(loadedAnimBg);
+        setAnimStrength(loadedAnimStrength);
+        setBlurAmt(loadedBlurAmt);
+        setShadowInt(loadedShadowInt);
+        setCardTrans(loadedCardTrans);
+        setTitleColor(loadedTitleColor);
+        setBioCardStyle(loadedBioCardStyle);
 
         // 3. Fetch theme configuration if profileRow has theme_id
         if (profileRow.theme_id) {
@@ -295,13 +384,18 @@ export default function PublicProfilePage({ params }) {
   }
 
   // Visual Theme mapping
-  const bgClass = creatorProfile.background_type || "bg-[#0A0A0A]";
+  const bgClass = backgroundType || "bg-[#0A0A0A]";
   const accentColor = creatorProfile.accent_color || "#7C3AED";
   const fontFamilyClass = creatorProfile.font_style || "font-sans";
   const buttonStyle = creatorProfile.button_style || "rounded-md";
 
-  // Check if current background type matches a light theme sand/parchment style
-  const isLightBg = bgClass.includes("#fff9ee") || bgClass.includes("bg-surface") || bgClass.includes("bg-background") || bgClass.includes("pink-200");
+  // Check if current background type matches a light theme sand/parchment style or light animated background
+  const isLightBg = 
+    bgClass.includes("#fff9ee") || 
+    bgClass.includes("bg-surface") || 
+    bgClass.includes("bg-background") || 
+    bgClass.includes("pink-200") ||
+    (bgClass === "animated" && (animatedBg === "glass-bubbles" || animatedBg === "gradient-mesh"));
   
   // Predefined or fallback cardBg
   const cardBgClass = isLightBg
@@ -311,8 +405,16 @@ export default function PublicProfilePage({ params }) {
   return (
     <div className={`min-h-screen ${bgClass} ${fontFamilyClass} ${isLightBg ? "text-zinc-800" : "text-zinc-100"} flex flex-col items-center pb-16 pt-16 px-4 relative overflow-hidden select-none`}>
       {/* Background Glows */}
-      {!isLightBg && (
+      {!isLightBg && animatedBg === "none" && (
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(124,58,237,0.12),transparent_50%)] pointer-events-none" />
+      )}
+
+      {/* Animated Background */}
+      {animatedBg && animatedBg !== "none" && (
+        <AnimatedBackground 
+          backgroundId={animatedBg} 
+          animationStrength={animStrength} 
+        />
       )}
 
       {/* Main Container */}
@@ -327,12 +429,24 @@ export default function PublicProfilePage({ params }) {
 
           {/* Profile Image */}
           <div className="relative mb-4">
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-violet-500 via-fuchsia-500 to-indigo-500 opacity-80 blur-sm animate-spin [animation-duration:8s] -z-10" />
+            {!isLightBg && (
+              theme?.config?.neonAvatarGlow ? (
+                <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 opacity-90 blur-[3px] -z-10" />
+              ) : (
+                <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-violet-500 via-fuchsia-500 to-indigo-500 opacity-80 blur-sm animate-spin [animation-duration:8s] -z-10" />
+              )
+            )}
             {creatorProfile.avatar_url ? (
               <img
                 src={creatorProfile.avatar_url}
                 alt={creatorProfile.display_name}
-                className={`h-24 w-24 rounded-full object-cover shadow-lg relative border ${isLightBg ? "border-white" : "border-zinc-800"}`}
+                className={`h-24 w-24 rounded-full object-cover relative ${
+                  theme?.config?.neonAvatarGlow
+                    ? "border-2 border-white/80 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                    : isLightBg 
+                      ? "border-4 border-white shadow-[0_0_15px_rgba(191,219,254,0.6)]" 
+                      : "border border-zinc-800 shadow-lg"
+                }`}
               />
             ) : (
               <div className="h-24 w-24 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 font-extrabold text-white text-3xl flex items-center justify-center relative shadow-lg shadow-violet-955/20">
@@ -343,7 +457,10 @@ export default function PublicProfilePage({ params }) {
 
           {/* User names */}
           <div className="flex items-center gap-1.5">
-            <h1 className={`text-2xl font-bold tracking-tight sm:text-3xl ${isLightBg ? "text-zinc-900" : "text-white"}`}>
+            <h1 
+              className="text-2xl font-bold tracking-tight sm:text-3xl"
+              style={{ color: titleColor === "accent" ? accentColor : titleColor || (isLightBg ? "#18181b" : "#ffffff") }}
+            >
               {creatorProfile.display_name}
             </h1>
           </div>
@@ -353,9 +470,41 @@ export default function PublicProfilePage({ params }) {
 
           {/* Bio info */}
           {creatorProfile.bio && (
-            <p className={`mt-3 text-sm leading-relaxed max-w-md ${isLightBg ? "text-zinc-600 font-medium" : "text-zinc-400"}`}>
-              {creatorProfile.bio}
-            </p>
+            (bioCardStyle && bioCardStyle !== "transparent") ? (
+              (() => {
+                const activeBioPreset = BIO_CARD_STYLES.find(s => s.id === bioCardStyle);
+                const bioCardClass = activeBioPreset 
+                  ? (isLightBg ? activeBioPreset.lightClass : activeBioPreset.darkClass)
+                  : "";
+                
+                return (
+                  <div className={`mt-6 w-full text-left p-5 border rounded-2xl shadow-sm ${bioCardClass}`}
+                       style={{
+                         backdropFilter: bioCardStyle === "glass" && blurAmt > 0 ? `blur(${blurAmt}px)` : undefined,
+                         boxShadow: bioCardStyle === "glass" && shadowInt > 0 ? `0 4px ${20 * shadowInt}px rgba(0,0,0,${shadowInt * 0.15})` : undefined
+                       }}
+                  >
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider mb-2.5 opacity-80"
+                         style={{ color: titleColor === "accent" ? accentColor : titleColor || undefined }}
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: accentColor }}>
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4"/>
+                        <path d="M12 8h.01"/>
+                      </svg>
+                      About Me
+                    </div>
+                    <p className="text-xs leading-relaxed font-medium">
+                      {creatorProfile.bio}
+                    </p>
+                  </div>
+                );
+              })()
+            ) : (
+              <p className={`mt-3 text-sm leading-relaxed max-w-md ${isLightBg ? "text-zinc-600 font-medium" : "text-zinc-400"}`}>
+                {creatorProfile.bio}
+              </p>
+            )
           )}
 
           {/* Location */}
@@ -420,6 +569,12 @@ export default function PublicProfilePage({ params }) {
           <section className="space-y-3.5">
             {links.map((link) => {
               const target = link.open_in_new_tab !== false ? "_blank" : "_self";
+              const LinkIcon = publicIconMap[link.icon] || Link2;
+              // Apply link style preset
+              const activeLinkPreset = LINK_STYLE_PRESETS.find(s => s.id === linkStyle);
+              const linkCardStyle = activeLinkPreset 
+                ? (isLightBg ? activeLinkPreset.lightClass : activeLinkPreset.darkClass)
+                : cardBgClass;
               return (
                 <a
                   key={link.id}
@@ -427,15 +582,23 @@ export default function PublicProfilePage({ params }) {
                   target={target}
                   rel="noopener noreferrer"
                   onClick={() => handleLinkClick(link)}
-                  className={`group flex items-center gap-4 p-4 hover:shadow-lg hover:-translate-y-0.5 transition duration-300 relative overflow-hidden border ${buttonStyle} ${cardBgClass}`}
+                  className={`group flex items-center gap-4 p-4 hover:shadow-lg hover:-translate-y-0.5 transition duration-300 relative overflow-hidden ${buttonStyle} ${linkCardStyle}`}
+                  style={{
+                    backdropFilter: blurAmt > 0 ? `blur(${blurAmt}px)` : undefined,
+                    boxShadow: shadowInt > 0 ? `0 4px ${20 * shadowInt}px rgba(0,0,0,${shadowInt * 0.3})` : undefined
+                  }}
                 >
                   {/* Left accent color strip */}
                   <div className="absolute left-0 top-0 bottom-0 w-[3px] opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ backgroundColor: accentColor }} />
                   
-                  <div className={`rounded-lg p-2 transition-colors ${
-                    isLightBg ? "bg-black/5 border border-black/10" : "bg-zinc-900 border border-zinc-800"
-                  }`}>
-                    <Link2 className="h-5 w-5" style={{ color: accentColor }} />
+                  <div className={
+                    theme?.config?.usePlatformIconColors
+                      ? `rounded-full p-2 border ${platformColors[link.icon] || "bg-purple-500/10 border-purple-500/20 text-purple-400"}`
+                      : `rounded-lg p-2 transition-colors ${
+                          isLightBg ? "bg-black/5 border border-black/10" : "bg-zinc-900 border border-zinc-800"
+                        }`
+                  }>
+                    <LinkIcon className="h-5 w-5" style={{ color: theme?.config?.usePlatformIconColors ? undefined : accentColor }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className={`text-sm font-semibold transition-colors ${isLightBg ? "text-zinc-900 group-hover:text-zinc-700" : "text-white group-hover:text-violet-300"}`}>
@@ -443,7 +606,11 @@ export default function PublicProfilePage({ params }) {
                     </h3>
                     <p className={`text-xs mt-0.5 leading-relaxed truncate pr-4 ${isLightBg ? "text-zinc-600" : "text-zinc-400"}`}>{link.url}</p>
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-zinc-400 group-hover:text-violet-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition duration-300 shrink-0" />
+                  {theme?.config?.usePlatformIconColors ? (
+                    <ArrowRight className="h-4 w-4 text-zinc-400 group-hover:text-white group-hover:translate-x-0.5 transition duration-300 shrink-0" />
+                  ) : (
+                    <ArrowUpRight className="h-4 w-4 text-zinc-400 group-hover:text-violet-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition duration-300 shrink-0" />
+                  )}
                 </a>
               );
             })}

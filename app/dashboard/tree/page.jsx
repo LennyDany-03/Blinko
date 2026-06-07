@@ -15,6 +15,8 @@ import Button from "../../components/Button";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../../../context/AuthContext";
 import ThemeCustomizer from "../../components/theme/ThemeCustomizer";
+import AnimatedBackground from "../../components/theme/AnimatedBackground";
+import { LINK_STYLE_PRESETS, BIO_CARD_STYLES } from "../../components/theme/themePresets";
 
 // Lucide icon map for links
 const iconMap = { Play, FileText, Globe, Music, Camera, ShoppingBag, Link2, Briefcase, Building, Code, BookOpen };
@@ -152,6 +154,16 @@ export default function TreeBuilder() {
   const [buttonStyle, setButtonStyle] = useState("rounded-md");
   const [backgroundType, setBackgroundType] = useState("bg-zinc-950");
 
+  // Theme Studio States
+  const [linkStyle, setLinkStyle] = useState("minimal");
+  const [animationStrength, setAnimationStrength] = useState(0.6);
+  const [blurAmount, setBlurAmount] = useState(20);
+  const [shadowIntensity, setShadowIntensity] = useState(0.5);
+  const [cardTransparency, setCardTransparency] = useState(40);
+  const [animatedBackground, setAnimatedBackground] = useState("none");
+  const [titleColor, setTitleColor] = useState("accent");
+  const [bioCardStyle, setBioCardStyle] = useState("transparent");
+
   // Social Links States
   const [socials, setSocials] = useState({
     github: "", linkedin: "", instagram: "", youtube: "",
@@ -192,7 +204,44 @@ export default function TreeBuilder() {
         setAccentColor(profileRow.accent_color || "#7c3aed");
         setFontStyle(profileRow.font_style || "font-sans");
         setButtonStyle(profileRow.button_style || "rounded-md");
-        setBackgroundType(profileRow.background_type || "bg-zinc-950");
+
+        // Deserialize theme customizer configurations from the text field 'background_type'
+        let bgVal = profileRow.background_type || "bg-zinc-950";
+        let loadedLinkStyle = "minimal";
+        let loadedAnimStrength = 0.6;
+        let loadedBlurAmt = 20;
+        let loadedShadowInt = 0.5;
+        let loadedCardTrans = 40;
+        let loadedAnimatedBg = "none";
+        let loadedTitleColor = "accent";
+        let loadedBioCardStyle = "transparent";
+
+        try {
+          const parsed = JSON.parse(bgVal);
+          if (parsed && typeof parsed === "object") {
+            bgVal = parsed.bg || "bg-zinc-950";
+            loadedLinkStyle = parsed.linkStyle || "minimal";
+            loadedAnimStrength = parsed.animationStrength ?? 0.6;
+            loadedBlurAmt = parsed.blurAmount ?? 20;
+            loadedShadowInt = parsed.shadowIntensity ?? 0.5;
+            loadedCardTrans = parsed.cardTransparency ?? 40;
+            loadedAnimatedBg = parsed.animatedBackground || "none";
+            loadedTitleColor = parsed.titleColor || "accent";
+            loadedBioCardStyle = parsed.bioCardStyle || "transparent";
+          }
+        } catch (e) {
+          // Falls back to raw string (legacy layout)
+        }
+
+        setBackgroundType(bgVal);
+        setLinkStyle(loadedLinkStyle);
+        setAnimationStrength(loadedAnimStrength);
+        setBlurAmount(loadedBlurAmt);
+        setShadowIntensity(loadedShadowInt);
+        setCardTransparency(loadedCardTrans);
+        setAnimatedBackground(loadedAnimatedBg);
+        setTitleColor(loadedTitleColor);
+        setBioCardStyle(loadedBioCardStyle);
         setIsVerified(profileRow.is_verified || false);
       } else {
         // Clear forms if profile is missing, fallback to oauth values
@@ -442,6 +491,19 @@ export default function TreeBuilder() {
 
       if (treeError) throw treeError;
 
+      // Serialize advanced theme configuration into the background_type column as a JSON string
+      const serializedConfig = JSON.stringify({
+        bg: backgroundType,
+        linkStyle,
+        animationStrength,
+        blurAmount,
+        shadowIntensity,
+        cardTransparency,
+        animatedBackground,
+        titleColor,
+        bioCardStyle
+      });
+
       // 2. Update Profiles details
       const profilePayload = {
         display_name: displayName.trim(),
@@ -453,7 +515,7 @@ export default function TreeBuilder() {
         accent_color: accentColor,
         button_style: buttonStyle,
         font_style: fontStyle,
-        background_type: backgroundType,
+        background_type: serializedConfig,
         username: slugClean
       };
 
@@ -710,7 +772,12 @@ export default function TreeBuilder() {
 
   // Active theme properties
   const activeThemeObj = themesList.find(t => t.id === selectedThemeId) || themesList[0] || {};
-  const isLightBg = backgroundType === "bg-[#fff9ee]" || backgroundType === "bg-surface" || backgroundType === "bg-background" || backgroundType.includes("pink-200");
+  const isLightBg = 
+    backgroundType === "bg-[#fff9ee]" || 
+    backgroundType === "bg-surface" || 
+    backgroundType === "bg-background" || 
+    backgroundType.includes("pink-200") ||
+    (backgroundType === "animated" && (animatedBackground === "glass-bubbles" || animatedBackground === "gradient-mesh"));
   
   const isGrad = backgroundType.includes("bg-gradient") || backgroundType.includes("from-");
   const previewBg = isGrad ? "transparent" : (activeThemeObj?.config?.previewBg || "#0A0A0A");
@@ -719,7 +786,10 @@ export default function TreeBuilder() {
     ? "bg-black/5 border-black/10 text-zinc-900 shadow-sm" 
     : (activeThemeObj?.config?.previewCard || "bg-zinc-900 border-zinc-800 text-zinc-300");
   
-  const btnShapeClass = buttonStyle;
+  const btnShapeClass = 
+    buttonStyle === "rounded-md" ? "rounded-10px" : 
+    buttonStyle === "rounded-xl" ? "rounded-15px" : 
+    buttonStyle;
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -1281,7 +1351,7 @@ export default function TreeBuilder() {
             <ThemeCustomizer
               themesList={themesList}
               selectedThemeId={selectedThemeId}
-              onChangeTheme={(theme) => setSelectedThemeId(theme.id)}
+              onChangeTheme={(theme) => setSelectedThemeId(theme ? theme.id : null)}
               accentColor={accentColor}
               setAccentColor={setAccentColor}
               buttonStyle={buttonStyle}
@@ -1292,6 +1362,22 @@ export default function TreeBuilder() {
               setBackgroundType={setBackgroundType}
               isPro={isPro}
               setShowUpgradeModal={setShowUpgradeModal}
+              linkStyle={linkStyle}
+              setLinkStyle={setLinkStyle}
+              animationStrength={animationStrength}
+              setAnimationStrength={setAnimationStrength}
+              blurAmount={blurAmount}
+              setBlurAmount={setBlurAmount}
+              shadowIntensity={shadowIntensity}
+              setShadowIntensity={setShadowIntensity}
+              cardTransparency={cardTransparency}
+              setCardTransparency={setCardTransparency}
+              animatedBackground={animatedBackground}
+              setAnimatedBackground={setAnimatedBackground}
+              titleColor={titleColor}
+              setTitleColor={setTitleColor}
+              bioCardStyle={bioCardStyle}
+              setBioCardStyle={setBioCardStyle}
             />
           )}
 
@@ -1411,9 +1497,17 @@ export default function TreeBuilder() {
 
               {/* Simulated Screen Body */}
               <div 
-                className={`h-full flex flex-col justify-between transition-colors duration-500 overflow-hidden rounded-[38px] ${backgroundType} ${fontStyle}`}
-                style={{ backgroundColor: previewBg }}
+                className={`h-full flex flex-col justify-between transition-colors duration-500 overflow-hidden rounded-[38px] ${backgroundType !== "animated" ? backgroundType : ""} ${fontStyle} relative`}
+                style={{ backgroundColor: animatedBackground && animatedBackground !== "none" ? "transparent" : previewBg }}
               >
+                {/* Animated Background in Preview */}
+                {animatedBackground && animatedBackground !== "none" && (
+                  <AnimatedBackground 
+                    backgroundId={animatedBackground} 
+                    animationStrength={animationStrength}
+                    className="rounded-[38px]"
+                  />
+                )}
                 {/* Top Status Bar */}
                 <div className={`h-8 pt-3 px-6 flex items-center justify-between text-[9px] font-bold z-15 w-full select-none ${
                   isLightBg ? "text-zinc-800" : "text-zinc-200"
@@ -1461,27 +1555,49 @@ export default function TreeBuilder() {
                   </div>
 
                   {/* Display Name with verified badge */}
-                  <div className="flex items-center justify-center gap-1 mt-0.5">
-                    <h4 className={`text-sm font-bold leading-none ${isLightBg ? "text-zinc-900" : "text-zinc-100"}`}>
+                  <div className="flex items-center justify-center gap-1 mt-0.5 relative z-10">
+                    <h4 
+                      className="text-sm font-bold leading-none"
+                      style={{ color: titleColor === "accent" ? accentColor : titleColor || (isLightBg ? "#18181b" : "#ffffff") }}
+                    >
                       {displayName || "Display Name"}
                     </h4>
                     <svg className="w-3.5 h-3.5 text-violet-500 fill-current inline-block flex-shrink-0" viewBox="0 0 24 24">
                       <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                     </svg>
                   </div>
-                  <p className="text-[9px] font-mono mt-1" style={{ color: accentColor }}>
+                  <p className="text-[9px] font-mono mt-1 relative z-10" style={{ color: accentColor }}>
                     blinko.site/{treeSlug || "handle"}
                   </p>
 
                   {/* Bio Paragraph */}
                   {bio && (
-                    <p className={`text-[10px] leading-relaxed max-w-[210px] mt-3 p-2.5 border rounded-xl shadow-xs transition-all duration-300 ${cardBgClass}`}>
-                      {bio}
-                    </p>
+                    (() => {
+                      const activeBioPreset = BIO_CARD_STYLES.find(s => s.id === bioCardStyle);
+                      const bioCardClass = (bioCardStyle && bioCardStyle !== "transparent")
+                        ? (activeBioPreset ? (isLightBg ? activeBioPreset.lightClass : activeBioPreset.darkClass) : cardBgClass)
+                        : "bg-transparent border-none p-0 text-center relative z-10";
+
+                      return (
+                        <p 
+                          className={`text-[10px] leading-relaxed max-w-[210px] mt-3 transition-all duration-300 relative z-10 ${
+                            bioCardStyle && bioCardStyle !== "transparent" ? "p-2.5 border rounded-xl" : ""
+                          } ${bioCardClass}`}
+                          style={{
+                            backdropFilter: bioCardStyle === "glass" && blurAmount > 0 ? `blur(${blurAmount}px)` : undefined,
+                            boxShadow: bioCardStyle === "glass" && shadowIntensity > 0 ? `0 4px ${16 * shadowIntensity}px rgba(0,0,0,${shadowIntensity * 0.25})` : undefined,
+                            opacity: (bioCardStyle && bioCardStyle !== "transparent" && cardTransparency) ? (0.5 + (cardTransparency / 200)) : 1,
+                            color: bioCardStyle === "transparent" ? (isLightBg ? "#52525b" : "#a1a1aa") : undefined
+                          }}
+                        >
+                          {bio}
+                        </p>
+                      );
+                    })()
                   )}
 
                   {/* Badges details (Location, website) */}
-                  <div className="mt-3 flex flex-wrap justify-center gap-1.5 max-w-[220px]">
+                  <div className="mt-3 flex flex-wrap justify-center gap-1.5 max-w-[220px] relative z-10">
                     {location && (
                       <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[8px] border transition-colors duration-300 ${
                         isLightBg ? "bg-black/5 text-zinc-700 border-black/10" : "bg-white/5 text-zinc-300 border-white/10"
@@ -1502,7 +1618,7 @@ export default function TreeBuilder() {
 
                   {/* Social icons connection if configured */}
                   {Object.entries(socials).filter(([_, url]) => url && url.trim().length > 0).length > 0 && (
-                    <div className="mt-3.5 flex flex-wrap justify-center gap-2 select-none">
+                    <div className="mt-3.5 flex flex-wrap justify-center gap-2 select-none relative z-10">
                       {Object.entries(socials)
                         .filter(([_, url]) => url && url.trim().length > 0)
                         .map(([platform, url]) => {
@@ -1521,15 +1637,23 @@ export default function TreeBuilder() {
                   )}
 
                   {/* Prepopulated links list */}
-                  <div className="mt-5 w-full space-y-2 px-1">
+                  <div className="mt-5 w-full space-y-2 px-1 relative z-10">
                     {links.filter(l => l.active).map((link) => {
                       const LinkIcon = iconMap[link.icon] || Link2;
+                      // Apply link style preset
+                      const activeLinkPreset = LINK_STYLE_PRESETS.find(s => s.id === linkStyle);
+                      const linkCardClass = activeLinkPreset 
+                        ? (isLightBg ? activeLinkPreset.lightClass : activeLinkPreset.darkClass)
+                        : cardBgClass;
                       return (
                         <div 
                           key={link.id}
-                          className={`w-full flex items-center justify-between p-2.5 text-[10px] font-semibold border shadow-xs hover:translate-y-[-1px] transition-all duration-300 ${btnShapeClass} ${cardBgClass} ${
-                            isLightBg ? "text-zinc-900 border-black/5" : "text-zinc-100 border-white/5"
-                          }`}
+                          className={`w-full flex items-center justify-between p-2.5 text-[10px] font-semibold hover:translate-y-[-1px] transition-all duration-300 ${btnShapeClass} ${linkCardClass}`}
+                          style={{
+                            backdropFilter: blurAmount > 0 ? `blur(${blurAmount}px)` : undefined,
+                            boxShadow: shadowIntensity > 0 ? `0 4px ${20 * shadowIntensity}px rgba(0,0,0,${shadowIntensity * 0.3})` : undefined,
+                            opacity: cardTransparency ? (0.5 + (cardTransparency / 200)) : 1
+                          }}
                         >
                           <span className="flex items-center gap-2 truncate pr-2">
                             <LinkIcon className="h-3.5 w-3.5" style={{ color: accentColor }} />

@@ -6,14 +6,18 @@ import {
   Check, ArrowRight, ArrowLeft, Search, Sparkles, Monitor, Loader2, 
   Copy, CheckCircle2, Share2, QrCode, Globe, MapPin, Mail, 
   ExternalLink, FileText, Play, Code, BookOpen, Layers, 
-  Building, Briefcase, Music, Camera, ShoppingBag, Eye, Link2, LucideIcon 
+  Building, Briefcase, Music, Camera, ShoppingBag, Eye, Link2, LucideIcon,
+  X, Plus, Trash2, GripVertical
 } from "lucide-react";
+import { Github, Linkedin, Instagram, Youtube, Twitter } from "../../../components/dashboard/BrandIcons";
 import Link from "next/link";
 import { supabase } from "../../../../lib/supabase";
 import { useAuth } from "../../../../context/AuthContext";
 import ThemeCustomizer from "../../../components/theme/ThemeCustomizer";
 import BlinkoLogo from "../../../components/BlinkoLogo";
 import Button from "../../../components/Button";
+import AnimatedBackground from "../../../components/theme/AnimatedBackground";
+import { LINK_STYLE_PRESETS, BIO_CARD_STYLES } from "../../../components/theme/themePresets";
 
 // Custom icons mapping
 const iconMap = {
@@ -27,8 +31,43 @@ const iconMap = {
   Music,
   Camera,
   ShoppingBag,
-  Link2
+  Link2,
+  Youtube,
+  Instagram,
+  Github,
+  Linkedin,
+  Twitter,
+  Mail
 };
+
+const platformColors = {
+  Youtube: "bg-rose-500/10 border-rose-500/20 text-rose-400",
+  Play: "bg-rose-500/10 border-rose-500/20 text-rose-400",
+  Instagram: "bg-fuchsia-500/10 border-fuchsia-500/20 text-fuchsia-400",
+  Camera: "bg-fuchsia-500/10 border-fuchsia-500/20 text-fuchsia-400",
+  Github: "bg-zinc-500/10 border-zinc-500/20 text-zinc-400",
+  Code: "bg-cyan-500/10 border-cyan-500/20 text-cyan-400",
+  Linkedin: "bg-blue-500/10 border-blue-500/20 text-blue-400",
+  Briefcase: "bg-purple-500/10 border-purple-500/20 text-purple-400",
+  Globe: "bg-violet-500/10 border-violet-500/20 text-violet-400",
+  Mail: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+  Music: "bg-green-500/10 border-green-500/20 text-green-400",
+  ShoppingBag: "bg-amber-500/10 border-amber-500/20 text-amber-400",
+  Link2: "bg-purple-500/10 border-purple-500/20 text-purple-400"
+};
+
+const PLATFORMS = [
+  { name: "YouTube", icon: "Youtube", defaultTitle: "Watch my YouTube Videos", defaultUrl: "https://youtube.com" },
+  { name: "Instagram", icon: "Instagram", defaultTitle: "Follow me on Instagram", defaultUrl: "https://instagram.com" },
+  { name: "TikTok", icon: "Play", defaultTitle: "TikTok Videos", defaultUrl: "https://tiktok.com" },
+  { name: "GitHub", icon: "Github", defaultTitle: "My GitHub Repositories", defaultUrl: "https://github.com" },
+  { name: "LinkedIn", icon: "Linkedin", defaultTitle: "Connect on LinkedIn", defaultUrl: "https://linkedin.com" },
+  { name: "Twitter / X", icon: "Twitter", defaultTitle: "Follow me on Twitter", defaultUrl: "https://twitter.com" },
+  { name: "Spotify", icon: "Music", defaultTitle: "Listen on Spotify", defaultUrl: "https://spotify.com" },
+  { name: "Website", icon: "Globe", defaultTitle: "My Personal Website", defaultUrl: "https://" },
+  { name: "Email Address", icon: "Mail", defaultTitle: "Send me an Email", defaultUrl: "mailto:" },
+  { name: "Custom Link", icon: "Link2", defaultTitle: "Custom Link", defaultUrl: "https://" },
+];
 
 const CATEGORIES = ["All", "Tech", "Creative", "Business", "Education", "General"];
 
@@ -206,13 +245,23 @@ export default function OnboardingSetup() {
   const [copyToast, setCopyToast] = useState(false);
   const [isPro, setIsPro] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [showAddLinkModal, setShowAddLinkModal] = useState(false);
 
-  // Fine-tune Theme Customization States
-  const [accentColor, setAccentColor] = useState("#7C3AED");
-  const [buttonStyle, setButtonStyle] = useState("rounded-md");
+  // Fine-tune Theme Customization States - Default to Apple Glass as initial theme
+  const [accentColor, setAccentColor] = useState("#007AFF");
+  const [buttonStyle, setButtonStyle] = useState("rounded-xl");
   const [fontStyle, setFontStyle] = useState("font-sans");
-  const [backgroundType, setBackgroundType] = useState("bg-zinc-950");
-  const [previewBg, setPreviewBg] = useState("#09090b");
+  const [backgroundType, setBackgroundType] = useState("animated");
+  const [previewBg, setPreviewBg] = useState("transparent");
+  const [linkStyle, setLinkStyle] = useState("glass");
+  const [animationStrength, setAnimationStrength] = useState(0.5);
+  const [blurAmount, setBlurAmount] = useState(24);
+  const [shadowIntensity, setShadowIntensity] = useState(0.3);
+  const [cardTransparency, setCardTransparency] = useState(60);
+  const [animatedBackground, setAnimatedBackground] = useState("glass-bubbles");
+  const [titleColor, setTitleColor] = useState("accent");
+  const [bioCardStyle, setBioCardStyle] = useState("glass");
 
   // Fetch Themes on startup
   useEffect(() => {
@@ -220,8 +269,8 @@ export default function OnboardingSetup() {
       const { data } = await supabase.from("themes").select("*");
       if (data && data.length > 0) {
         setThemesList(data);
-        // Default select first theme (Glass Aurora)
-        setSelectedTheme(data[0]);
+        // Do NOT auto-select database themes so that client-side "Apple Glass" starts active
+        setSelectedTheme(null);
       }
     };
     fetchThemes();
@@ -359,6 +408,52 @@ export default function OnboardingSetup() {
     setLinks(prev => prev.map(l => l.id === id ? { ...l, [field]: val } : l));
   };
 
+  // Add new link from platform templates
+  const handleAddLink = (platform) => {
+    const newLink = {
+      id: `link-${Date.now()}`,
+      title: platform.defaultTitle,
+      url: platform.defaultUrl,
+      icon: platform.icon,
+      position: links.length,
+      active: true,
+      featured: false
+    };
+    setLinks(prev => [...prev, newLink]);
+    setShowAddLinkModal(false);
+  };
+
+  // Delete link from template setup list
+  const handleDeleteLink = (id) => {
+    setLinks(prev => prev.filter(l => l.id !== id));
+  };
+
+  // Drag and drop handlers for list reordering
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    
+    const updatedLinks = [...links];
+    const draggedItem = updatedLinks[draggedIndex];
+    
+    // Remove dragged item from its original position
+    updatedLinks.splice(draggedIndex, 1);
+    // Insert dragged item at the new position
+    updatedLinks.splice(index, 0, draggedItem);
+    
+    setDraggedIndex(index);
+    setLinks(updatedLinks);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
   // Publish flow (Write profiles, trees, links, and analytics)
   const handlePublish = async () => {
     if (!slugAvailable || !treeName || !displayName) return;
@@ -429,6 +524,19 @@ export default function OnboardingSetup() {
 
       if (treeError) throw treeError;
 
+      // Serialize advanced theme configuration into the background_type column as a JSON string
+      const serializedConfig = JSON.stringify({
+        bg: backgroundType,
+        linkStyle,
+        animationStrength,
+        blurAmount,
+        shadowIntensity,
+        cardTransparency,
+        animatedBackground,
+        titleColor,
+        bioCardStyle
+      });
+
       // 2. Update Profile details including theme selector configs
       const profilePayload = {
         tree_id: tree.id,
@@ -442,7 +550,7 @@ export default function OnboardingSetup() {
         accent_color: accentColor,
         button_style: buttonStyle,
         font_style: fontStyle,
-        background_type: backgroundType,
+        background_type: serializedConfig,
         avatar_url: avatarUrl.trim() || null,
       };
 
@@ -512,7 +620,12 @@ export default function OnboardingSetup() {
   });
 
   // Render Theme configuration variables for simulator view
-  const isLightBg = backgroundType === "bg-[#fff9ee]" || backgroundType === "bg-surface" || backgroundType === "bg-background" || backgroundType.includes("pink-200");
+  const isLightBg = 
+    backgroundType === "bg-[#fff9ee]" || 
+    backgroundType === "bg-surface" || 
+    backgroundType === "bg-background" || 
+    backgroundType.includes("pink-200") ||
+    (backgroundType === "animated" && (animatedBackground === "glass-bubbles" || animatedBackground === "gradient-mesh"));
   const cardBgClass = isLightBg 
     ? "bg-black/5 border-black/10 text-zinc-900 shadow-sm" 
     : (selectedTheme?.config?.previewCard || "bg-zinc-900/60 border-zinc-800/85 text-zinc-355 backdrop-blur-md shadow-sm");
@@ -527,7 +640,7 @@ export default function OnboardingSetup() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8 grid gap-8 lg:grid-cols-5 items-start">
         
         {/* Left column: Wizard configurations */}
-        <section className={`lg:col-span-3 ${step === 6 ? "lg:col-span-5 max-w-xl mx-auto" : ""} space-y-6`}>
+        <section className={`${(step === 1 || step === 6) ? "lg:col-span-5" : "lg:col-span-3"} ${step === 1 ? "max-w-3xl mx-auto w-full" : step === 6 ? "max-w-xl mx-auto" : ""} space-y-6`}>
           
           {/* STEP 1: Choose Template */}
           {step === 1 && (
@@ -693,27 +806,72 @@ export default function OnboardingSetup() {
           {/* STEP 3: Add Links */}
           {step === 3 && (
             <div className="space-y-6">
-              <div>
-                <h1 className="text-2xl font-bold text-on-surface">Template Links Setup</h1>
-                <p className="text-sm text-on-surface-variant mt-1">Review and insert direct URLs for the template links configured.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-on-surface">Template Links Setup</h1>
+                  <p className="text-sm text-on-surface-variant mt-1">Review, reorder, or add custom platform links.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddLinkModal(true)}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary/95 transition cursor-pointer shadow-sm shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Link
+                </button>
               </div>
 
               {links.length === 0 ? (
                 <div className="rounded-xl border border-black/10 bg-white/40 shadow-sm p-8 text-center text-on-surface-variant text-xs">
-                  This template starts with no initial links. Click next to proceed, or add customized links on the dashboard later.
+                  No active links configured. Click "Add Link" above to build your page structure.
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {links.map((link) => {
+                  {links.map((link, idx) => {
                     const LinkIcon = iconMap[link.icon] || Link2;
+                    const isDragging = idx === draggedIndex;
                     return (
-                      <div key={link.id} className="rounded-xl border border-white/60 bg-white/40 shadow-sm backdrop-blur-md p-4 space-y-3.5">
-                        <div className="flex items-center gap-2">
-                          <span className="rounded bg-primary/10 border border-primary/20 p-1.5 text-primary">
-                            <LinkIcon className="h-3.5 w-3.5" />
-                          </span>
-                          <span className="text-xs font-bold text-on-surface">{link.title}</span>
+                      <div 
+                        key={link.id}
+                        draggable={true}
+                        onDragStart={(e) => handleDragStart(e, idx)}
+                        onDragOver={(e) => handleDragOver(e, idx)}
+                        onDragEnd={handleDragEnd}
+                        className={`group relative rounded-xl border border-white/60 bg-white/40 shadow-sm backdrop-blur-md p-4 space-y-3.5 transition-all duration-200 ${
+                          isDragging ? "opacity-45 scale-[0.98] border-primary/50 border-dashed" : "hover:border-primary/20"
+                        }`}
+                      >
+                        {/* Drag indicator & Title Row */}
+                        <div className="flex items-center justify-between select-none">
+                          <div className="flex items-center gap-2">
+                            {/* Grab handle */}
+                            <div className="cursor-grab active:cursor-grabbing p-1 text-on-surface-variant/40 hover:text-primary transition">
+                              <GripVertical className="h-4 w-4" />
+                            </div>
+                            
+                            <span className="rounded bg-primary/10 border border-primary/20 p-1.5 text-primary">
+                              <LinkIcon className="h-3.5 w-3.5" />
+                            </span>
+                            <span className="text-xs font-bold text-on-surface">{link.title || "Untitled Link"}</span>
+                            
+                            {/* Position Badge */}
+                            <span className="text-[9px] font-mono font-bold text-primary bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10">
+                              #{idx + 1}
+                            </span>
+                          </div>
+
+                          {/* Delete Link Button */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteLink(link.id)}
+                            className="p-1.5 rounded-lg border border-black/5 hover:border-rose-100 hover:bg-rose-50 hover:text-rose-600 text-on-surface-variant/50 transition cursor-pointer"
+                            title="Delete link"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
                         </div>
+
+                        {/* Input Fields */}
                         <div className="grid gap-3 sm:grid-cols-2">
                           <div>
                             <label className="block text-[10px] font-semibold text-on-surface-variant mb-1">Link Title</label>
@@ -766,6 +924,22 @@ export default function OnboardingSetup() {
                 setPreviewBg={setPreviewBg}
                 isPro={isPro}
                 setShowUpgradeModal={setShowUpgradeModal}
+                linkStyle={linkStyle}
+                setLinkStyle={setLinkStyle}
+                animationStrength={animationStrength}
+                setAnimationStrength={setAnimationStrength}
+                blurAmount={blurAmount}
+                setBlurAmount={setBlurAmount}
+                shadowIntensity={shadowIntensity}
+                setShadowIntensity={setShadowIntensity}
+                cardTransparency={cardTransparency}
+                setCardTransparency={setCardTransparency}
+                animatedBackground={animatedBackground}
+                setAnimatedBackground={setAnimatedBackground}
+                titleColor={titleColor}
+                setTitleColor={setTitleColor}
+                bioCardStyle={bioCardStyle}
+                setBioCardStyle={setBioCardStyle}
               />
             </div>
           )}
@@ -928,7 +1102,7 @@ export default function OnboardingSetup() {
         </section>
 
         {/* Right column: Sticky live mockup preview simulator */}
-        {step < 6 && (
+        {step > 1 && step < 6 && (
           <div className="lg:col-span-2 flex justify-center lg:justify-start lg:sticky lg:top-24 h-fit ml-40">
             {/* Ambient Dynamic Backglow Container */}
             <div className="relative w-full max-w-[310px] group">
@@ -967,9 +1141,16 @@ export default function OnboardingSetup() {
 
                 {/* Simulated Screen Body */}
                 <div 
-                  className={`h-full flex flex-col justify-between transition-colors duration-500 overflow-hidden rounded-[38px] ${bgClass} ${fontFamilyClass}`}
+                  className={`h-full flex flex-col justify-between transition-colors duration-500 overflow-hidden rounded-[38px] relative ${bgClass} ${fontFamilyClass}`}
                   style={{ backgroundColor: previewBg }}
                 >
+                  {/* Animated Background */}
+                  {animatedBackground && animatedBackground !== "none" && (
+                    <AnimatedBackground 
+                      backgroundId={animatedBackground} 
+                      animationStrength={animationStrength} 
+                    />
+                  )}
                   {/* Top Status Bar */}
                   <div className={`h-8 pt-3 px-6 flex items-center justify-between text-[9px] font-bold z-15 w-full select-none ${
                     isLightBg ? "text-zinc-800" : "text-zinc-200"
@@ -1005,45 +1186,98 @@ export default function OnboardingSetup() {
                   {/* Scrollable Viewport Section */}
                   <div className="flex-1 overflow-y-auto no-scrollbar px-4 pt-2 pb-1 flex flex-col items-center">
                     {/* User Avatar with outer ring */}
-                    <div 
-                      className="relative p-1 rounded-full border border-dashed transition-all duration-300 mb-3 mt-1 scale-95" 
-                      style={{ borderColor: `${accentColor}40` }}
-                    >
-                      <div className="p-0.5 rounded-full border transition-all duration-300" style={{ borderColor: accentColor }}>
+                    {selectedTheme?.config?.neonAvatarGlow ? (
+                      <div className="relative mb-3 mt-1 scale-95">
+                        <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 opacity-90 blur-[2px] -z-10" />
                         {avatarUrl ? (
                           <img
                             src={avatarUrl}
                             alt={displayName}
-                            className="h-14 w-14 rounded-full object-cover shadow-sm"
+                            className="h-14 w-14 rounded-full object-cover relative border border-white/80 shadow-[0_0_10px_rgba(168,85,247,0.3)]"
                           />
                         ) : (
-                          <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 shadow-md shadow-violet-500/20 flex items-center justify-center text-base font-bold text-white">
+                          <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 shadow-md flex items-center justify-center text-base font-bold text-white border border-white/80">
                             {displayName ? displayName.charAt(0).toUpperCase() : "?"}
                           </div>
                         )}
                       </div>
-                    </div>
+                    ) : isLightBg ? (
+                      <div className="relative mb-3 mt-1 scale-95">
+                        {avatarUrl ? (
+                          <img
+                            src={avatarUrl}
+                            alt={displayName}
+                            className="h-14 w-14 rounded-full object-cover relative border-2 border-white shadow-[0_0_10px_rgba(191,219,254,0.6)]"
+                          />
+                        ) : (
+                          <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 shadow-md flex items-center justify-center text-base font-bold text-white border-2 border-white shadow-[0_0_10px_rgba(191,219,254,0.6)]">
+                            {displayName ? displayName.charAt(0).toUpperCase() : "?"}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div 
+                        className="relative p-1 rounded-full border border-dashed transition-all duration-300 mb-3 mt-1 scale-95" 
+                        style={{ borderColor: `${accentColor}40` }}
+                      >
+                        <div className="p-0.5 rounded-full border transition-all duration-300" style={{ borderColor: accentColor }}>
+                          {avatarUrl ? (
+                            <img
+                              src={avatarUrl}
+                              alt={displayName}
+                              className="h-14 w-14 rounded-full object-cover shadow-sm"
+                            />
+                          ) : (
+                            <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 shadow-md shadow-violet-500/20 flex items-center justify-center text-base font-bold text-white">
+                              {displayName ? displayName.charAt(0).toUpperCase() : "?"}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Display Name with verified badge */}
-                    <h4 className={`text-sm font-bold leading-none flex items-center gap-1 mt-0.5 ${isLightBg ? "text-zinc-900" : "text-zinc-100"}`}>
+                    <h4 
+                      className="text-sm font-bold leading-none flex items-center justify-center gap-1 mt-0.5 relative z-10"
+                      style={{ color: titleColor === "accent" ? accentColor : titleColor || (isLightBg ? "#18181b" : "#ffffff") }}
+                    >
                       {displayName || "Display Name"}
                       <svg className="w-3.5 h-3.5 text-violet-500 fill-current inline-block flex-shrink-0" viewBox="0 0 24 24">
                         <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                       </svg>
                     </h4>
-                    <p className="text-[9px] font-mono mt-1" style={{ color: accentColor }}>
+                    <p className="text-[9px] font-mono mt-1 relative z-10" style={{ color: accentColor }}>
                       blinko.site/{resolvedSlug || "slug"}
                     </p>
 
                     {/* Bio Paragraph */}
                     {bio && (
-                      <p className={`text-[10px] leading-relaxed max-w-[210px] mt-3 p-2.5 border rounded-xl shadow-xs transition-all duration-300 ${cardBgClass}`}>
-                        {bio}
-                      </p>
+                      (() => {
+                        const activeBioPreset = BIO_CARD_STYLES.find(s => s.id === bioCardStyle);
+                        const bioCardClass = (bioCardStyle && bioCardStyle !== "transparent")
+                          ? (activeBioPreset ? (isLightBg ? activeBioPreset.lightClass : activeBioPreset.darkClass) : cardBgClass)
+                          : "bg-transparent border-none p-0 text-center z-10";
+
+                        return (
+                          <p 
+                            className={`text-[10px] leading-relaxed max-w-[210px] mt-3 transition-all duration-300 z-10 ${
+                              bioCardStyle && bioCardStyle !== "transparent" ? "p-2.5 border rounded-xl" : ""
+                            } ${bioCardClass}`}
+                            style={{
+                              backdropFilter: bioCardStyle === "glass" && blurAmount > 0 ? `blur(${blurAmount}px)` : undefined,
+                              boxShadow: bioCardStyle === "glass" && shadowIntensity > 0 ? `0 4px ${16 * shadowIntensity}px rgba(0,0,0,${shadowIntensity * 0.25})` : undefined,
+                              opacity: (bioCardStyle && bioCardStyle !== "transparent" && cardTransparency) ? (0.5 + (cardTransparency / 200)) : 1,
+                              color: bioCardStyle === "transparent" ? (isLightBg ? "#52525b" : "#a1a1aa") : undefined
+                            }}
+                          >
+                            {bio}
+                          </p>
+                        );
+                      })()
                     )}
 
                     {/* Badges details (Location, website) */}
-                    <div className="mt-3 flex flex-wrap justify-center gap-1.5 max-w-[220px]">
+                    <div className="mt-3 flex flex-wrap justify-center gap-1.5 max-w-[220px] z-10">
                       {location && (
                         <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[8px] border transition-colors duration-300 ${
                           isLightBg ? "bg-black/5 text-zinc-700 border-black/10" : "bg-white/5 text-zinc-300 border-white/10"
@@ -1063,21 +1297,35 @@ export default function OnboardingSetup() {
                     </div>
 
                     {/* Prepopulated links list */}
-                    <div className="mt-5 w-full space-y-2 px-1">
+                    <div className="mt-5 w-full space-y-2 px-1 z-10">
                       {links.filter(l => l.active).map((link) => {
                         const LinkIcon = iconMap[link.icon] || Link2;
+                        const activeLinkPreset = LINK_STYLE_PRESETS.find(s => s.id === linkStyle);
+                        const linkCardStyle = activeLinkPreset 
+                          ? (isLightBg ? activeLinkPreset.lightClass : activeLinkPreset.darkClass)
+                          : cardBgClass;
+
                         return (
                           <div 
                             key={link.id}
-                            className={`w-full flex items-center justify-between p-2.5 text-[10px] font-semibold border shadow-xs hover:translate-y-[-1px] transition-all duration-300 ${btnShapeClass} ${cardBgClass} ${
-                              isLightBg ? "text-zinc-900 border-black/5" : "text-zinc-100 border-white/5"
-                            }`}
+                            className={`w-full flex items-center justify-between p-2.5 text-[10px] font-semibold border shadow-xs hover:translate-y-[-1px] transition-all duration-300 ${btnShapeClass} ${linkCardStyle}`}
+                            style={{
+                              backdropFilter: blurAmount > 0 ? `blur(${blurAmount}px)` : undefined,
+                              boxShadow: shadowIntensity > 0 ? `0 4px ${16 * shadowIntensity}px rgba(0,0,0,${shadowIntensity * 0.25})` : undefined,
+                              opacity: cardTransparency ? (0.5 + (cardTransparency / 200)) : 1
+                            }}
                           >
                             <span className="flex items-center gap-2 truncate pr-2">
-                              <LinkIcon className="h-3.5 w-3.5" style={{ color: accentColor }} />
+                              <span className={
+                                selectedTheme?.config?.usePlatformIconColors
+                                  ? `rounded-full p-1.5 border ${platformColors[link.icon] || "bg-purple-500/10 border-purple-500/20 text-purple-400"}`
+                                  : ""
+                              }>
+                                <LinkIcon className="h-3.5 w-3.5" style={{ color: selectedTheme?.config?.usePlatformIconColors ? undefined : accentColor }} />
+                              </span>
                               {link.title || "Link Title"}
                             </span>
-                            <span className="text-[8px]" style={{ color: accentColor }}>→</span>
+                            <span className="text-[8px]" style={{ color: selectedTheme?.config?.usePlatformIconColors ? "#ffffff" : accentColor }}>→</span>
                           </div>
                         );
                       })}
@@ -1163,6 +1411,55 @@ export default function OnboardingSetup() {
               >
                 Not Right Now
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ADD PLATFORM LINK MODAL */}
+      {showAddLinkModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 select-none animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-2xl border border-white/60 bg-white/80 backdrop-blur-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[85vh]">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowAddLinkModal(false)}
+              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition cursor-pointer p-1 rounded-lg hover:bg-black/5"
+              aria-label="Close modal"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="mb-4">
+              <h3 className="text-lg font-extrabold text-on-surface flex items-center gap-2">
+                <Plus className="h-5 w-5 text-primary" />
+                Add a Platform Link
+              </h3>
+              <p className="text-xs text-on-surface-variant mt-1">Select a template matching the social, content, or contact link you want to add.</p>
+            </div>
+
+            {/* Platforms Grid */}
+            <div className="overflow-y-auto pr-1 py-1 grid gap-2.5 sm:grid-cols-2">
+              {PLATFORMS.map((platform, idx) => {
+                const PlatformIcon = iconMap[platform.icon] || Link2;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => handleAddLink(platform)}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-black/5 bg-white/40 hover:bg-white hover:border-primary/40 transition hover:shadow-sm text-left cursor-pointer group"
+                  >
+                    <span className="rounded bg-primary/10 border border-primary/10 p-2 text-primary group-hover:scale-105 transition duration-200">
+                      <PlatformIcon className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <h4 className="text-xs font-bold text-on-surface">{platform.name}</h4>
+                      <p className="text-[10px] text-on-surface-variant/80 mt-0.5 font-mono truncate max-w-[150px]">
+                        {platform.defaultUrl.replace("https://", "")}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
