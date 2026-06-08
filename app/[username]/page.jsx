@@ -498,7 +498,7 @@ export default function PublicProfilePage({ params }) {
     : (theme?.config?.previewCard || "bg-zinc-950/60 border border-zinc-900 hover:border-violet-500/35 hover:bg-zinc-900/10 text-white");
 
   return (
-    <div className={`min-h-screen ${bgClass} ${fontFamilyClass} ${isLightBg ? "text-zinc-800" : "text-zinc-100"} flex flex-col items-center pb-16 pt-16 px-4 relative overflow-hidden select-none`}>
+    <div className={`min-h-screen ${bgClass} ${fontFamilyClass} ${isLightBg ? "text-zinc-800" : "text-zinc-100"} flex flex-col items-center pb-16 pt-16 px-4 relative overflow-x-hidden select-none`}>
       {/* Background Glows */}
       {!isLightBg && animatedBg === "none" && (
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(124,58,237,0.12),transparent_50%)] pointer-events-none" />
@@ -558,6 +558,9 @@ export default function PublicProfilePage({ params }) {
             >
               {creatorProfile.display_name}
             </h1>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-white shadow shadow-blue-500/20">
+              <Check className="h-3 w-3 stroke-[3]" />
+            </span>
           </div>
           <p className="text-xs font-mono font-semibold mt-1" style={{ color: accentColor }}>
             @{username}
@@ -610,32 +613,6 @@ export default function PublicProfilePage({ params }) {
             </div>
           )}
 
-          {/* Views & Clicks Stats */}
-          <div className={`mt-8 grid grid-cols-3 gap-3 w-full sm:max-w-md border rounded-xl p-3 ${
-            isLightBg ? "bg-black/5 border-black/10" : "bg-zinc-900/40 border-zinc-800"
-          }`}>
-            <div className="text-center">
-              <span className={`flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider ${isLightBg ? "text-zinc-500" : "text-zinc-400"}`}>
-                <Eye className="h-3 w-3" style={{ color: accentColor }} />
-                Views
-              </span>
-              <p className={`text-base font-semibold mt-1 ${isLightBg ? "text-zinc-900" : "text-zinc-250"}`}>{viewsCount.toLocaleString()}</p>
-            </div>
-            <div className={`text-center border-x ${isLightBg ? "border-black/10" : "border-zinc-800"}`}>
-              <span className={`flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider ${isLightBg ? "text-zinc-500" : "text-zinc-400"}`}>
-                <MousePointerClick className="h-3 w-3" style={{ color: accentColor }} />
-                Clicks
-              </span>
-              <p className={`text-base font-semibold mt-1 ${isLightBg ? "text-zinc-900" : "text-zinc-250"}`}>{clicksCount.toLocaleString()}</p>
-            </div>
-            <div className="text-center">
-              <span className={`flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider ${isLightBg ? "text-zinc-500" : "text-zinc-400"}`}>
-                <Link2 className="h-3 w-3" style={{ color: accentColor }} />
-                Links
-              </span>
-              <p className={`text-base font-semibold mt-1 ${isLightBg ? "text-zinc-900" : "text-zinc-250"}`}>{links.length}</p>
-            </div>
-          </div>
         </section>
 
         {/* Social connections Row */}
@@ -699,7 +676,6 @@ export default function PublicProfilePage({ params }) {
                     <h3 className={`text-sm font-semibold transition-colors ${isLightBg ? "text-zinc-900 group-hover:text-zinc-700" : "text-white group-hover:text-violet-300"}`}>
                       {link.title}
                     </h3>
-                    <p className={`text-xs mt-0.5 leading-relaxed truncate pr-4 ${isLightBg ? "text-zinc-600" : "text-zinc-400"}`}>{link.url}</p>
                   </div>
                   {theme?.config?.usePlatformIconColors ? (
                     <ArrowRight className="h-4 w-4 text-zinc-400 group-hover:text-white group-hover:translate-x-0.5 transition duration-300 shrink-0" />
@@ -934,36 +910,6 @@ export default function PublicProfilePage({ params }) {
 
       </main>
 
-      {/* Floating Share Control Bar */}
-      <div className={`fixed bottom-6 z-40 flex items-center gap-2 rounded-full border p-1.5 shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-12 duration-500 ${
-        isLightBg ? "border-black/10 bg-white/90 shadow-zinc-200/50" : "border-zinc-800 bg-zinc-950/90 shadow-black"
-      }`}>
-        <button
-          onClick={handleCopyLink}
-          className="flex h-9 items-center gap-1.5 rounded-full px-3.5 text-xs font-semibold hover:opacity-90 transition cursor-pointer text-white"
-          style={{ backgroundColor: accentColor }}
-        >
-          <Copy className="h-3.5 w-3.5" />
-          <span>Copy Page Link</span>
-        </button>
-        <button
-          onClick={handleCopyLink}
-          className={`flex h-9 w-9 items-center justify-center rounded-full border transition cursor-pointer ${
-            isLightBg ? "bg-black/5 border-black/10 text-zinc-650 hover:text-zinc-900 hover:bg-black/10" : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700"
-          }`}
-          aria-label="Share profile"
-        >
-          <Share2 className="h-3.5 w-3.5" />
-        </button>
-      </div>
-
-      {/* Notification Toast */}
-      {copyToast && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-emerald-500/30 bg-zinc-950 px-4 py-2.5 text-xs font-semibold text-emerald-400 shadow-xl shadow-black animate-in fade-in zoom-in-95">
-          <CheckCircle2 className="h-3.5 w-3.5" />
-          <span>Page URL copied to clipboard!</span>
-        </div>
-      )}
     </div>
   );
 }

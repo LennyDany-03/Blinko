@@ -413,7 +413,7 @@ export default function PublicNestedProfilePage({ params }) {
   const cardBgClass = theme?.config?.previewCard || "bg-zinc-950/60 border border-zinc-900 hover:border-violet-500/35 hover:bg-zinc-900/10";
 
   return (
-    <div className={`min-h-screen ${bgClass} ${fontFamilyClass} text-zinc-100 flex flex-col items-center pb-16 pt-16 px-4 relative overflow-hidden select-none`}>
+    <div className={`min-h-screen ${bgClass} ${fontFamilyClass} text-zinc-100 flex flex-col items-center pb-16 pt-16 px-4 relative overflow-x-hidden select-none`}>
       {/* Background Glows */}
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(124,58,237,0.12),transparent_50%)] pointer-events-none" />
 
@@ -469,30 +469,6 @@ export default function PublicNestedProfilePage({ params }) {
             </div>
           )}
 
-          {/* Views & Clicks Stats */}
-          <div className="mt-8 grid grid-cols-3 gap-3 w-full sm:max-w-md bg-zinc-950/60 border border-zinc-900 rounded-xl p-3">
-            <div className="text-center">
-              <span className="flex items-center justify-center gap-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                <Eye className="h-3 w-3 text-zinc-650" />
-                Views
-              </span>
-              <p className="text-base font-semibold text-zinc-200 mt-1">{viewsCount.toLocaleString()}</p>
-            </div>
-            <div className="text-center border-x border-zinc-900">
-              <span className="flex items-center justify-center gap-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                <MousePointerClick className="h-3 w-3 text-zinc-650" />
-                Clicks
-              </span>
-              <p className="text-base font-semibold text-zinc-200 mt-1">{clicksCount.toLocaleString()}</p>
-            </div>
-            <div className="text-center">
-              <span className="flex items-center justify-center gap-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                <Link2 className="h-3 w-3 text-zinc-650" />
-                Links
-              </span>
-              <p className="text-base font-semibold text-zinc-200 mt-1">{links.length}</p>
-            </div>
-          </div>
         </section>
 
         {/* Social connections Row */}
@@ -540,7 +516,6 @@ export default function PublicNestedProfilePage({ params }) {
                     <h3 className="text-sm font-semibold text-white group-hover:text-violet-300 transition-colors">
                       {link.title}
                     </h3>
-                    <p className="text-xs text-zinc-550 mt-0.5 leading-relaxed truncate pr-4">{link.url}</p>
                   </div>
                   <ArrowUpRight className="h-4 w-4 text-zinc-650 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition duration-300 shrink-0" />
                 </a>
@@ -739,32 +714,6 @@ export default function PublicNestedProfilePage({ params }) {
 
       </main>
 
-      {/* Floating Share Control Bar */}
-      <div className="fixed bottom-6 z-40 flex items-center gap-2 rounded-full border border-zinc-850 bg-zinc-950/90 p-1.5 shadow-2xl shadow-black backdrop-blur-md animate-in slide-in-from-bottom-12 duration-500">
-        <button
-          onClick={handleCopyLink}
-          className="flex h-9 items-center gap-1.5 rounded-full bg-violet-650/15 border border-violet-500/20 px-3.5 text-xs font-semibold text-violet-300 hover:bg-violet-650 hover:text-white transition cursor-pointer"
-          style={{ color: accentColor, borderColor: `${accentColor}33` }}
-        >
-          <Copy className="h-3.5 w-3.5" />
-          <span>Copy Page Link</span>
-        </button>
-        <button
-          onClick={handleCopyLink}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 transition cursor-pointer"
-          aria-label="Share profile"
-        >
-          <Share2 className="h-3.5 w-3.5" />
-        </button>
-      </div>
-
-      {/* Notification Toast */}
-      {copyToast && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-emerald-500/30 bg-zinc-950 px-4 py-2.5 text-xs font-semibold text-emerald-400 shadow-xl shadow-black animate-in fade-in zoom-in-95">
-          <CheckCircle2 className="h-3.5 w-3.5" />
-          <span>Page URL copied to clipboard!</span>
-        </div>
-      )}
     </div>
   );
 }
