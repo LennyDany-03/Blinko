@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-export async function middleware(request) {
+export async function proxy(request) {
   const url = new URL(request.url);
   const isProtected =
     url.pathname.startsWith("/dashboard") || url.pathname.startsWith("/billing");
