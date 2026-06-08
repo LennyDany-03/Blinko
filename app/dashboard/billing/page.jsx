@@ -272,7 +272,7 @@ export default function BillingPage() {
               <Button
                 variant="secondary"
                 className="w-full text-xs font-bold text-on-surface-variant"
-                onClick={() => router.push("/contact")}
+                onClick={() => router.push("/billing/manage")}
               >
                 Manage Subscription
               </Button>
@@ -404,7 +404,7 @@ export default function BillingPage() {
                     <td className="px-6 py-3.5 text-on-surface-variant/70 font-mono">{invoice.invoice}</td>
                     <td className="px-6 py-3.5 text-right">
                       <button
-                        onClick={() => alert(`Success: Initiated invoice receipt download`)}
+                        onClick={() => router.push("/billing/receipt")}
                         className="inline-flex items-center gap-1 text-[10px] font-semibold text-on-surface-variant hover:text-primary transition"
                       >
                         <Download className="h-3 w-3" />
