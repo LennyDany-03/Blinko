@@ -116,6 +116,7 @@ export default function TreeBuilder() {
   // Plan info
   const [isPro, setIsPro] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [isActiveTreeFrozen, setIsActiveTreeFrozen] = useState(false);
 
   // Trees list & switcher state
   const [trees, setTrees] = useState([]);
@@ -326,6 +327,10 @@ export default function TreeBuilder() {
           active = userTrees.find(t => t.is_active) || userTrees[0];
         }
 
+        const activeIndex = userTrees.findIndex(t => t.id === active.id);
+        const activeTreeIsFrozen = !userIsPro && activeIndex >= 2;
+        setIsActiveTreeFrozen(activeTreeIsFrozen);
+
         await loadTreeData(active, userTrees);
       } else {
         // Redirect to onboarding if they have no trees
@@ -380,6 +385,11 @@ export default function TreeBuilder() {
 
       setTrees(updatedTrees);
       const active = updatedTrees.find(t => t.id === tree.id);
+      
+      const activeIndex = updatedTrees.findIndex(t => t.id === active.id);
+      const activeTreeIsFrozen = !isPro && activeIndex >= 2;
+      setIsActiveTreeFrozen(activeTreeIsFrozen);
+
       await loadTreeData(active, updatedTrees);
 
       // Notify sidebar of change
@@ -520,6 +530,11 @@ export default function TreeBuilder() {
   const handleSave = async (e) => {
     if (e) e.preventDefault();
     if (!user || !activeTree) return;
+
+    if (isActiveTreeFrozen) {
+      setShowUpgradeModal(true);
+      return;
+    }
 
     const proCheck = isUsingProFeatures();
     if (proCheck && !isPro) {
@@ -946,7 +961,29 @@ export default function TreeBuilder() {
       <div className="grid gap-8 lg:grid-cols-5 items-start">
         
         {/* Workspace Configurations (Left 3 cols) */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-3 space-y-6 relative">
+          {/* Locked Blocker Overlay for Frozen Trees */}
+          {isActiveTreeFrozen && (
+            <div className="absolute inset-0 bg-[#fffcf7]/75 backdrop-blur-md z-30 flex flex-col items-center justify-center p-8 text-center rounded-[32px] border border-white/60 shadow-lg animate-in fade-in duration-300">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-rose-500/15 to-rose-600/10 text-rose-600 mb-5 relative shadow-sm border border-rose-500/10">
+                <span className="absolute inset-0 rounded-full bg-rose-500/5 animate-pulse" />
+                <Lock className="h-6 w-6 relative z-10 animate-bounce" />
+              </div>
+              <h3 className="text-2xl font-bold tracking-tight text-on-surface font-display-xl">🔒 Blinko Tree Frozen</h3>
+              <p className="text-xs text-on-surface-variant/80 mt-3 max-w-sm mx-auto leading-relaxed font-body-md">
+                This Blinko Tree is frozen because your current account has exceeded the free plan limit of 2 trees.
+                Move to Pro plan to reactivate this page and resume custom edits.
+              </p>
+              <div className="mt-6 flex flex-col gap-2.5 w-full max-w-xs">
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="w-full flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-primary to-primary-container text-sm font-bold text-white hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 shadow-md cursor-pointer"
+                >
+                  Upgrade to Pro
+                </button>
+              </div>
+            </div>
+          )}
           
           {/* Tab buttons switcher */}
           <div className="flex border-b border-black/5 pb-px gap-4 overflow-x-auto no-scrollbar">
@@ -1560,6 +1597,19 @@ export default function TreeBuilder() {
                 className={`h-full flex flex-col justify-between transition-colors duration-500 overflow-hidden rounded-[38px] ${backgroundType !== "animated" ? backgroundType : ""} ${fontStyle} relative`}
                 style={{ backgroundColor: animatedBackground && animatedBackground !== "none" ? "transparent" : previewBg }}
               >
+                {/* Visual Locked Screen inside Simulator */}
+                {isActiveTreeFrozen && (
+                  <div className="absolute inset-0 bg-black/85 backdrop-blur-[3px] z-20 flex flex-col items-center justify-center p-4 text-center select-none text-white animate-in fade-in duration-200">
+                    <div className="h-10 w-10 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center mb-3 shadow-md relative">
+                      <span className="absolute inset-0 rounded-full bg-rose-500/5 animate-pulse" />
+                      <Lock className="h-4 w-4 relative z-10" />
+                    </div>
+                    <h4 className="text-[11px] font-extrabold tracking-tight">Blinko Tree Frozen</h4>
+                    <p className="text-[9px] text-zinc-400 mt-1 max-w-[170px] leading-relaxed">
+                      Move to Pro plan to unlock your Blinko Tree.
+                    </p>
+                  </div>
+                )}
                 {/* Animated Background in Preview */}
                 {animatedBackground && animatedBackground !== "none" && (
                   <AnimatedBackground 

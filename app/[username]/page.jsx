@@ -6,7 +6,7 @@ import {
   Check, Eye, MousePointerClick, Link2, Globe, FileText, Mail,
   MapPin, ArrowUpRight, ArrowRight, Play, BookOpen, Sparkles, ChevronRight,
   Share2, Copy, CheckCircle2, Loader2, MessageSquare, DollarSign,
-  TrendingUp, AlertCircle,
+  TrendingUp, AlertCircle, Lock,
   Briefcase, Building, Music, Camera, ShoppingBag, Code
 } from "lucide-react";
 import { Github, Linkedin, Instagram, Youtube, Twitter } from "../components/dashboard/BrandIcons";
@@ -103,6 +103,7 @@ export default function PublicProfilePage({ params }) {
   // Loading and error states
   const [loading, setLoading] = useState(true);
   const [profileExists, setProfileExists] = useState(true);
+  const [isFrozen, setIsFrozen] = useState(false);
 
   // Loaded database states
   const [creatorProfile, setCreatorProfile] = useState(null);
@@ -156,6 +157,29 @@ export default function PublicProfilePage({ params }) {
           return;
         }
         setActiveTree(treeRow);
+
+        // Check if tree is frozen (owner exceeds free tier limit of 2 trees)
+        const { data: sub } = await supabase
+          .from("subscriptions")
+          .select("*")
+          .eq("user_id", treeRow.user_id)
+          .maybeSingle();
+        const ownerIsPro = sub?.status === "active";
+        
+        if (!ownerIsPro) {
+          const { data: ownerTrees } = await supabase
+            .from("trees")
+            .select("id")
+            .eq("user_id", treeRow.user_id)
+            .order("created_at", { ascending: true });
+          
+          const treeIndex = ownerTrees ? ownerTrees.findIndex(t => t.id === treeRow.id) : -1;
+          if (treeIndex >= 2) {
+            setIsFrozen(true);
+            setLoading(false);
+            return;
+          }
+        }
 
         // 2. Fetch profile matching tree_id
         const { data: profileRow, error: profileError } = await supabase
@@ -387,6 +411,66 @@ export default function PublicProfilePage({ params }) {
           Claim Handle
           <ChevronRight className="h-3.5 w-3.5" />
         </Link>
+      </div>
+    );
+  }
+
+  if (isFrozen) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] text-zinc-150 flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden select-none font-sans">
+        {/* Floating gradient backglows */}
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_40%,rgba(244,63,94,0.07),transparent_50%)] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-rose-500/5 blur-[120px] pointer-events-none" />
+
+        {/* Central visual lock card container */}
+        <div className="w-full max-w-md bg-zinc-950/60 border border-zinc-900 rounded-[32px] p-8 text-center backdrop-blur-2xl shadow-[0_25px_60px_rgba(0,0,0,0.8)] relative z-10 space-y-6 animate-in fade-in zoom-in-95 duration-500">
+          
+          {/* Glowing Caution Lock Ring */}
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent text-rose-500 relative border border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+            <span className="absolute inset-0 rounded-full bg-rose-500/5 animate-pulse" />
+            <Lock className="h-6 w-6 relative z-10" />
+          </div>
+
+          {/* Heading */}
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold tracking-tight text-white font-display-xl">
+              Blinko Tree Inactive
+            </h1>
+            <p className="text-xs text-rose-400 font-mono font-bold tracking-wide">
+              @{username}
+            </p>
+          </div>
+
+          {/* Body Notice */}
+          <p className="text-xs text-zinc-400 leading-relaxed font-body-md max-w-xs mx-auto">
+            This Blinko Tree page is currently frozen because the owner has exceeded their free plan limit of 2 trees. 
+            If you are the owner, please upgrade to the Pro plan to reactivate this page.
+          </p>
+
+          {/* Call to Actions buttons */}
+          <div className="pt-2 flex flex-col gap-3">
+            <Link
+              href="/dashboard/billing"
+              className="w-full flex h-11 items-center justify-center rounded-xl bg-gradient-to-r from-violet-650 to-indigo-600 text-xs font-bold text-white hover:opacity-95 hover:shadow-lg hover:shadow-violet-950/20 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300"
+            >
+              Are you the owner? Manage Plan
+            </Link>
+            <Link
+              href="/"
+              className="w-full flex h-11 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-350 hover:text-white hover:bg-zinc-850 hover:border-zinc-700 transition"
+            >
+              Back to Home
+            </Link>
+          </div>
+        </div>
+
+        {/* Mini watermark footer branding */}
+        <div className="mt-8 flex items-center justify-center gap-1.5 opacity-30 select-none">
+          <span className="text-[9px] text-zinc-500">powered by</span>
+          <span className="text-[9px] font-bold text-white tracking-wider bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
+            BLINKO
+          </span>
+        </div>
       </div>
     );
   }

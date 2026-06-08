@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Plus, Eye, Edit2, Trash2, Globe, BarChart3, Loader2, Calendar, 
-  Sparkles, X, CheckCircle, Shield, AlertCircle 
+  Sparkles, X, CheckCircle, Shield, AlertCircle, Lock
 } from "lucide-react";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../../../context/AuthContext";
@@ -175,7 +175,7 @@ export default function BlinkoTreesDashboard() {
         </DashboardCard>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {trees.map(tree => {
+          {trees.map((tree, index) => {
             const stats = analytics[tree.id] || { views: 0, clicks: 0 };
             const creationDate = new Date(tree.created_at).toLocaleDateString("en-US", {
               month: "short",
@@ -183,12 +183,33 @@ export default function BlinkoTreesDashboard() {
               year: "numeric"
             });
             const publicUrl = `/${tree.slug}`;
+            const isFrozen = !isPro && index >= 2;
 
             return (
               <DashboardCard 
                 key={tree.id}
-                className="flex flex-col justify-between border-white/60 bg-white/40 shadow-sm backdrop-blur-md hover:border-primary/20 hover:shadow-md hover:shadow-primary/5 transition-all duration-300 group relative"
+                className="flex flex-col justify-between border-white/60 bg-white/40 shadow-sm backdrop-blur-md hover:border-primary/20 hover:shadow-md hover:shadow-primary/5 transition-all duration-300 group relative overflow-hidden"
               >
+                {/* Visual Lock Overlay for Frozen Trees */}
+                {isFrozen && (
+                  <div className="absolute inset-0 bg-[#fffcf7]/75 backdrop-blur-[3px] z-20 flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-200">
+                    <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-rose-500/15 to-rose-650/10 text-rose-650 mb-3.5 relative border border-rose-500/10 shadow-sm">
+                      <span className="absolute inset-0 rounded-full bg-rose-500/5 animate-pulse" />
+                      <Lock className="h-4.5 w-4.5 relative z-10" />
+                    </div>
+                    <h4 className="text-sm font-extrabold text-on-surface">Tree Page Frozen</h4>
+                    <p className="text-[10px] text-on-surface-variant/80 mt-1 max-w-[200px] leading-relaxed">
+                      Move to Pro plan to unlock your Blinko Tree.
+                    </p>
+                    <button
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="mt-4 inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-primary to-primary-container text-white text-[10px] font-bold rounded-full px-4 py-2 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      Unlock Blinko Tree
+                    </button>
+                  </div>
+                )}
                 {/* Active Indicator Badge */}
                 {tree.is_active && (
                   <span className="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
