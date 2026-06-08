@@ -165,14 +165,14 @@ export default function PublicProfilePage({ params }) {
           .eq("user_id", treeRow.user_id)
           .maybeSingle();
         const ownerIsPro = sub?.status === "active";
-        
+
         if (!ownerIsPro) {
           const { data: ownerTrees } = await supabase
             .from("trees")
             .select("id")
             .eq("user_id", treeRow.user_id)
             .order("created_at", { ascending: true });
-          
+
           const treeIndex = ownerTrees ? ownerTrees.findIndex(t => t.id === treeRow.id) : -1;
           if (treeIndex >= 2) {
             setIsFrozen(true);
@@ -255,7 +255,7 @@ export default function PublicProfilePage({ params }) {
         if (analRows && analRows.length > 0) {
           currentViews = analRows.reduce((sum, row) => sum + (row.views || 0), 0) + 1;
           currentClicks = analRows.reduce((sum, row) => sum + (row.clicks || 0), 0);
-          
+
           const firstRow = analRows[0];
           await supabase
             .from("analytics")
@@ -324,13 +324,13 @@ export default function PublicProfilePage({ params }) {
 
         if (analRows && analRows.length > 0) {
           const totalClicks = analRows.reduce((sum, row) => sum + (row.clicks || 0), 0) + 1;
-          
+
           const firstRow = analRows[0];
           await supabase
             .from("analytics")
             .update({ clicks: (firstRow.clicks || 0) + 1 })
             .eq("id", firstRow.id);
-          
+
           setClicksCount(totalClicks);
         } else {
           await supabase
@@ -364,7 +364,7 @@ export default function PublicProfilePage({ params }) {
   const handleContactSubmit = async (e) => {
     e.preventDefault();
     if (!formState.name || !formState.email || !formState.message || !creatorProfile) return;
-    
+
     setFormStatus("sending");
     try {
       const { error } = await supabase
@@ -424,7 +424,7 @@ export default function PublicProfilePage({ params }) {
 
         {/* Central visual lock card container */}
         <div className="w-full max-w-md bg-zinc-950/60 border border-zinc-900 rounded-[32px] p-8 text-center backdrop-blur-2xl shadow-[0_25px_60px_rgba(0,0,0,0.8)] relative z-10 space-y-6 animate-in fade-in zoom-in-95 duration-500">
-          
+
           {/* Glowing Caution Lock Ring */}
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent text-rose-500 relative border border-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
             <span className="absolute inset-0 rounded-full bg-rose-500/5 animate-pulse" />
@@ -443,7 +443,7 @@ export default function PublicProfilePage({ params }) {
 
           {/* Body Notice */}
           <p className="text-xs text-zinc-400 leading-relaxed font-body-md max-w-xs mx-auto">
-            This Blinko Tree page is currently frozen because the owner has exceeded their free plan limit of 2 trees. 
+            This Blinko Tree page is currently frozen because the owner has exceeded their free plan limit of 2 trees.
             If you are the owner, please upgrade to the Pro plan to reactivate this page.
           </p>
 
@@ -482,16 +482,16 @@ export default function PublicProfilePage({ params }) {
   const buttonStyle = creatorProfile.button_style || "rounded-md";
 
   // Check if current background type matches a light theme sand/parchment style or light animated background
-  const isLightBg = 
-    bgClass.includes("#fff9ee") || 
-    bgClass.includes("bg-surface") || 
-    bgClass.includes("bg-background") || 
+  const isLightBg =
+    bgClass.includes("#fff9ee") ||
+    bgClass.includes("bg-surface") ||
+    bgClass.includes("bg-background") ||
     bgClass.includes("pink-200") ||
     (bgClass === "animated" && (
-      animatedBg === "glass-bubbles" || 
+      animatedBg === "glass-bubbles" ||
       ["sunbeam-rays", "sakura-petals", "cloud-drift", "pastel-waves", "morning-dew", "watercolor-wash", "cotton-candy", "golden-hour", "ocean-breeze", "lavender-mist"].includes(animatedBg)
     ));
-  
+
   // Predefined or fallback cardBg
   const cardBgClass = isLightBg
     ? "bg-white/40 border border-white/60 text-zinc-900 shadow-sm backdrop-blur-md hover:bg-white/60 transition"
@@ -506,15 +506,15 @@ export default function PublicProfilePage({ params }) {
 
       {/* Animated Background */}
       {animatedBg && animatedBg !== "none" && (
-        <AnimatedBackground 
-          backgroundId={animatedBg} 
-          animationStrength={animStrength} 
+        <AnimatedBackground
+          backgroundId={animatedBg}
+          animationStrength={animStrength}
         />
       )}
 
       {/* Main Container */}
       <main className="w-full max-w-2xl z-10 space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-500">
-        
+
         {/* Profile Header Block */}
         <section className="flex flex-col items-center text-center">
           <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400 mb-6 shadow-sm">
@@ -535,13 +535,12 @@ export default function PublicProfilePage({ params }) {
               <img
                 src={creatorProfile.avatar_url}
                 alt={creatorProfile.display_name}
-                className={`h-24 w-24 rounded-full object-cover relative ${
-                  theme?.config?.neonAvatarGlow
+                className={`h-24 w-24 rounded-full object-cover relative ${theme?.config?.neonAvatarGlow
                     ? "border-2 border-white/80 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                    : isLightBg 
-                      ? "border-4 border-white shadow-[0_0_15px_rgba(191,219,254,0.6)]" 
+                    : isLightBg
+                      ? "border-4 border-white shadow-[0_0_15px_rgba(191,219,254,0.6)]"
                       : "border border-zinc-800 shadow-lg"
-                }`}
+                  }`}
               />
             ) : (
               <div className="h-24 w-24 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 font-extrabold text-white text-3xl flex items-center justify-center relative shadow-lg shadow-violet-955/20">
@@ -552,7 +551,7 @@ export default function PublicProfilePage({ params }) {
 
           {/* User names */}
           <div className="flex items-center gap-1.5">
-            <h1 
+            <h1
               className="text-2xl font-bold tracking-tight sm:text-3xl"
               style={{ color: titleColor === "accent" ? accentColor : titleColor || (isLightBg ? "#18181b" : "#ffffff") }}
             >
@@ -571,24 +570,24 @@ export default function PublicProfilePage({ params }) {
             (bioCardStyle && bioCardStyle !== "transparent") ? (
               (() => {
                 const activeBioPreset = BIO_CARD_STYLES.find(s => s.id === bioCardStyle);
-                const bioCardClass = activeBioPreset 
+                const bioCardClass = activeBioPreset
                   ? (isLightBg ? activeBioPreset.lightClass : activeBioPreset.darkClass)
                   : "";
-                
+
                 return (
                   <div className={`mt-6 w-full text-left p-5 border rounded-2xl shadow-sm ${bioCardClass}`}
-                       style={{
-                         backdropFilter: bioCardStyle === "glass" && blurAmt > 0 ? `blur(${blurAmt}px)` : undefined,
-                         boxShadow: bioCardStyle === "glass" && shadowInt > 0 ? `0 4px ${20 * shadowInt}px rgba(0,0,0,${shadowInt * 0.15})` : undefined
-                       }}
+                    style={{
+                      backdropFilter: bioCardStyle === "glass" && blurAmt > 0 ? `blur(${blurAmt}px)` : undefined,
+                      boxShadow: bioCardStyle === "glass" && shadowInt > 0 ? `0 4px ${20 * shadowInt}px rgba(0,0,0,${shadowInt * 0.15})` : undefined
+                    }}
                   >
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider mb-2.5 opacity-80"
-                         style={{ color: titleColor === "accent" ? accentColor : titleColor || undefined }}
+                      style={{ color: titleColor === "accent" ? accentColor : titleColor || undefined }}
                     >
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: accentColor }}>
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 16v-4"/>
-                        <path d="M12 8h.01"/>
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4" />
+                        <path d="M12 8h.01" />
                       </svg>
                       About Me
                     </div>
@@ -644,7 +643,7 @@ export default function PublicProfilePage({ params }) {
               const LinkIcon = publicIconMap[link.icon] || Link2;
               // Apply link style preset
               const activeLinkPreset = LINK_STYLE_PRESETS.find(s => s.id === linkStyle);
-              const linkCardStyle = activeLinkPreset 
+              const linkCardStyle = activeLinkPreset
                 ? (isLightBg ? activeLinkPreset.lightClass : activeLinkPreset.darkClass)
                 : cardBgClass;
               return (
@@ -662,13 +661,12 @@ export default function PublicProfilePage({ params }) {
                 >
                   {/* Left accent color strip */}
                   <div className="absolute left-0 top-0 bottom-0 w-[3px] opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ backgroundColor: accentColor }} />
-                  
+
                   <div className={
                     theme?.config?.usePlatformIconColors
                       ? `rounded-full p-2 border ${platformColors[link.icon] || "bg-purple-500/10 border-purple-500/20 text-purple-400"}`
-                      : `rounded-lg p-2 transition-colors ${
-                          isLightBg ? "bg-black/5 border border-black/10" : "bg-zinc-900 border border-zinc-800"
-                        }`
+                      : `rounded-lg p-2 transition-colors ${isLightBg ? "bg-black/5 border border-black/10" : "bg-zinc-900 border border-zinc-800"
+                      }`
                   }>
                     <LinkIcon className="h-5 w-5" style={{ color: theme?.config?.usePlatformIconColors ? undefined : accentColor }} />
                   </div>
@@ -687,9 +685,8 @@ export default function PublicProfilePage({ params }) {
             })}
           </section>
         ) : (
-          <div className={`rounded-xl border p-8 text-center text-xs italic ${
-            isLightBg ? "border-black/10 bg-white/40 text-zinc-500" : "border-zinc-900 bg-zinc-950/45 text-zinc-400"
-          }`}>
+          <div className={`rounded-xl border p-8 text-center text-xs italic ${isLightBg ? "border-black/10 bg-white/40 text-zinc-500" : "border-zinc-900 bg-zinc-950/45 text-zinc-400"
+            }`}>
             This Blinko Tree has no active links published yet.
           </div>
         )}
@@ -702,11 +699,10 @@ export default function PublicProfilePage({ params }) {
               {projects.map((proj) => (
                 <div
                   key={proj.id}
-                  className={`group flex flex-col justify-between rounded-xl border p-4 transition duration-300 ${
-                    isLightBg 
-                      ? "bg-white/40 border-white/60 hover:border-black/20 hover:shadow-md" 
+                  className={`group flex flex-col justify-between rounded-xl border p-4 transition duration-300 ${isLightBg
+                      ? "bg-white/40 border-white/60 hover:border-black/20 hover:shadow-md"
                       : "border-zinc-900 bg-zinc-900 p-4 hover:border-violet-500/25 hover:shadow-lg"
-                  }`}
+                    }`}
                 >
                   <div>
                     {/* Project preview header */}
@@ -716,7 +712,7 @@ export default function PublicProfilePage({ params }) {
                     <h3 className={`text-sm font-semibold ${isLightBg ? "text-zinc-900" : "text-white"}`}>{proj.title}</h3>
                     <p className={`text-xs mt-1 leading-normal ${isLightBg ? "text-zinc-600" : "text-zinc-500"}`}>{proj.description}</p>
                   </div>
-                  
+
                   {proj.project_url && (
                     <div className="mt-4">
                       <a
@@ -747,11 +743,10 @@ export default function PublicProfilePage({ params }) {
                 return (
                   <div
                     key={prod.id}
-                    className={`flex flex-col justify-between rounded-xl border p-4 transition duration-300 ${
-                      isLightBg 
-                        ? "bg-white/40 border-white/60 hover:border-black/20" 
+                    className={`flex flex-col justify-between rounded-xl border p-4 transition duration-300 ${isLightBg
+                        ? "bg-white/40 border-white/60 hover:border-black/20"
                         : "border-zinc-900 bg-zinc-900 hover:border-violet-500/20"
-                    }`}
+                      }`}
                   >
                     <div>
                       <div className="flex justify-between items-start mb-2">
@@ -762,16 +757,15 @@ export default function PublicProfilePage({ params }) {
                       <h3 className={`text-xs font-semibold ${isLightBg ? "text-zinc-900" : "text-white"}`}>{prod.title}</h3>
                       <p className={`text-[10px] mt-1 leading-normal ${isLightBg ? "text-zinc-600" : "text-zinc-500"}`}>{prod.description}</p>
                     </div>
-                    
+
                     <div className="mt-4">
                       <button
                         onClick={() => handleBuy(prod.id, prod.title)}
                         disabled={buyingId !== null}
-                        className={`w-full rounded-lg py-1.5 text-[10px] font-bold transition duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 border ${
-                          isLightBg
+                        className={`w-full rounded-lg py-1.5 text-[10px] font-bold transition duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 border ${isLightBg
                             ? "border-black/10 bg-black/5 text-zinc-700 hover:bg-black/10 hover:text-zinc-900"
                             : "border-zinc-800 bg-zinc-900 text-zinc-350 hover:border-violet-500/50 hover:bg-violet-950/10 hover:text-violet-300"
-                        }`}
+                          }`}
                       >
                         {isBuying ? (
                           <>
@@ -794,9 +788,8 @@ export default function PublicProfilePage({ params }) {
         )}
 
         {/* Contact Form Section */}
-        <section className={`rounded-xl border p-6 space-y-4 ${
-          isLightBg ? "bg-white/40 border-white/60 shadow-sm" : "border-zinc-900 bg-zinc-900"
-        }`}>
+        <section className={`rounded-xl border p-6 space-y-4 ${isLightBg ? "bg-white/40 border-white/60 shadow-sm" : "border-zinc-900 bg-zinc-900"
+          }`}>
           <div>
             <h3 className={`text-sm font-semibold flex items-center gap-2 ${isLightBg ? "text-zinc-900" : "text-white"}`}>
               <MessageSquare className="h-4 w-4" style={{ color: accentColor }} />
@@ -820,11 +813,10 @@ export default function PublicProfilePage({ params }) {
                   required
                   value={formState.name}
                   onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                  className={`w-full rounded-lg px-3.5 py-2 text-xs outline-none transition border ${
-                    isLightBg
+                  className={`w-full rounded-lg px-3.5 py-2 text-xs outline-none transition border ${isLightBg
                       ? "border-black/10 bg-white/50 text-zinc-900 focus:border-zinc-400 focus:bg-white"
                       : "border-zinc-900 bg-zinc-900/20 text-zinc-200 focus:border-violet-500/50 focus:bg-zinc-900/40"
-                  }`}
+                    }`}
                 />
                 <input
                   type="email"
@@ -832,11 +824,10 @@ export default function PublicProfilePage({ params }) {
                   required
                   value={formState.email}
                   onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                  className={`w-full rounded-lg px-3.5 py-2 text-xs outline-none transition border ${
-                    isLightBg
+                  className={`w-full rounded-lg px-3.5 py-2 text-xs outline-none transition border ${isLightBg
                       ? "border-black/10 bg-white/50 text-zinc-900 focus:border-zinc-400 focus:bg-white"
                       : "border-zinc-900 bg-zinc-900/20 text-zinc-200 focus:border-violet-500/50 focus:bg-zinc-900/40"
-                  }`}
+                    }`}
                 />
               </div>
               <textarea
@@ -845,11 +836,10 @@ export default function PublicProfilePage({ params }) {
                 rows="3"
                 value={formState.message}
                 onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                className={`w-full rounded-lg px-3.5 py-2 text-xs outline-none transition resize-none border ${
-                  isLightBg
+                className={`w-full rounded-lg px-3.5 py-2 text-xs outline-none transition resize-none border ${isLightBg
                     ? "border-black/10 bg-white/50 text-zinc-900 focus:border-zinc-400 focus:bg-white"
                     : "border-zinc-900 bg-zinc-900/20 text-zinc-200 focus:border-violet-500/50 focus:bg-zinc-900/40"
-                }`}
+                  }`}
               />
               <button
                 type="submit"
@@ -897,11 +887,10 @@ export default function PublicProfilePage({ params }) {
             <span className={`text-[10px] ${isLightBg ? "text-zinc-500" : "text-zinc-400"}`}>powered by</span>
             <Link
               href="/"
-              className={`text-[10px] font-bold tracking-wider px-1.5 py-0.5 rounded border transition ${
-                isLightBg 
-                  ? "text-zinc-900 bg-black/5 border-black/10 hover:bg-black/10" 
+              className={`text-[10px] font-bold tracking-wider px-1.5 py-0.5 rounded border transition ${isLightBg
+                  ? "text-zinc-900 bg-black/5 border-black/10 hover:bg-black/10"
                   : "text-white bg-zinc-900 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700"
-              }`}
+                }`}
             >
               BLINKO
             </Link>
